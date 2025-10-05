@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:memory_match_game/core/theme/app_theme.dart';
 import 'package:memory_match_game/services/auth_service.dart';
 import 'package:memory_match_game/presentation/widgets/common/profile_header_widget.dart';
 import 'package:memory_match_game/presentation/widgets/common/social_links_widget.dart';
 import 'package:memory_match_game/presentation/widgets/common/account_info_widget.dart';
 import 'package:memory_match_game/presentation/widgets/common/actions_widget.dart';
-import 'package:pixelarticons/pixel.dart';
-import '../widgets/custom/custom_button.dart';
+import 'package:memory_match_game/presentation/widgets/common/guest_account_widget.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -26,7 +24,7 @@ class _AccountScreenState extends State<AccountScreen> {
 
   void _onSocialLinkTap(String label, String url) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Opening $label - Feature coming soon!')),
+      SnackBar(content: Text('Đang mở $label - Tính năng sắp ra mắt!')),
     );
   }
 
@@ -50,65 +48,7 @@ class _AccountScreenState extends State<AccountScreen> {
   @override
   Widget build(BuildContext context) {
     if (!AuthService.instance.isRealUser) {
-      return Scaffold(
-        body: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFF64B5F6), Color(0xFF1976D2)],
-            ),
-          ),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppTheme.primaryColor,
-                        width: 2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 8,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Pixel.user,
-                      size: 96,
-                      color: AppTheme.primaryColor,
-                    ),
-                  ),
-                  SizedBox(height: 36),
-                  CustomButton(
-                    type: CustomButtonType.primary,
-                    onPressed: () => Navigator.pushNamed(context, '/login'),
-                    child: Text('Login', textAlign: TextAlign.center),
-                  ),
-                  SizedBox(height: 16),
-                  CustomButton(
-                    type: CustomButtonType.normal,
-                    onPressed: () =>
-                        Navigator.pushNamed(context, '/register-verify'),
-                    child: Text('Sign Up', textAlign: TextAlign.center),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
+      return const GuestAccountWidget();
     }
 
     final user = AuthService.instance.currentUser;

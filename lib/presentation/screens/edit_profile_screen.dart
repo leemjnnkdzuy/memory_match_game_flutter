@@ -4,6 +4,8 @@ import '../../services/auth_service.dart';
 import '../widgets/common/avatar_widget.dart';
 import '../widgets/custom/custom_button.dart';
 import '../widgets/custom/custom_container.dart';
+import '../widgets/custom/custom_text_input.dart';
+import '../widgets/custom/custom_app_bar.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -203,7 +205,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Profile updated successfully!'),
+            content: Text('Hồ sơ đã được cập nhật thành công!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -213,7 +215,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update profile: ${e.toString()}'),
+            content: Text('Không thể cập nhật hồ sơ: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -237,17 +239,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      child: TextFormField(
+      child: CustomTextInput(
         controller: controller,
         maxLines: maxLines,
         keyboardType: keyboardType,
-        style: const TextStyle(fontSize: 10),
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: 'Enter $label',
-          border: const OutlineInputBorder(),
-          prefixIcon: Icon(icon, color: Colors.black, size: 20),
-        ),
+        fontSize: 10,
+        labelText: label,
+        hintText: 'Nhập $label',
+        prefixIcon: Icon(icon, color: Colors.black, size: 20),
         validator: validator,
       ),
     );
@@ -264,7 +263,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
 
     if (!urlPattern.hasMatch(value)) {
-      return 'Please enter a valid URL (starting with http:// or https://)';
+      return 'Vui lòng nhập URL hợp lệ (bắt đầu bằng http:// hoặc https://)';
     }
     return null;
   }
@@ -273,15 +272,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          'Edit Profile',
-          style: const TextStyle(fontSize: 16, color: Colors.blue),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+      appBar: CustomAppBar(
+        title: 'Chỉnh sửa hồ sơ',
         leading: IconButton(
-          icon: Icon(Pixel.arrowleft, color: Colors.blue),
+          icon: Icon(Pixel.arrowleft, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -310,7 +304,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   child: Column(
                     children: [
                       Text(
-                        'Avatar',
+                        'Ảnh đại diện',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Color.fromARGB(255, 0, 0, 0),
@@ -354,7 +348,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Basic Information',
+                        'Thông tin cơ bản',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Color.fromARGB(255, 0, 0, 0),
@@ -364,14 +358,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                       _buildTextField(
                         controller: _firstNameController,
-                        label: 'First name',
+                        label: 'Tên',
                         icon: Pixel.user,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'First name is required';
+                            return 'Tên là bắt buộc';
                           }
                           if (value.trim().length < 2) {
-                            return 'First name must be at least 2 characters';
+                            return 'Tên phải có ít nhất 2 ký tự';
                           }
                           return null;
                         },
@@ -379,14 +373,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                       _buildTextField(
                         controller: _lastNameController,
-                        label: 'Last name',
+                        label: 'Họ',
                         icon: Pixel.user,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Last name is required';
+                            return 'Họ là bắt buộc';
                           }
                           if (value.trim().length < 2) {
-                            return 'Last name must be at least 2 characters';
+                            return 'Họ phải có ít nhất 2 ký tự';
                           }
                           return null;
                         },
@@ -394,12 +388,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                       _buildTextField(
                         controller: _bioController,
-                        label: 'Bio',
+                        label: 'Tiểu sử',
                         icon: Pixel.edit,
                         maxLines: 3,
                         validator: (value) {
                           if (value != null && value.length > 500) {
-                            return 'Bio must be less than 500 characters';
+                            return 'Tiểu sử phải ít hơn 500 ký tự';
                           }
                           return null;
                         },
@@ -428,7 +422,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Social Links',
+                        'Liên kết mạng xã hội',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Color.fromARGB(255, 0, 0, 0),
@@ -438,7 +432,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                       _buildTextField(
                         controller: _githubController,
-                        label: 'Github URL',
+                        label: 'URL GitHub',
                         icon: Pixel.link,
                         keyboardType: TextInputType.url,
                         validator: _validateUrl,
@@ -446,7 +440,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                       _buildTextField(
                         controller: _linkedinController,
-                        label: 'LinkedIn URL',
+                        label: 'URL LinkedIn',
                         icon: Pixel.link,
                         keyboardType: TextInputType.url,
                         validator: _validateUrl,
@@ -454,7 +448,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                       _buildTextField(
                         controller: _websiteController,
-                        label: 'Website URL',
+                        label: 'URL Website',
                         icon: Pixel.link,
                         keyboardType: TextInputType.url,
                         validator: _validateUrl,
@@ -462,7 +456,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                       _buildTextField(
                         controller: _youtubeController,
-                        label: 'Youtube URL',
+                        label: 'URL YouTube',
                         icon: Pixel.link,
                         keyboardType: TextInputType.url,
                         validator: _validateUrl,
@@ -470,7 +464,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                       _buildTextField(
                         controller: _facebookController,
-                        label: 'Facebook URL',
+                        label: 'URL Facebook',
                         icon: Pixel.link,
                         keyboardType: TextInputType.url,
                         validator: _validateUrl,
@@ -478,7 +472,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                       _buildTextField(
                         controller: _instagramController,
-                        label: 'Instagram URL',
+                        label: 'URL Instagram',
                         icon: Pixel.link,
                         keyboardType: TextInputType.url,
                         validator: _validateUrl,
@@ -495,7 +489,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       child: CustomButton(
                         type: CustomButtonType.normal,
                         onPressed: () => Navigator.pop(context),
-                        child: Text('Cancel', textAlign: TextAlign.center),
+                        child: Text('Hủy', textAlign: TextAlign.center),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -517,7 +511,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   const SizedBox(width: 8),
                                   Flexible(
                                     child: Text(
-                                      'Processing...',
+                                      'Đang xử lý...',
                                       style: Theme.of(
                                         context,
                                       ).textTheme.bodyMedium,
@@ -531,7 +525,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               type: CustomButtonType.primary,
                               onPressed: _hasChanges ? _handleSave : null,
                               child: Text(
-                                'Save Changes',
+                                'Lưu thay đổi',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: _hasChanges ? null : Colors.grey,

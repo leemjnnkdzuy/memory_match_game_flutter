@@ -14,7 +14,7 @@ class LeaderboardScreen extends StatelessWidget {
             Icon(Pixel.trophy, size: 64, color: Colors.grey),
             SizedBox(height: 16),
             Text(
-              'Leaderboard coming soon',
+              'Bảng xếp hạng sắp ra mắt',
               style: TextStyle(fontSize: 18, color: Colors.grey),
             ),
           ],

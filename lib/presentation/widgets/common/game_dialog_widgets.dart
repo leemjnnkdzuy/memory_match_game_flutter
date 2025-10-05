@@ -30,7 +30,7 @@ class GameEndDialogWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-        isWin ? 'CONGRATULATIONS!' : 'GAME OVER',
+        isWin ? 'Chúc Mừng!' : 'Trò Chơi Kết Thúc',
         style: AppTheme.headlineMedium.copyWith(
           color: isWin ? Colors.green : Colors.red,
         ),
@@ -41,27 +41,30 @@ class GameEndDialogWidget extends StatelessWidget {
         children: [
           Text(
             isWin
-                ? 'You completed the game!'
-                : 'Time\'s up! Better luck next time.',
+                ? 'Bạn đã hoàn thành trò chơi!'
+                : 'Hết giờ! Chúc may mắn lần sau.',
             style: AppTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
-          Text('Score: $score', style: AppTheme.bodyMedium),
-          Text('Moves: $moves', style: AppTheme.bodyMedium),
-          Text('Time: ${_formatTime(gameTime)}', style: AppTheme.bodyMedium),
+          Text('Điểm: $score', style: AppTheme.bodyMedium),
+          Text('Nước đi: $moves', style: AppTheme.bodyMedium),
+          Text(
+            'Thời gian: ${_formatTime(gameTime)}',
+            style: AppTheme.bodyMedium,
+          ),
         ],
       ),
       actions: [
         CustomButton(
           type: CustomButtonType.primary,
           onPressed: onPlayAgain,
-          child: Text('PLAY AGAIN'),
+          child: Text('Chơi Lại'),
         ),
         const SizedBox(height: 8),
         CustomButton(
           type: CustomButtonType.normal,
           onPressed: onBackToMenu,
-          child: Text('BACK TO MENU'),
+          child: Text('Quay Về Menu'),
         ),
       ],
     );
@@ -94,17 +97,17 @@ class GamePauseDialogWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-        'GAME PAUSED',
+        'Trò Chơi Tạm Dừng',
         style: AppTheme.headlineMedium,
         textAlign: TextAlign.center,
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Score: $score', style: AppTheme.bodyMedium),
-          Text('Moves: $moves', style: AppTheme.bodyMedium),
+          Text('Điểm: $score', style: AppTheme.bodyMedium),
+          Text('Nước đi: $moves', style: AppTheme.bodyMedium),
           Text(
-            'Time Remaining: ${_formatTime(timeRemaining)}',
+            'Thời gian còn lại: ${_formatTime(timeRemaining)}',
             style: AppTheme.bodyMedium,
           ),
         ],
@@ -113,13 +116,13 @@ class GamePauseDialogWidget extends StatelessWidget {
         CustomButton(
           type: CustomButtonType.primary,
           onPressed: onResume,
-          child: Text('RESUME'),
+          child: Text('Tiếp Tục'),
         ),
         const SizedBox(height: 8),
         CustomButton(
           type: CustomButtonType.error,
           onPressed: onQuit,
-          child: Text('QUIT GAME'),
+          child: Text('Thoát Trò Chơi'),
         ),
       ],
     );

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom/custom_button.dart';
-import '../widgets/custom/custom_container.dart';
+import '../widgets/custom/custom_password_input.dart';
 import 'package:pixelarticons/pixel.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/request_service.dart';
+import '../widgets/custom/custom_app_bar.dart';
+import '../widgets/common/password_requirements_widget.dart';
+import '../widgets/common/password_loading_button_widget.dart';
+import '../widgets/common/password_error_container_widget.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -22,9 +26,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   bool _isChanging = false;
   String? _errorMessage;
-  bool _obscureCurrentPassword = true;
-  bool _obscureNewPassword = true;
-  bool _obscureConfirmPassword = true;
 
   @override
   void dispose() {
@@ -36,50 +37,32 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   String? _validateCurrentPassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter your current password';
+      return 'Vui lòng nhập mật khẩu hiện tại';
     }
     return null;
   }
 
   String? _validateNewPassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter a new password';
+      return 'Vui lòng nhập mật khẩu mới';
     }
     if (value.length < 6) {
-      return 'Password must be at least 6 characters long';
+      return 'Mật khẩu phải có ít nhất 6 ký tự';
     }
     if (value == _currentPasswordController.text) {
-      return 'New password must be different from current password';
+      return 'Mật khẩu mới phải khác với mật khẩu hiện tại';
     }
     return null;
   }
 
   String? _validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please confirm your new password';
+      return 'Vui lòng xác nhận mật khẩu mới';
     }
     if (value != _newPasswordController.text) {
-      return 'Passwords do not match';
+      return 'Mật khẩu không khớp';
     }
     return null;
-  }
-
-  void _togglePasswordVisibility(int field) {
-    if (_isChanging) return;
-
-    setState(() {
-      switch (field) {
-        case 0:
-          _obscureCurrentPassword = !_obscureCurrentPassword;
-          break;
-        case 1:
-          _obscureNewPassword = !_obscureNewPassword;
-          break;
-        case 2:
-          _obscureConfirmPassword = !_obscureConfirmPassword;
-          break;
-      }
-    });
   }
 
   Future<void> _changePassword() async {
@@ -91,21 +74,21 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          'Confirm Password Change',
+          'Xác nhận đổi mật khẩu',
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         content: Text(
-          'Are you sure you want to change your password?',
+          'Bạn có chắc chắn muốn đổi mật khẩu?',
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: const Text('Hủy'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Confirm'),
+            child: const Text('Xác nhận'),
           ),
         ],
       ),
@@ -130,7 +113,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         if (result.isSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Password changed successfully!'),
+              content: const Text('Mật khẩu đã được đổi thành công!'),
               backgroundColor: AppTheme.secondaryColor,
               duration: const Duration(seconds: 3),
             ),
@@ -142,14 +125,14 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           }
         } else {
           setState(() {
-            _errorMessage = result.error ?? 'An error occurred';
+            _errorMessage = result.error ?? 'Đã xảy ra lỗi';
           });
         }
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'An error occurred. Please try again';
+          _errorMessage = 'Đã xảy ra lỗi. Vui lòng thử lại';
         });
       }
     } finally {
@@ -161,63 +144,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     }
   }
 
-  Widget _buildPasswordField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required bool obscureText,
-    required VoidCallback onToggleVisibility,
-    required String? Function(String?) validator,
-    ValueChanged<String>? onChanged,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: AppTheme.primaryColor.withValues(alpha: 0.5),
-          width: 2,
-        ),
-      ),
-      child: TextFormField(
-        controller: controller,
-        enabled: !_isChanging,
-        obscureText: obscureText,
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: hint,
-          labelStyle: TextStyle(fontSize: 10, color: AppTheme.primaryColor),
-          hintStyle: TextStyle(
-            fontSize: 10,
-            color: AppTheme.primaryColor.withValues(alpha: 0.5),
-          ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(16),
-          prefixIcon: Icon(Pixel.lock, color: AppTheme.primaryColor, size: 20),
-          suffixIcon: GestureDetector(
-            onTap: onToggleVisibility,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Icon(
-                obscureText ? Pixel.eyeclosed : Pixel.eye,
-                color: AppTheme.primaryColor,
-                size: 20,
-              ),
-            ),
-          ),
-        ),
-        style: const TextStyle(fontSize: 12),
-        validator: validator,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        onChanged: onChanged,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        title: const Text('Change Password'),
+      appBar: CustomAppBar(
+        title: 'Đổi mật khẩu',
         leading: IconButton(
           icon: const Icon(Pixel.arrowleft),
           onPressed: () => Navigator.pop(context),
@@ -232,23 +164,21 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildPasswordField(
+                  CustomPasswordInput(
                     controller: _currentPasswordController,
-                    label: 'Current Password',
-                    hint: 'Enter your current password',
-                    obscureText: _obscureCurrentPassword,
-                    onToggleVisibility: () => _togglePasswordVisibility(0),
+                    labelText: 'Mật khẩu hiện tại',
+                    hintText: 'Nhập mật khẩu hiện tại',
+                    enabled: !_isChanging,
                     validator: _validateCurrentPassword,
                   ),
 
                   const SizedBox(height: 20),
 
-                  _buildPasswordField(
+                  CustomPasswordInput(
                     controller: _newPasswordController,
-                    label: 'New Password',
-                    hint: 'Enter your new password',
-                    obscureText: _obscureNewPassword,
-                    onToggleVisibility: () => _togglePasswordVisibility(1),
+                    labelText: 'Mật khẩu mới',
+                    hintText: 'Nhập mật khẩu mới',
+                    enabled: !_isChanging,
                     validator: _validateNewPassword,
                     onChanged: (value) {
                       if (_confirmPasswordController.text.isNotEmpty) {
@@ -259,115 +189,34 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
                   const SizedBox(height: 20),
 
-                  _buildPasswordField(
+                  CustomPasswordInput(
                     controller: _confirmPasswordController,
-                    label: 'Confirm New Password',
-                    hint: 'Confirm your new password',
-                    obscureText: _obscureConfirmPassword,
-                    onToggleVisibility: () => _togglePasswordVisibility(2),
+                    labelText: 'Xác nhận mật khẩu mới',
+                    hintText: 'Xác nhận mật khẩu mới',
+                    enabled: !_isChanging,
                     validator: _validateConfirmPassword,
                   ),
 
                   const SizedBox(height: 30),
 
-                  CustomContainer(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Pixel.infobox,
-                              size: 16,
-                              color: AppTheme.primaryColor,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Password Requirements',
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.primaryColor,
-                                  ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        _buildRequirement('At least 6 characters long'),
-                        const SizedBox(height: 4),
-                        _buildRequirement(
-                          'Must be different from current password',
-                        ),
-                        const SizedBox(height: 4),
-                        _buildRequirement(
-                          'Use letters, numbers, and symbols for better security',
-                        ),
-                      ],
-                    ),
-                  ),
+                  const PasswordRequirements(),
 
                   const SizedBox(height: 30),
 
                   _isChanging
-                      ? CustomContainer(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Flexible(
-                                child: Text(
-                                  'Changing Password...',
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
+                      ? const PasswordLoadingButton()
                       : CustomButton(
                           type: CustomButtonType.primary,
                           onPressed: _changePassword,
                           child: const Text(
-                            'Change Password',
+                            'Đổi mật khẩu',
                             textAlign: TextAlign.center,
                           ),
                         ),
 
                   if (_errorMessage != null) ...[
                     const SizedBox(height: 20),
-                    CustomContainer(
-                      padding: const EdgeInsets.all(12),
-                      backgroundColor: AppTheme.errorColor.withValues(
-                        alpha: 0.1,
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Pixel.close,
-                            color: AppTheme.errorColor,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              _errorMessage!,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: AppTheme.errorColor),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    PasswordErrorContainer(message: _errorMessage!),
                   ],
                 ],
               ),
@@ -375,31 +224,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildRequirement(String text) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Icon(
-            Pixel.check,
-            size: 12,
-            color: AppTheme.primaryColor.withValues(alpha: 0.7),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.primaryColor.withValues(alpha: 0.8),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

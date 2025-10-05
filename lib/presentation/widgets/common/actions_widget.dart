@@ -44,7 +44,7 @@ class ActionsWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Actions',
+            'Hành động',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -69,7 +69,7 @@ class ActionsWidget extends StatelessWidget {
           child: CustomButton(
             type: CustomButtonType.primary,
             onPressed: onEditProfile ?? () => _navigateToEditProfile(context),
-            child: Text('Edit Profile', textAlign: TextAlign.center),
+            child: Text('Chỉnh sửa hồ sơ', textAlign: TextAlign.center),
           ),
         ),
       );
@@ -83,7 +83,7 @@ class ActionsWidget extends StatelessWidget {
           child: CustomButton(
             type: CustomButtonType.normal,
             onPressed: onSettings,
-            child: Text('Settings', textAlign: TextAlign.center),
+            child: Text('Cài đặt', textAlign: TextAlign.center),
           ),
         ),
       );
@@ -99,7 +99,7 @@ class ActionsWidget extends StatelessWidget {
             onPressed: onLogout != null
                 ? () => _showLogoutConfirmation(context)
                 : null,
-            child: Text('Logout', textAlign: TextAlign.center),
+            child: Text('Đăng xuất', textAlign: TextAlign.center),
           ),
         ),
       );
@@ -118,16 +118,16 @@ class ActionsWidget extends StatelessWidget {
     final shouldLogout = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Logout'),
-        content: Text('Are you sure you want to logout?'),
+        title: Text('Đăng xuất'),
+        content: Text('Bạn có chắc chắn muốn đăng xuất?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel'),
+            child: Text('Hủy'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('Logout'),
+            child: Text('Đăng xuất'),
           ),
         ],
       ),

@@ -54,7 +54,7 @@ class SocialLinksWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Social Links',
+            'Liên kết mạng xã hội',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,

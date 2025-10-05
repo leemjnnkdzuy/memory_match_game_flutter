@@ -198,14 +198,7 @@ class _CardBack extends StatelessWidget {
           ),
         ),
         child: const Center(
-          child: Text(
-            '?',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          child: Icon(Icons.question_mark, color: Colors.white, size: 32),
         ),
       ),
     );

@@ -9,6 +9,8 @@ import '../../data/repositories/pokemon_repository_impl.dart';
 import '../../data/datasources/local_pokemon_data_source.dart';
 import '../../core/theme/app_theme.dart';
 import '../widgets/custom/custom_button.dart';
+import '../widgets/custom/custom_container.dart';
+import '../widgets/custom/custom_app_bar.dart';
 import 'loading_screen.dart';
 
 class DifficultySelectionScreen extends StatefulWidget {
@@ -73,11 +75,11 @@ class _DifficultySelectionScreenState extends State<DifficultySelectionScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(
-              'ERROR',
+              'LỖI',
               style: AppTheme.headlineMedium.copyWith(color: Colors.red),
             ),
             content: Text(
-              'Failed to load Pokemon data. Please try again.',
+              'Không thể tải dữ liệu Pokemon. Vui lòng thử lại.',
               style: AppTheme.bodyMedium,
             ),
             actions: [
@@ -102,18 +104,11 @@ class _DifficultySelectionScreenState extends State<DifficultySelectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: CustomAppBar(
+        title: 'Chọn độ khó',
         leading: IconButton(
           icon: const Icon(Pixel.arrowleft),
           onPressed: widget.onBack ?? () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Choose Difficulty',
-          style: AppTheme.headlineLarge.copyWith(
-            color: Colors.white,
-            fontSize: 16,
-          ),
-          textAlign: TextAlign.center,
         ),
       ),
       body: Container(
@@ -133,8 +128,6 @@ class _DifficultySelectionScreenState extends State<DifficultySelectionScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 48),
-
                   if (_isLoading)
                     const Center(
                       child: CircularProgressIndicator(color: Colors.white),
@@ -192,21 +185,21 @@ class _DifficultyCard extends StatelessWidget {
   String get _difficultyDescription {
     switch (difficulty) {
       case GameDifficulty.veryEasy:
-        return '${difficulty.cardPairs} pairs • ${difficulty.timeLimit.inMinutes} min';
+        return '${difficulty.cardPairs} cặp • ${difficulty.timeLimit.inMinutes} phút';
       case GameDifficulty.easy:
-        return '${difficulty.cardPairs} pairs • ${difficulty.timeLimit.inMinutes} min';
+        return '${difficulty.cardPairs} cặp • ${difficulty.timeLimit.inMinutes} phút';
       case GameDifficulty.normal:
-        return '${difficulty.cardPairs} pairs • ${difficulty.timeLimit.inMinutes} min';
+        return '${difficulty.cardPairs} cặp • ${difficulty.timeLimit.inMinutes} phút';
       case GameDifficulty.medium:
-        return '${difficulty.cardPairs} pairs • ${difficulty.timeLimit.inMinutes} min';
+        return '${difficulty.cardPairs} cặp • ${difficulty.timeLimit.inMinutes} phút';
       case GameDifficulty.hard:
-        return '${difficulty.cardPairs} pairs • ${difficulty.timeLimit.inMinutes} min';
+        return '${difficulty.cardPairs} cặp • ${difficulty.timeLimit.inMinutes} phút';
       case GameDifficulty.superHard:
-        return '${difficulty.cardPairs} pairs • ${difficulty.timeLimit.inMinutes} min';
+        return '${difficulty.cardPairs} cặp • ${difficulty.timeLimit.inMinutes} phút';
       case GameDifficulty.insane:
-        return '${difficulty.cardPairs} pairs • ${difficulty.timeLimit.inMinutes} min';
+        return '${difficulty.cardPairs} cặp • ${difficulty.timeLimit.inMinutes} phút';
       case GameDifficulty.extreme:
-        return '${difficulty.cardPairs} pairs • ${difficulty.timeLimit.inMinutes} min';
+        return '${difficulty.cardPairs} cặp • ${difficulty.timeLimit.inMinutes} phút';
     }
   }
 
@@ -233,16 +226,9 @@ class _DifficultyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return CustomContainer(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color.fromRGBO(255, 255, 255, 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color.fromRGBO(255, 255, 255, 0.3),
-          width: 2,
-        ),
-      ),
+      backgroundColor: Colors.white,
       child: Row(
         children: [
           Expanded(
@@ -252,14 +238,18 @@ class _DifficultyCard extends StatelessWidget {
                 Text(
                   _difficultyName,
                   style: AppTheme.headlineMedium.copyWith(
-                    color: Colors.white,
-                    fontSize: 18,
+                    color: const Color.fromARGB(255, 0, 0, 0),
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   _difficultyDescription,
-                  style: AppTheme.bodyMedium.copyWith(color: Colors.white70),
+                  style: AppTheme.bodyMedium.copyWith(
+                    color: const Color.fromARGB(179, 0, 0, 0),
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),
@@ -267,7 +257,7 @@ class _DifficultyCard extends StatelessWidget {
           CustomButton(
             type: _buttonType,
             onPressed: onSelected,
-            child: Text('SELECT'),
+            child: Text('CHỌN'),
           ),
         ],
       ),

@@ -5,6 +5,8 @@ import '../../services/request_service.dart';
 import '../routes/app_routes.dart';
 import '../widgets/custom/custom_button.dart';
 import '../widgets/custom/custom_container.dart';
+import '../widgets/custom/custom_text_input.dart';
+import '../widgets/custom/custom_password_input.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -26,8 +28,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   int _currentStep = 0;
   bool _isLoading = false;
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
   String? _resetToken;
   int _resendCountdown = 0;
 
@@ -61,12 +61,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         _nextStep();
         _startResendCountdown();
       } else {
-        throw Exception(result.error ?? 'Failed to send reset email');
+        throw Exception(result.error ?? 'Không thể gửi email đặt lại mật khẩu');
       }
     } catch (e) {
-      _showErrorMessage(
-        'Error: ${e.toString().replaceFirst('Exception: ', '')}',
-      );
+      _showErrorMessage('Lỗi: ${e.toString().replaceFirst('Exception: ', '')}');
     } finally {
       setState(() {
         _isLoading = false;
@@ -142,9 +140,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         throw Exception(result.error ?? 'Không thể đặt lại mật khẩu');
       }
     } catch (e) {
-      _showErrorMessage(
-        'Error: ${e.toString().replaceFirst('Exception: ', '')}',
-      );
+      _showErrorMessage('Lỗi: ${e.toString().replaceFirst('Exception: ', '')}');
     } finally {
       setState(() {
         _isLoading = false;
@@ -282,44 +278,29 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
           const SizedBox(height: 32),
 
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: AppTheme.primaryColor.withValues(alpha: 0.5),
-                width: 2,
-              ),
+          CustomTextInput(
+            controller: _emailController,
+            keyboardType: TextInputType.emailAddress,
+            labelText: 'Địa chỉ email',
+            borderColor: AppTheme.primaryColor.withValues(alpha: 0.5),
+            borderWidth: 2,
+            fontSize: 12,
+            prefixIcon: Icon(
+              Pixel.mail,
+              color: AppTheme.primaryColor,
+              size: 20,
             ),
-            child: TextFormField(
-              controller: _emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                labelText: 'Địa chỉ email',
-                labelStyle: TextStyle(
-                  fontFamily: 'AlanSans',
-                  fontSize: 10,
-                  color: AppTheme.primaryColor,
-                ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.all(16),
-                prefixIcon: Icon(
-                  Pixel.mail,
-                  color: AppTheme.primaryColor,
-                  size: 20,
-                ),
-              ),
-              style: const TextStyle(fontSize: 12),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Vui lòng nhập email của bạn';
-                }
-                if (!RegExp(
-                  r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                ).hasMatch(value)) {
-                  return 'Vui lòng nhập email hợp lệ';
-                }
-                return null;
-              },
-            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Vui lòng nhập email của bạn';
+              }
+              if (!RegExp(
+                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+              ).hasMatch(value)) {
+                return 'Vui lòng nhập email hợp lệ';
+              }
+              return null;
+            },
           ),
 
           const SizedBox(height: 24),
@@ -339,7 +320,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(
-                          'Processing...',
+                          'Đang xử lý...',
                           style: Theme.of(context).textTheme.bodyMedium,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -384,48 +365,33 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
           const SizedBox(height: 32),
 
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: AppTheme.primaryColor.withValues(alpha: 0.5),
-                width: 2,
-              ),
+          CustomTextInput(
+            controller: _pinController,
+            keyboardType: TextInputType.number,
+            maxLength: 6,
+            labelText: 'Mã PIN',
+            borderColor: AppTheme.primaryColor.withValues(alpha: 0.5),
+            borderWidth: 2,
+            fontSize: 14,
+            letterSpacing: 2,
+            textAlign: TextAlign.center,
+            prefixIcon: Icon(
+              Pixel.lock,
+              color: AppTheme.primaryColor,
+              size: 20,
             ),
-            child: TextFormField(
-              controller: _pinController,
-              keyboardType: TextInputType.number,
-              maxLength: 6,
-              decoration: InputDecoration(
-                labelText: 'Mã PIN',
-                labelStyle: TextStyle(
-                  fontFamily: 'AlanSans',
-                  fontSize: 10,
-                  color: AppTheme.primaryColor,
-                ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.all(16),
-                counterText: '',
-                prefixIcon: Icon(
-                  Pixel.lock,
-                  color: AppTheme.primaryColor,
-                  size: 20,
-                ),
-              ),
-              style: const TextStyle(fontSize: 14, letterSpacing: 2),
-              textAlign: TextAlign.center,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Vui lòng nhập mã PIN';
-                }
-                if (value.length != 6) {
-                  return 'Mã PIN phải có 6 chữ số';
-                }
-                if (!RegExp(r'^\d{6}$').hasMatch(value)) {
-                  return 'Mã PIN chỉ được chứa số';
-                }
-                return null;
-              },
-            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Vui lòng nhập mã PIN';
+              }
+              if (value.length != 6) {
+                return 'Mã PIN phải có 6 chữ số';
+              }
+              if (!RegExp(r'^\d{6}$').hasMatch(value)) {
+                return 'Mã PIN chỉ được chứa số';
+              }
+              return null;
+            },
           ),
 
           const SizedBox(height: 16),
@@ -484,7 +450,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           CustomButton(
             type: CustomButtonType.normal,
             onPressed: _previousStep,
-            child: Text('Back', textAlign: TextAlign.center),
+            child: Text('Quay lại', textAlign: TextAlign.center),
           ),
         ],
       ),
@@ -515,108 +481,40 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
           const SizedBox(height: 32),
 
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: AppTheme.primaryColor.withValues(alpha: 0.5),
-                width: 2,
-              ),
-            ),
-            child: TextFormField(
-              controller: _passwordController,
-              obscureText: _obscurePassword,
-              decoration: InputDecoration(
-                labelText: 'Mật khẩu mới',
-                labelStyle: TextStyle(
-                  fontSize: 10,
-                  color: AppTheme.primaryColor,
-                ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.all(16),
-                prefixIcon: Icon(
-                  Pixel.lock,
-                  color: AppTheme.primaryColor,
-                  size: 20,
-                ),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscurePassword ? Pixel.eyeclosed : Pixel.eye,
-                    color: AppTheme.primaryColor,
-                    size: 20,
-                  ),
-                  onPressed: () {
-                    if (!_isLoading) {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    }
-                  },
-                ),
-              ),
-              style: const TextStyle(fontSize: 12),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Vui lòng nhập mật khẩu mới';
-                }
-                if (value.length < 6) {
-                  return 'Mật khẩu phải có ít nhất 6 ký tự';
-                }
-                return null;
-              },
-            ),
+          CustomPasswordInput(
+            controller: _passwordController,
+            labelText: 'Mật khẩu mới',
+            borderColor: AppTheme.primaryColor.withValues(alpha: 0.5),
+            borderWidth: 2,
+            fontSize: 12,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Vui lòng nhập mật khẩu mới';
+              }
+              if (value.length < 6) {
+                return 'Mật khẩu phải có ít nhất 6 ký tự';
+              }
+              return null;
+            },
           ),
 
           const SizedBox(height: 16),
 
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: AppTheme.primaryColor.withValues(alpha: 0.5),
-                width: 2,
-              ),
-            ),
-            child: TextFormField(
-              controller: _confirmPasswordController,
-              obscureText: _obscureConfirmPassword,
-              decoration: InputDecoration(
-                labelText: 'Xác nhận mật khẩu',
-                labelStyle: TextStyle(
-                  fontSize: 10,
-                  color: AppTheme.primaryColor,
-                ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.all(16),
-                prefixIcon: Icon(
-                  Pixel.lock,
-                  color: AppTheme.primaryColor,
-                  size: 20,
-                ),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscureConfirmPassword ? Pixel.eyeclosed : Pixel.eye,
-                    color: AppTheme.primaryColor,
-                    size: 20,
-                  ),
-                  onPressed: () {
-                    if (!_isLoading) {
-                      setState(() {
-                        _obscureConfirmPassword = !_obscureConfirmPassword;
-                      });
-                    }
-                  },
-                ),
-              ),
-              style: const TextStyle(fontSize: 12),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Vui lòng xác nhận mật khẩu';
-                }
-                if (value != _passwordController.text) {
-                  return 'Mật khẩu không khớp';
-                }
-                return null;
-              },
-            ),
+          CustomPasswordInput(
+            controller: _confirmPasswordController,
+            labelText: 'Xác nhận mật khẩu',
+            borderColor: AppTheme.primaryColor.withValues(alpha: 0.5),
+            borderWidth: 2,
+            fontSize: 12,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Vui lòng xác nhận mật khẩu';
+              }
+              if (value != _passwordController.text) {
+                return 'Mật khẩu không khớp';
+              }
+              return null;
+            },
           ),
 
           const SizedBox(height: 24),

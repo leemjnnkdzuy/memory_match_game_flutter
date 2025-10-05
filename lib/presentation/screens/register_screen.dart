@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pixelarticons/pixel.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/request_service.dart';
 import '../routes/app_routes.dart';
 import '../widgets/custom/custom_button.dart';
 import '../widgets/custom/custom_container.dart';
+import '../widgets/custom/custom_text_input.dart';
+import '../widgets/custom/custom_password_input.dart';
 
 class RegisterVerifyScreen extends StatefulWidget {
   final Map<String, String>? initialData;
@@ -44,8 +45,6 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
   final _verificationCodeController = TextEditingController();
 
   bool _isLoading = false;
-  bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
   String? _registeredEmail;
   int _resendCooldown = 0;
 
@@ -394,21 +393,7 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
           _buildNesTextField(
             controller: _passwordController,
             label: 'Mật khẩu',
-            obscureText: _obscurePassword,
-            suffix: _isLoading
-                ? null
-                : IconButton(
-                    icon: Icon(
-                      _obscurePassword ? Pixel.eyeclosed : Pixel.eye,
-                      color: AppTheme.primaryColor,
-                      size: 18,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                  ),
+            isPassword: true,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Vui lòng nhập mật khẩu';
@@ -424,21 +409,7 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
           _buildNesTextField(
             controller: _confirmPasswordController,
             label: 'Xác nhận mật khẩu',
-            obscureText: _obscureConfirmPassword,
-            suffix: _isLoading
-                ? null
-                : IconButton(
-                    icon: Icon(
-                      _obscureConfirmPassword ? Pixel.eyeclosed : Pixel.eye,
-                      color: AppTheme.primaryColor,
-                      size: 18,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureConfirmPassword = !_obscureConfirmPassword;
-                      });
-                    },
-                  ),
+            isPassword: true,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Vui lòng xác nhận mật khẩu';
@@ -697,8 +668,8 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
   Widget _buildNesTextField({
     required TextEditingController controller,
     required String label,
-    bool obscureText = false,
-    Widget? suffix,
+    bool isPassword = false,
+    Widget? suffixIcon,
     TextAlign textAlign = TextAlign.start,
     int? maxLength,
     TextInputType keyboardType = TextInputType.text,
@@ -707,24 +678,30 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      child: TextFormField(
-        controller: controller,
-        obscureText: obscureText,
-        textAlign: textAlign,
-        maxLength: maxLength,
-        keyboardType: keyboardType,
-        inputFormatters: inputFormatters,
-        validator: validator,
-        enabled: !_isLoading,
-        style: const TextStyle(fontSize: 10),
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: 'Nhập $label',
-          border: const OutlineInputBorder(),
-          suffixIcon: suffix,
-          counterText: '',
-        ),
-      ),
+      child: isPassword
+          ? CustomPasswordInput(
+              controller: controller,
+              labelText: label,
+              hintText: 'Nhập $label',
+              textAlign: textAlign,
+              maxLength: maxLength,
+              keyboardType: keyboardType,
+              validator: validator,
+              enabled: !_isLoading,
+              fontSize: 10,
+            )
+          : CustomTextInput(
+              controller: controller,
+              textAlign: textAlign,
+              maxLength: maxLength,
+              keyboardType: keyboardType,
+              validator: validator,
+              enabled: !_isLoading,
+              fontSize: 10,
+              labelText: label,
+              hintText: 'Nhập $label',
+              suffixIcon: suffixIcon,
+            ),
     );
   }
 }

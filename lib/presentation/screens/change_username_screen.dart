@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom/custom_button.dart';
 import '../widgets/custom/custom_container.dart';
+import '../widgets/custom/custom_text_input.dart';
 import '../../services/request_service.dart';
 import '../../services/auth_service.dart';
+import '../widgets/custom/custom_app_bar.dart';
+import 'package:pixelarticons/pixel.dart';
 
 class ChangeUsernameScreen extends StatefulWidget {
   const ChangeUsernameScreen({super.key});
@@ -19,7 +22,7 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
   bool _isAvailable = false;
   bool _hasChecked = false;
   String? _errorMessage;
-  String _buttonText = 'Check username availability';
+  String _buttonText = 'Kiểm tra tên người dùng có sẵn';
   bool _canChange = false;
 
   @override
@@ -30,17 +33,17 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
 
   String? _validateUsername(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter a username';
+      return 'Vui lòng nhập tên người dùng';
     }
     if (value.length < 3) {
-      return 'Username must be at least 3 characters long';
+      return 'Tên người dùng phải có ít nhất 3 ký tự';
     }
     if (value.length > 50) {
-      return 'Username must not exceed 50 characters';
+      return 'Tên người dùng không được vượt quá 50 ký tự';
     }
     final regex = RegExp(r'^[a-zA-Z0-9_]+$');
     if (!regex.hasMatch(value)) {
-      return 'Only letters, numbers, and underscores are allowed';
+      return 'Chỉ cho phép chữ cái, số và dấu gạch dưới';
     }
     return null;
   }
@@ -55,7 +58,7 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
         _usernameController.text.toLowerCase() ==
             currentUser.username.toLowerCase()) {
       setState(() {
-        _errorMessage = 'New username is the same as current username';
+        _errorMessage = 'Tên người dùng mới giống với tên hiện tại';
         _hasChecked = false;
         _isAvailable = false;
       });
@@ -82,25 +85,25 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
           _isAvailable = !exists;
 
           if (_isAvailable) {
-            _buttonText = 'Change now';
+            _buttonText = 'Đổi ngay';
             _errorMessage = null;
             _canChange = true;
           } else {
-            _buttonText = 'Check username availability';
-            _errorMessage = 'Username already exists';
+            _buttonText = 'Kiểm tra tên người dùng có sẵn';
+            _errorMessage = 'Tên người dùng đã tồn tại';
             _canChange = false;
           }
         });
       } else {
         setState(() {
-          _errorMessage = result.error ?? 'An error occurred';
+          _errorMessage = result.error ?? 'Đã xảy ra lỗi';
           _hasChecked = false;
           _isAvailable = false;
         });
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Connection error. Please try again';
+        _errorMessage = 'Lỗi kết nối. Vui lòng thử lại';
         _hasChecked = false;
         _isAvailable = false;
       });
@@ -116,21 +119,21 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          'Confirm Username Change',
+          'Xác nhận đổi tên người dùng',
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         content: Text(
-          'Are you sure you want to change your username to "${_usernameController.text}"?',
+          'Bạn có chắc chắn muốn đổi tên người dùng thành "${_usernameController.text}"?',
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: const Text('Hủy'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Confirm'),
+            child: const Text('Xác nhận'),
           ),
         ],
       ),
@@ -159,7 +162,7 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Username changed successfully!'),
+                  content: Text('Tên người dùng đã được đổi thành công!'),
                   backgroundColor: Colors.green,
                   duration: Duration(seconds: 3),
                 ),
@@ -176,7 +179,7 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Username changed successfully!'),
+                  content: Text('Tên người dùng đã được đổi thành công!'),
                   backgroundColor: Colors.green,
                   duration: Duration(seconds: 3),
                 ),
@@ -190,10 +193,10 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
           }
         } else {
           setState(() {
-            _errorMessage = result.error ?? 'An error occurred';
+            _errorMessage = result.error ?? 'Đã xảy ra lỗi';
             _hasChecked = false;
             _isAvailable = false;
-            _buttonText = 'Check username availability';
+            _buttonText = 'Kiểm tra tên người dùng có sẵn';
             _canChange = false;
           });
         }
@@ -201,10 +204,10 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'An error occurred. Please try again';
+          _errorMessage = 'Đã xảy ra lỗi. Vui lòng thử lại';
           _hasChecked = false;
           _isAvailable = false;
-          _buttonText = 'Check username availability';
+          _buttonText = 'Kiểm tra tên người dùng có sẵn';
           _canChange = false;
         });
       }
@@ -222,7 +225,7 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
       setState(() {
         _hasChecked = false;
         _isAvailable = false;
-        _buttonText = 'Check username availability';
+        _buttonText = 'Kiểm tra tên người dùng có sẵn';
         _errorMessage = null;
         _canChange = false;
       });
@@ -234,7 +237,13 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
     final currentUser = AuthService.instance.currentUser;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Change Username')),
+      appBar: CustomAppBar(
+        title: 'Đổi mật khẩu',
+        leading: IconButton(
+          icon: const Icon(Pixel.arrowleft),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -250,7 +259,7 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Current username:',
+                          'Tên người dùng hiện tại:',
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         const SizedBox(height: 8),
@@ -266,36 +275,29 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
                 ],
 
                 Text(
-                  'Enter new username',
+                  'Nhập tên người dùng mới',
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '• Username must be 3-50 characters long\n'
-                  '• Only letters (a-z, A-Z), numbers (0-9), and underscores (_) are allowed',
+                  '• Tên người dùng phải có 3-50 ký tự\n'
+                  '• Chỉ cho phép chữ cái (a-z, A-Z), số (0-9) và dấu gạch dưới (_)',
                   style: Theme.of(
                     context,
                   ).textTheme.labelLarge?.copyWith(color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 24),
 
-                TextFormField(
+                CustomTextInput(
                   controller: _usernameController,
                   enabled: !_isChecking,
-                  decoration: InputDecoration(
-                    labelText: 'New username',
-                    hintText: 'Enter new username',
-                    border: const OutlineInputBorder(),
-                    errorText: _hasChecked && !_isAvailable
-                        ? _errorMessage
-                        : null,
-                    suffixIcon: _hasChecked && _isAvailable
-                        ? const Icon(Icons.check_circle, color: Colors.green)
-                        : null,
-                  ),
+                  labelText: 'Tên người dùng mới',
+                  hintText: 'Nhập tên người dùng mới',
+                  suffixIcon: _hasChecked && _isAvailable
+                      ? const Icon(Icons.check_circle, color: Colors.green)
+                      : null,
                   validator: _validateUsername,
                   onChanged: _onUsernameChanged,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
                 ),
 
                 if (_hasChecked && _isAvailable) ...[
@@ -309,7 +311,7 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Username available',
+                        'Tên người dùng có sẵn',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Colors.green,
                           fontWeight: FontWeight.bold,
@@ -336,7 +338,7 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
                             const SizedBox(width: 8),
                             Flexible(
                               child: Text(
-                                'Processing...',
+                                'Đang xử lý...',
                                 style: Theme.of(context).textTheme.bodyMedium,
                                 overflow: TextOverflow.ellipsis,
                               ),

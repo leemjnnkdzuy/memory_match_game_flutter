@@ -65,7 +65,10 @@ class ProfileHeaderWidget extends StatelessWidget {
           if (username != null && username!.isNotEmpty)
             Text(
               '@$username',
-              style: const TextStyle(fontSize: 16, color: Color.fromARGB(179, 71, 71, 71)),
+              style: const TextStyle(
+                fontSize: 16,
+                color: Color.fromARGB(179, 71, 71, 71),
+              ),
             ),
 
           if (isVerified) ...[
@@ -89,7 +92,7 @@ class ProfileHeaderWidget extends StatelessWidget {
                   Icon(Icons.verified, color: Colors.white, size: 16),
                   SizedBox(width: 4),
                   Text(
-                    'Verified',
+                    'Đã xác minh',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 12,

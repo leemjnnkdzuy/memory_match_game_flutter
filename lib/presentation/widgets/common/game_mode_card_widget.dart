@@ -133,7 +133,7 @@ class _GameModeCardState extends State<GameModeCard>
                               border: Border.all(color: Colors.black, width: 1),
                             ),
                             child: const Text(
-                              'LOCKED',
+                              'KHÓA',
                               style: TextStyle(
                                 fontSize: 10,
                                 color: Colors.white,

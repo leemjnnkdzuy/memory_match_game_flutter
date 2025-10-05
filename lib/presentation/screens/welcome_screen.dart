@@ -94,7 +94,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         onPressed: () {
                           Navigator.pushNamed(context, '/login');
                         },
-                        child: Text('Login', textAlign: TextAlign.center),
+                        child: Text('Đăng nhập', textAlign: TextAlign.center),
                       ),
 
                       const SizedBox(height: 16),
@@ -104,7 +104,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         onPressed: () {
                           Navigator.pushNamed(context, '/register-verify');
                         },
-                        child: Text('Sign Up', textAlign: TextAlign.center),
+                        child: Text('Đăng ký', textAlign: TextAlign.center),
                       ),
 
                       const SizedBox(height: 20),
@@ -122,7 +122,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
-                              'Or',
+                              'Hoặc',
                               style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(
                                     color: AppTheme.primaryColor,
@@ -146,15 +146,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       CustomButton(
                         type: CustomButtonType.success,
                         onPressed: () async {
+                          await AuthService.instance.loginAsGuest();
                           if (mounted) {
-                            await AuthService.instance.loginAsGuest();
-                            if (mounted) {
-                              Navigator.pushReplacementNamed(context, '/home');
-                            }
+                            Navigator.pushReplacementNamed(context, '/home');
                           }
                         },
                         child: Text(
-                          'Play as Guest',
+                          'Chơi với tư cách khách',
                           textAlign: TextAlign.center,
                         ),
                       ),

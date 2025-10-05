@@ -29,7 +29,7 @@ class AppTheme {
         elevation: 0,
         centerTitle: true,
         titleTextStyle: const TextStyle(
-          fontFamily: 'AlanSans',
+          fontFamily: 'Roboto',
           fontSize: 16,
           fontWeight: FontWeight.bold,
           color: Colors.white,
@@ -39,40 +39,40 @@ class AppTheme {
   }
 
   static const TextStyle headlineLarge = TextStyle(
-    fontFamily: 'AlanSans',
+    fontFamily: 'Roboto',
     fontSize: 24,
     fontWeight: FontWeight.bold,
     color: Colors.black87,
   );
 
   static const TextStyle headlineMedium = TextStyle(
-    fontFamily: 'AlanSans',
+    fontFamily: 'Roboto',
     fontSize: 20,
     fontWeight: FontWeight.bold,
     color: Colors.black87,
   );
 
   static const TextStyle headlineSmall = TextStyle(
-    fontFamily: 'AlanSans',
+    fontFamily: 'Roboto',
     fontSize: 16,
     fontWeight: FontWeight.bold,
     color: Colors.black87,
   );
 
   static const TextStyle bodyLarge = TextStyle(
-    fontFamily: 'AlanSans',
+    fontFamily: 'Roboto',
     fontSize: 14,
     color: Colors.black87,
   );
 
   static const TextStyle bodyMedium = TextStyle(
-    fontFamily: 'AlanSans',
+    fontFamily: 'Roboto',
     fontSize: 12,
     color: Colors.black87,
   );
 
   static const TextStyle labelLarge = TextStyle(
-    fontFamily: 'AlanSans',
+    fontFamily: 'Roboto',
     fontSize: 10,
     fontWeight: FontWeight.bold,
     color: Colors.black87,

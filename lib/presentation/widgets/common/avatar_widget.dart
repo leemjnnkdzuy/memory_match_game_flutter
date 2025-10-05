@@ -82,18 +82,18 @@ class _AvatarWidgetState extends State<AvatarWidget> {
       final ImageSource? source = await showDialog<ImageSource>(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Select Image Source'),
+          title: Text('Chọn Nguồn Hình Ảnh'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
                 leading: Icon(Icons.camera_alt),
-                title: Text('Camera'),
+                title: Text('Máy Ảnh'),
                 onTap: () => Navigator.pop(context, ImageSource.camera),
               ),
               ListTile(
                 leading: Icon(Icons.photo_library),
-                title: Text('Gallery'),
+                title: Text('Thư Viện'),
                 onTap: () => Navigator.pop(context, ImageSource.gallery),
               ),
             ],
@@ -136,14 +136,14 @@ class _AvatarWidgetState extends State<AvatarWidget> {
 
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Avatar updated successfully!')),
+              SnackBar(content: Text('Cập nhật avatar thành công!')),
             );
           }
         } else {
           if (mounted) {
             ScaffoldMessenger.of(
               context,
-            ).showSnackBar(SnackBar(content: Text('Failed to update avatar')));
+            ).showSnackBar(SnackBar(content: Text('Cập nhật avatar thất bại')));
           }
         }
       }
@@ -151,7 +151,7 @@ class _AvatarWidgetState extends State<AvatarWidget> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error uploading avatar')));
+        ).showSnackBar(SnackBar(content: Text('Lỗi tải lên avatar')));
       }
     } finally {
       if (mounted) {
@@ -294,7 +294,7 @@ class _AvatarWidgetState extends State<AvatarWidget> {
                   Icon(Icons.camera_alt, size: 16, color: Colors.black),
                   SizedBox(width: 6),
                   Text(
-                    'Edit',
+                    'Chỉnh Sửa',
                     style: TextStyle(fontSize: 12, color: Colors.black),
                   ),
                 ],

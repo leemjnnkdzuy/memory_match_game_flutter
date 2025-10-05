@@ -54,14 +54,14 @@ class _HistoryCardState extends State<HistoryCard>
 
   String _getDifficultyText(String difficulty) {
     const map = {
-      'veryEasy': 'Very Easy',
-      'easy': 'Easy',
-      'normal': 'Normal',
-      'medium': 'Medium',
-      'hard': 'Hard',
-      'superHard': 'Very Hard',
-      'insane': 'Insane',
-      'expert': 'Expert',
+      'veryEasy': 'Rất Dễ',
+      'easy': 'Dễ',
+      'normal': 'Bình Thường',
+      'medium': 'Trung Bình',
+      'hard': 'Khó',
+      'superHard': 'Rất Khó',
+      'insane': 'Điên Cuồng',
+      'expert': 'Chuyên Gia',
     };
     return map[difficulty] ?? difficulty;
   }
@@ -143,7 +143,7 @@ class _HistoryCardState extends State<HistoryCard>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Score: ${widget.score} | Moves: ${widget.moves} | Time: ${_formatDuration(widget.timeElapsed)}',
+                          'Điểm: ${widget.score} | Nước đi: ${widget.moves} | Thời gian: ${_formatDuration(widget.timeElapsed)}',
                           style: const TextStyle(
                             fontSize: 10,
                             color: Colors.white70,

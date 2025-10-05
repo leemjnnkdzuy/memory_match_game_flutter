@@ -6,6 +6,8 @@ import '../../services/request_service.dart';
 import '../../services/auth_service.dart';
 import '../widgets/custom/custom_button.dart';
 import '../widgets/custom/custom_container.dart';
+import '../widgets/custom/custom_text_input.dart';
+import '../widgets/custom/custom_password_input.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,7 +21,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
-  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -126,19 +127,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     Container(
                       margin: const EdgeInsets.only(bottom: 16),
-                      child: TextFormField(
+                      child: CustomTextInput(
                         controller: _usernameController,
                         enabled: !_isLoading,
-                        style: const TextStyle(fontSize: 10),
-                        decoration: InputDecoration(
-                          labelText: 'Tên người dùng',
-                          hintText: 'Nhập tên người dùng',
-                          border: const OutlineInputBorder(),
-                          prefixIcon: Icon(
-                            Pixel.user,
-                            color: Colors.black,
-                            size: 20,
-                          ),
+                        fontSize: 10,
+                        labelText: 'Tên người dùng',
+                        hintText: 'Nhập tên người dùng',
+                        prefixIcon: Icon(
+                          Pixel.user,
+                          color: Colors.black,
+                          size: 20,
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -154,37 +152,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     Container(
                       margin: const EdgeInsets.only(bottom: 16),
-                      child: TextFormField(
+                      child: CustomPasswordInput(
                         controller: _passwordController,
                         enabled: !_isLoading,
-                        obscureText: _obscurePassword,
-                        style: const TextStyle(fontSize: 10),
-                        decoration: InputDecoration(
-                          labelText: 'Mật khẩu',
-                          hintText: 'Nhập mật khẩu',
-                          border: const OutlineInputBorder(),
-                          prefixIcon: Icon(
-                            Pixel.lock,
-                            color: Colors.black,
-                            size: 20,
-                          ),
-                          suffixIcon: _isLoading
-                              ? null
-                              : IconButton(
-                                  icon: Icon(
-                                    _obscurePassword
-                                        ? Icons.visibility_off
-                                        : Icons.visibility,
-                                    size: 20,
-                                  ),
-                                  color: Colors.black,
-                                  onPressed: () {
-                                    setState(() {
-                                      _obscurePassword = !_obscurePassword;
-                                    });
-                                  },
-                                ),
-                        ),
+                        fontSize: 10,
+                        labelText: 'Mật khẩu',
+                        hintText: 'Nhập mật khẩu',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Vui lòng nhập mật khẩu';

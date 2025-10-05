@@ -29,6 +29,7 @@ class _LoadingScreenState extends State<LoadingScreen>
 
   int _loadedImages = 0;
   int _totalImages = 0;
+  bool _hasStartedPreloading = false;
 
   @override
   void initState() {
@@ -52,8 +53,15 @@ class _LoadingScreenState extends State<LoadingScreen>
     _progressAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _progressController, curve: Curves.easeInOut),
     );
+  }
 
-    _startPreloading();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_hasStartedPreloading) {
+      _hasStartedPreloading = true;
+      _startPreloading();
+    }
   }
 
   @override
@@ -83,7 +91,7 @@ class _LoadingScreenState extends State<LoadingScreen>
 
         await Future.delayed(const Duration(milliseconds: 100));
       } catch (e) {
-        debugPrint('Failed to preload image for ${pokemon.name}: $e');
+        debugPrint('Lỗi không tải được hình ảnh cho ${pokemon.name}: $e');
       }
     }
     imageCacheService.markAllImagesLoaded();

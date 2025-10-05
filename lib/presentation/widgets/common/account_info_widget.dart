@@ -35,7 +35,7 @@ class AccountInfoWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Account Information',
+            'Thông tin tài khoản',
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -46,8 +46,8 @@ class AccountInfoWidget extends StatelessWidget {
 
           _buildInfoRow(
             icon: Icons.circle,
-            label: 'User ID',
-            value: id ?? 'Unknown',
+            label: 'ID người dùng',
+            value: id ?? 'Không xác định',
           ),
 
           if (email?.isNotEmpty == true && language?.isNotEmpty == true)
@@ -62,7 +62,7 @@ class AccountInfoWidget extends StatelessWidget {
           if (language?.isNotEmpty == true)
             _buildInfoRow(
               icon: Icons.language,
-              label: 'Language',
+              label: 'Ngôn ngữ',
               value: language!,
             ),
 
@@ -80,7 +80,7 @@ class AccountInfoWidget extends StatelessWidget {
                     ),
                     SizedBox(width: 12),
                     Text(
-                      'Bio:',
+                      'Tiểu sử:',
                       style: const TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w500,

@@ -161,7 +161,7 @@ class _GameMatchScreenState extends State<GameMatchScreen> {
                 const SizedBox(height: 20),
                 GameModeCard(
                   icon: Pixel.users,
-                  title: 'Battle Royale',
+                  title: 'Sinh Tử Chiến',
                   subtitle: 'Cạnh tranh với nhiều người chơi',
                   color: const Color(0xFFE91E63),
                   isEnabled: _isLoggedIn,
@@ -170,11 +170,11 @@ class _GameMatchScreenState extends State<GameMatchScreen> {
                           // TODO: Navigate to Battle Royale screen
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Battle Royale sắp ra mắt!'),
+                              content: Text('Sinh Tử Chiến sắp ra mắt!'),
                             ),
                           );
                         }
-                      : () => _handleLockedCardTap('Battle Royale'),
+                      : () => _handleLockedCardTap('Sinh Tử Chiến'),
                 ),
                 const SizedBox(height: 20),
                 GameModeCard(

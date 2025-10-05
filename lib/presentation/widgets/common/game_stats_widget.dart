@@ -35,17 +35,17 @@ class GameStatsWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _StatItem(
-            label: 'TIME',
+            label: 'THỜI GIAN',
             value: _formatTime(timeRemaining),
             color: Colors.red,
           ),
           _StatItem(
-            label: 'SCORE',
+            label: 'ĐIỂM',
             value: score.toString(),
             color: Colors.green,
           ),
           _StatItem(
-            label: 'MOVES',
+            label: 'NƯỚC ĐI',
             value: moves.toString(),
             color: Colors.blue,
           ),

@@ -33,12 +33,6 @@ flutter:
         - assets/models/
         - assets/models/Pikachu/
     fonts:
-        - family: Rubik
+        - family: Roboto
           fonts:
-              - asset: assets/fonts/Rubik.ttf
-        - family: PressStart2P
-          fonts:
-              - asset: assets/fonts/PressStart2P.ttf
-        - family: AlanSans
-          fonts:
-              - asset: assets/fonts/AlanSans.ttf
+              - asset: assets/fonts/Roboto.ttf
