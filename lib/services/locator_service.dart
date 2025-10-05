@@ -1,6 +1,4 @@
-// Service locator for dependency injection
 import '../../data/datasources/local_pokemon_data_source.dart';
-import '../../data/datasources/pokemon_data_source.dart';
 import '../../data/repositories/pokemon_repository_impl.dart';
 import '../../domain/repositories/pokemon_repository.dart';
 import '../../domain/usecases/pokemon_use_cases.dart';
@@ -15,10 +13,10 @@ class ServiceLocator {
   final Map<Type, dynamic> _services = {};
 
   void registerServices() {
-    _services[PokemonDataSource] = LocalPokemonDataSource();
+    _services[LocalPokemonDataSource] = LocalPokemonDataSource();
 
     _services[PokemonRepository] = PokemonRepositoryImpl(
-      _services[PokemonDataSource] as PokemonDataSource,
+      _services[LocalPokemonDataSource] as LocalPokemonDataSource,
     );
 
     _services[GetPokemonListUseCase] = GetPokemonListUseCase(

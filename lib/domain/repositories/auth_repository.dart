@@ -1,4 +1,4 @@
-import '../auth/user.dart';
+import '../../data/models/user_model.dart';
 import '../auth/session.dart';
 
 class Result<T> {

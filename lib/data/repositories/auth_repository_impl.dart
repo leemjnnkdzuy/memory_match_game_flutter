@@ -1,10 +1,9 @@
 import '../../domain/repositories/auth_repository.dart';
-import '../../domain/auth/user.dart';
+import '../models/user_model.dart';
 import '../../domain/auth/session.dart';
 import '../datasources/auth_remote_data_source.dart';
-import '../datasources/token_storage.dart';
-import '../datasources/http_client.dart';
-import '../models/user_model.dart';
+import '../../services/token_storage_service.dart';
+import '../../core/error/exceptions.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource _remoteDataSource;
@@ -70,7 +69,7 @@ class AuthRepositoryImpl implements AuthRepository {
           refreshTokenExpiresAt: response.data!.refreshTokenExpiresAt,
         );
 
-        return Result.success(response.data!.user.toEntity());
+        return Result.success(response.data!.user);
       } else {
         return Result.error(response.message);
       }
@@ -247,7 +246,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await _remoteDataSource.getProfile();
 
       if (response.success && response.data != null) {
-        return Result.success(response.data!.toEntity());
+        return Result.success(response.data!);
       } else {
         return Result.error(response.message);
       }
@@ -273,7 +272,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await _remoteDataSource.updateProfile(profileData);
 
       if (response.success && response.data != null) {
-        return Result.success(response.data!.toEntity());
+        return Result.success(response.data!);
       } else {
         return Result.error(response.message);
       }
@@ -292,7 +291,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await _remoteDataSource.getPublicUser(idOrUsername);
 
       if (response.success && response.data != null) {
-        return Result.success(response.data!.toEntity());
+        return Result.success(response.data!);
       } else {
         return Result.error(response.message);
       }
@@ -413,7 +412,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       if (response.success && response.data != null) {
         final userData = response.data!['user'] as Map<String, dynamic>;
-        return Result.success(UserModel.fromJson(userData).toEntity());
+        return Result.success(User.fromJson(userData));
       } else {
         return Result.error(response.message);
       }

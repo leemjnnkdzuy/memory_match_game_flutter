@@ -1,6 +1,7 @@
 import '../models/offline_history_model.dart';
-import 'http_client.dart';
-import 'token_storage.dart';
+import '../../core/utils/http_client_utils.dart';
+import '../../services/token_storage_service.dart';
+import '../../core/error/exceptions.dart';
 
 abstract class OfflineHistoryRemoteDataSource {
   Future<OfflineHistoryModel> saveOfflineHistory({

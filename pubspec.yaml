@@ -8,14 +8,13 @@ environment:
 
 dependencies:
     pixelarticons: ^0.4.0
-    nes_ui: ^0.25.0
     flutter_cube: ^0.1.1
     http: ^1.2.0
     shared_preferences: ^2.2.2
     equatable: ^2.0.5
     path_provider: ^2.1.2
     image_picker: ^1.0.7
-    audioplayers: ^6.0.0
+    just_audio: ^0.9.36
     flutter:
         sdk: flutter
 
@@ -34,9 +33,12 @@ flutter:
         - assets/models/
         - assets/models/Pikachu/
     fonts:
-        - family: PressStart2P
-          fonts:
-              - asset: assets/fonts/PressStart2P.ttf
         - family: Rubik
           fonts:
               - asset: assets/fonts/Rubik.ttf
+        - family: PressStart2P
+          fonts:
+              - asset: assets/fonts/PressStart2P.ttf
+        - family: AlanSans
+          fonts:
+              - asset: assets/fonts/AlanSans.ttf

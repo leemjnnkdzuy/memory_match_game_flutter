@@ -2,7 +2,7 @@ import '../../domain/repositories/offline_history_repository.dart';
 import '../../domain/repositories/auth_repository.dart' show Result;
 import '../../domain/entities/offline_history_entity.dart';
 import '../datasources/offline_history_remote_data_source.dart';
-import '../datasources/http_client.dart';
+import '../../core/error/exceptions.dart';
 
 class OfflineHistoryRepositoryImpl implements OfflineHistoryRepository {
   final OfflineHistoryRemoteDataSource remoteDataSource;

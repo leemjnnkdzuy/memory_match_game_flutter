@@ -2,8 +2,8 @@ import '../models/api_response_model.dart';
 import '../models/user_model.dart';
 import '../models/login_response_model.dart';
 import '../models/session_model.dart';
-import 'http_client.dart';
-import 'token_storage.dart';
+import '../../core/utils/http_client_utils.dart';
+import '../../services/token_storage_service.dart';
 
 abstract class AuthRemoteDataSource {
   Future<ApiResponse<Map<String, dynamic>>> register({
@@ -43,11 +43,9 @@ abstract class AuthRemoteDataSource {
     required String confirmNewPassword,
   });
 
-  Future<ApiResponse<UserModel>> getProfile();
-  Future<ApiResponse<UserModel>> updateProfile(
-    Map<String, dynamic> profileData,
-  );
-  Future<ApiResponse<UserModel>> getPublicUser(String idOrUsername);
+  Future<ApiResponse<User>> getProfile();
+  Future<ApiResponse<User>> updateProfile(Map<String, dynamic> profileData);
+  Future<ApiResponse<User>> getPublicUser(String idOrUsername);
 
   Future<ApiResponse<void>> logout({required String refreshToken});
   Future<ApiResponse<void>> logoutAll();
@@ -212,31 +210,31 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<ApiResponse<UserModel>> getProfile() async {
-    return await _httpClient.get<UserModel>(
+  Future<ApiResponse<User>> getProfile() async {
+    return await _httpClient.get<User>(
       '/users/profile',
       headers: await _getAuthHeaders(),
-      fromJson: (data) => UserModel.fromJson(data['user']),
+      fromJson: (data) => User.fromJson(data['user']),
     );
   }
 
   @override
-  Future<ApiResponse<UserModel>> updateProfile(
+  Future<ApiResponse<User>> updateProfile(
     Map<String, dynamic> profileData,
   ) async {
-    return await _httpClient.put<UserModel>(
+    return await _httpClient.put<User>(
       '/users/profile',
       headers: await _getAuthHeaders(),
       body: profileData,
-      fromJson: (data) => UserModel.fromJson(data['user']),
+      fromJson: (data) => User.fromJson(data['user']),
     );
   }
 
   @override
-  Future<ApiResponse<UserModel>> getPublicUser(String idOrUsername) async {
-    return await _httpClient.get<UserModel>(
+  Future<ApiResponse<User>> getPublicUser(String idOrUsername) async {
+    return await _httpClient.get<User>(
       '/users/user/$idOrUsername',
-      fromJson: (data) => UserModel.fromJson(data['user']),
+      fromJson: (data) => User.fromJson(data['user']),
     );
   }
 

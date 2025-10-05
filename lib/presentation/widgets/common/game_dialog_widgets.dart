@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nes_ui/nes_ui.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../widgets/custom/custom_button.dart';
 
 class GameEndDialogWidget extends StatelessWidget {
   final bool isWin;
@@ -52,14 +52,14 @@ class GameEndDialogWidget extends StatelessWidget {
         ],
       ),
       actions: [
-        NesButton(
-          type: NesButtonType.primary,
+        CustomButton(
+          type: CustomButtonType.primary,
           onPressed: onPlayAgain,
           child: Text('PLAY AGAIN'),
         ),
         const SizedBox(height: 8),
-        NesButton(
-          type: NesButtonType.normal,
+        CustomButton(
+          type: CustomButtonType.normal,
           onPressed: onBackToMenu,
           child: Text('BACK TO MENU'),
         ),
@@ -110,14 +110,14 @@ class GamePauseDialogWidget extends StatelessWidget {
         ],
       ),
       actions: [
-        NesButton(
-          type: NesButtonType.primary,
+        CustomButton(
+          type: CustomButtonType.primary,
           onPressed: onResume,
           child: Text('RESUME'),
         ),
         const SizedBox(height: 8),
-        NesButton(
-          type: NesButtonType.error,
+        CustomButton(
+          type: CustomButtonType.error,
           onPressed: onQuit,
           child: Text('QUIT GAME'),
         ),

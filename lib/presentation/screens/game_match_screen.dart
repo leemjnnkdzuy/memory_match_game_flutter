@@ -4,7 +4,7 @@ import './login_screen.dart';
 import '../widgets/common/game_mode_card_widget.dart';
 import '../../services/auth_service.dart';
 import 'package:pixelarticons/pixel.dart';
-import 'package:nes_ui/nes_ui.dart';
+import '../widgets/custom/custom_button.dart';
 
 class GameMatchScreen extends StatefulWidget {
   const GameMatchScreen({super.key});
@@ -18,7 +18,7 @@ class _GameMatchScreenState extends State<GameMatchScreen> {
 
   Future<void> _handleLockedCardTap(String featureName) async {
     if (_isLoggedIn) {
-      return; // User is already logged in, shouldn't reach here
+      return;
     }
 
     final result = await showDialog<bool>(
@@ -27,16 +27,20 @@ class _GameMatchScreenState extends State<GameMatchScreen> {
     );
 
     if (result == true) {
+      if (!mounted) return;
       final loginResult = await Navigator.push<bool>(
         context,
         MaterialPageRoute(builder: (context) => const LoginScreen()),
       );
 
       if (loginResult == true) {
+        if (!mounted) return;
         setState(() {});
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Login successful! Premium features unlocked!'),
+            content: const Text(
+              'Đăng nhập thành công! Tính năng premium đã được mở khóa!',
+            ),
             backgroundColor: Colors.green.shade700,
             behavior: SnackBarBehavior.floating,
           ),
@@ -68,13 +72,13 @@ class _GameMatchScreenState extends State<GameMatchScreen> {
             Icon(Pixel.lock, size: 48, color: Colors.red.shade700),
             const SizedBox(height: 16),
             Text(
-              'PREMIUM FEATURE',
+              'TÍNH NĂNG PREMIUM',
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
-              'You need to log in to access this feature.',
+              'Bạn cần đăng nhập để truy cập tính năng này.',
               style: const TextStyle(fontSize: 10),
               textAlign: TextAlign.center,
             ),
@@ -82,18 +86,18 @@ class _GameMatchScreenState extends State<GameMatchScreen> {
             Row(
               children: [
                 Expanded(
-                  child: NesButton(
-                    type: NesButtonType.primary,
+                  child: CustomButton(
+                    type: CustomButtonType.primary,
                     onPressed: () => Navigator.of(context).pop(true),
-                    child: const Text('Login', textAlign: TextAlign.center),
+                    child: const Text('Đăng nhập', textAlign: TextAlign.center),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: NesButton(
-                    type: NesButtonType.normal,
+                  child: CustomButton(
+                    type: CustomButtonType.normal,
                     onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Cancel', textAlign: TextAlign.center),
+                    child: const Text('Hủy', textAlign: TextAlign.center),
                   ),
                 ),
               ],
@@ -125,8 +129,8 @@ class _GameMatchScreenState extends State<GameMatchScreen> {
               children: [
                 GameModeCard(
                   icon: Pixel.clock,
-                  title: 'Time Challenge',
-                  subtitle: 'Race against the clock!',
+                  title: 'Thách thức thời gian',
+                  subtitle: 'Đua với thời gian!',
                   color: const Color(0xFF4CAF50),
                   isEnabled: true,
                   onTap: () => Navigator.push(
@@ -139,8 +143,8 @@ class _GameMatchScreenState extends State<GameMatchScreen> {
                 const SizedBox(height: 20),
                 GameModeCard(
                   icon: Pixel.zap,
-                  title: 'Solo Duel',
-                  subtitle: 'Challenge another player',
+                  title: 'Đấu đơn',
+                  subtitle: 'Thách đấu với người chơi khác',
                   color: const Color(0xFFFF9800),
                   isEnabled: _isLoggedIn,
                   onTap: _isLoggedIn
@@ -148,7 +152,7 @@ class _GameMatchScreenState extends State<GameMatchScreen> {
                           // TODO: Navigate to Solo Duel screen
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Solo Duel coming soon!'),
+                              content: Text('Đấu đơn sắp ra mắt!'),
                             ),
                           );
                         }
@@ -158,7 +162,7 @@ class _GameMatchScreenState extends State<GameMatchScreen> {
                 GameModeCard(
                   icon: Pixel.users,
                   title: 'Battle Royale',
-                  subtitle: 'Compete with multiple players',
+                  subtitle: 'Cạnh tranh với nhiều người chơi',
                   color: const Color(0xFFE91E63),
                   isEnabled: _isLoggedIn,
                   onTap: _isLoggedIn
@@ -166,7 +170,7 @@ class _GameMatchScreenState extends State<GameMatchScreen> {
                           // TODO: Navigate to Battle Royale screen
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Battle Royale coming soon!'),
+                              content: Text('Battle Royale sắp ra mắt!'),
                             ),
                           );
                         }
@@ -175,8 +179,8 @@ class _GameMatchScreenState extends State<GameMatchScreen> {
                 const SizedBox(height: 20),
                 GameModeCard(
                   icon: Icons.tune,
-                  title: 'Custom Game',
-                  subtitle: 'Customize your match!',
+                  title: 'Trò chơi tùy chỉnh',
+                  subtitle: 'Tùy chỉnh trận đấu của bạn!',
                   color: const Color(0xFF9C27B0),
                   isEnabled: _isLoggedIn,
                   onTap: _isLoggedIn
@@ -184,7 +188,7 @@ class _GameMatchScreenState extends State<GameMatchScreen> {
                           // TODO: Navigate to Custom Game screen
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Custom Game coming soon!'),
+                              content: Text('Trò chơi tùy chỉnh sắp ra mắt!'),
                             ),
                           );
                         }

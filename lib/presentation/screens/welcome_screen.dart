@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nes_ui/nes_ui.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/auth_service.dart';
+import '../widgets/custom/custom_button.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -11,10 +11,20 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
+  bool _hasCheckedLoginStatus = false;
+
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_hasCheckedLoginStatus) {
+      _hasCheckedLoginStatus = true;
+      _checkLoginStatus();
+    }
   }
 
   void _checkLoginStatus() {
@@ -54,8 +64,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         Text(
                           'POKEMON',
                           style: AppTheme.headlineLarge.copyWith(
+                            fontFamily: 'PressStart2P',
                             color: AppTheme.primaryColor,
-                            fontSize: 28,
+                            fontSize: 48,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -64,6 +75,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           'MEMORY MATCH',
                           style: AppTheme.headlineMedium.copyWith(
                             color: AppTheme.primaryColor,
+                            fontFamily: 'PressStart2P',
                             fontSize: 16,
                           ),
                           textAlign: TextAlign.center,
@@ -77,8 +89,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      NesButton(
-                        type: NesButtonType.primary,
+                      CustomButton(
+                        type: CustomButtonType.primary,
                         onPressed: () {
                           Navigator.pushNamed(context, '/login');
                         },
@@ -87,8 +99,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
                       const SizedBox(height: 16),
 
-                      NesButton(
-                        type: NesButtonType.normal,
+                      CustomButton(
+                        type: CustomButtonType.normal,
                         onPressed: () {
                           Navigator.pushNamed(context, '/register-verify');
                         },
@@ -102,7 +114,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           Expanded(
                             child: Container(
                               height: 2,
-                              color: AppTheme.primaryColor.withOpacity(0.3),
+                              color: AppTheme.primaryColor.withValues(
+                                alpha: 0.3,
+                              ),
                             ),
                           ),
                           Padding(
@@ -119,7 +133,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           Expanded(
                             child: Container(
                               height: 2,
-                              color: AppTheme.primaryColor.withOpacity(0.3),
+                              color: AppTheme.primaryColor.withValues(
+                                alpha: 0.3,
+                              ),
                             ),
                           ),
                         ],
@@ -127,13 +143,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
                       const SizedBox(height: 20),
 
-                      NesButton(
-                        type: NesButtonType.success,
+                      CustomButton(
+                        type: CustomButtonType.success,
                         onPressed: () async {
-                          // Login as guest using AuthService
-                          await AuthService.instance.loginAsGuest();
                           if (mounted) {
-                            Navigator.pushReplacementNamed(context, '/home');
+                            await AuthService.instance.loginAsGuest();
+                            if (mounted) {
+                              Navigator.pushReplacementNamed(context, '/home');
+                            }
                           }
                         },
                         child: Text(

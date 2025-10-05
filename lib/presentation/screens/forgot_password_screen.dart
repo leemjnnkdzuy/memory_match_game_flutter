@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:nes_ui/nes_ui.dart';
 import 'package:pixelarticons/pixel.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/request_service.dart';
 import '../routes/app_routes.dart';
+import '../widgets/custom/custom_button.dart';
+import '../widgets/custom/custom_container.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -95,7 +96,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         await Future.delayed(const Duration(milliseconds: 500));
         _nextStep();
       } else {
-        throw Exception(result.error ?? 'Invalid or expired PIN');
+        throw Exception(result.error ?? 'Mã PIN không hợp lệ hoặc đã hết hạn');
       }
     } catch (e) {
       _showErrorMessage(
@@ -114,7 +115,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     }
 
     if (_resetToken == null) {
-      _showErrorMessage('Invalid reset session. Please start over.');
+      _showErrorMessage('Phiên đặt lại không hợp lệ. Vui lòng bắt đầu lại.');
       return;
     }
 
@@ -138,7 +139,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           }
         });
       } else {
-        throw Exception(result.error ?? 'Failed to reset password');
+        throw Exception(result.error ?? 'Không thể đặt lại mật khẩu');
       }
     } catch (e) {
       _showErrorMessage(
@@ -168,7 +169,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         _showSuccessMessage('Mã xác thực mới đã được gửi!');
         _startResendCountdown();
       } else {
-        throw Exception(result.error ?? 'Failed to resend email');
+        throw Exception(result.error ?? 'Không thể gửi lại email');
       }
     } catch (e) {
       _showErrorMessage(
@@ -264,7 +265,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Forgot Password',
+            'Quên mật khẩu',
             style: AppTheme.headlineMedium,
             textAlign: TextAlign.center,
           ),
@@ -272,9 +273,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           const SizedBox(height: 16),
 
           Text(
-            'Enter your email address and we\'ll send you a PIN to reset your password.',
+            'Nhập địa chỉ email của bạn và chúng tôi sẽ gửi mã PIN để đặt lại mật khẩu.',
             style: AppTheme.bodyMedium.copyWith(
-              color: AppTheme.primaryColor.withOpacity(0.7),
+              color: AppTheme.primaryColor.withValues(alpha: 0.7),
             ),
             textAlign: TextAlign.center,
           ),
@@ -284,7 +285,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppTheme.primaryColor.withOpacity(0.5),
+                color: AppTheme.primaryColor.withValues(alpha: 0.5),
                 width: 2,
               ),
             ),
@@ -292,9 +293,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
-                labelText: 'Email',
+                labelText: 'Địa chỉ email',
                 labelStyle: TextStyle(
-                  fontFamily: 'PressStart2P',
+                  fontFamily: 'AlanSans',
                   fontSize: 10,
                   color: AppTheme.primaryColor,
                 ),
@@ -309,12 +310,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               style: const TextStyle(fontSize: 12),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your email';
+                  return 'Vui lòng nhập email của bạn';
                 }
                 if (!RegExp(
                   r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                 ).hasMatch(value)) {
-                  return 'Please enter a valid email';
+                  return 'Vui lòng nhập email hợp lệ';
                 }
                 return null;
               },
@@ -324,7 +325,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           const SizedBox(height: 24),
 
           _isLoading
-              ? NesContainer(
+              ? CustomContainer(
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -346,11 +347,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     ],
                   ),
                 )
-              : NesButton(
-                  type: NesButtonType.primary,
+              : CustomButton(
+                  type: CustomButtonType.primary,
                   onPressed: _handleSendResetEmail,
                   child: const Text(
-                    'Send Reset Email',
+                    'Gửi email đặt lại mật khẩu',
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -366,7 +367,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Verify PIN',
+            'Xác minh mã PIN',
             style: AppTheme.headlineMedium,
             textAlign: TextAlign.center,
           ),
@@ -374,9 +375,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           const SizedBox(height: 16),
 
           Text(
-            'Enter the 6-digit PIN sent to your email:\n${_emailController.text}',
+            'Nhập mã PIN 6 chữ số được gửi đến email của bạn:\n${_emailController.text}',
             style: AppTheme.bodyMedium.copyWith(
-              color: AppTheme.primaryColor.withOpacity(0.7),
+              color: AppTheme.primaryColor.withValues(alpha: 0.7),
             ),
             textAlign: TextAlign.center,
           ),
@@ -386,7 +387,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppTheme.primaryColor.withOpacity(0.5),
+                color: AppTheme.primaryColor.withValues(alpha: 0.5),
                 width: 2,
               ),
             ),
@@ -395,9 +396,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               keyboardType: TextInputType.number,
               maxLength: 6,
               decoration: InputDecoration(
-                labelText: 'PIN Code',
+                labelText: 'Mã PIN',
                 labelStyle: TextStyle(
-                  fontFamily: 'PressStart2P',
+                  fontFamily: 'AlanSans',
                   fontSize: 10,
                   color: AppTheme.primaryColor,
                 ),
@@ -414,13 +415,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               textAlign: TextAlign.center,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter the PIN';
+                  return 'Vui lòng nhập mã PIN';
                 }
                 if (value.length != 6) {
-                  return 'PIN must be 6 digits';
+                  return 'Mã PIN phải có 6 chữ số';
                 }
                 if (!RegExp(r'^\d{6}$').hasMatch(value)) {
-                  return 'PIN must contain only numbers';
+                  return 'Mã PIN chỉ được chứa số';
                 }
                 return null;
               },
@@ -433,13 +434,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             onPressed: _resendCountdown > 0 ? null : _handleResendEmail,
             child: Text(
               _resendCountdown > 0
-                  ? 'Resend in ${_resendCountdown}s'
-                  : 'Resend PIN',
+                  ? 'Gửi lại sau ${_resendCountdown}s'
+                  : 'Gửi lại mã PIN',
               style: TextStyle(
                 fontSize: 10,
                 color: _resendCountdown > 0
-                    ? AppTheme.primaryColor.withOpacity(0.3)
-                    : AppTheme.primaryColor.withOpacity(0.7),
+                    ? AppTheme.primaryColor.withValues(alpha: 0.3)
+                    : AppTheme.primaryColor.withValues(alpha: 0.7),
               ),
             ),
           ),
@@ -447,7 +448,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           const SizedBox(height: 24),
 
           _isLoading
-              ? NesContainer(
+              ? CustomContainer(
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -461,7 +462,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(
-                          'Processing...',
+                          'Đang xử lý...',
                           style: Theme.of(context).textTheme.bodyMedium,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -469,16 +470,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     ],
                   ),
                 )
-              : NesButton(
-                  type: NesButtonType.primary,
+              : CustomButton(
+                  type: CustomButtonType.primary,
                   onPressed: _handleVerifyPin,
-                  child: const Text('Verify PIN', textAlign: TextAlign.center),
+                  child: const Text(
+                    'Xác minh mã PIN',
+                    textAlign: TextAlign.center,
+                  ),
                 ),
 
           const SizedBox(height: 16),
 
-          NesButton(
-            type: NesButtonType.normal,
+          CustomButton(
+            type: CustomButtonType.normal,
             onPressed: _previousStep,
             child: Text('Back', textAlign: TextAlign.center),
           ),
@@ -494,7 +498,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'New Password',
+            'Mật khẩu mới',
             style: AppTheme.headlineMedium,
             textAlign: TextAlign.center,
           ),
@@ -502,9 +506,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           const SizedBox(height: 16),
 
           Text(
-            'Enter your new password below.',
+            'Nhập mật khẩu mới của bạn bên dưới.',
             style: AppTheme.bodyMedium.copyWith(
-              color: AppTheme.primaryColor.withOpacity(0.7),
+              color: AppTheme.primaryColor.withValues(alpha: 0.7),
             ),
             textAlign: TextAlign.center,
           ),
@@ -514,7 +518,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppTheme.primaryColor.withOpacity(0.5),
+                color: AppTheme.primaryColor.withValues(alpha: 0.5),
                 width: 2,
               ),
             ),
@@ -522,7 +526,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               controller: _passwordController,
               obscureText: _obscurePassword,
               decoration: InputDecoration(
-                labelText: 'New Password',
+                labelText: 'Mật khẩu mới',
                 labelStyle: TextStyle(
                   fontSize: 10,
                   color: AppTheme.primaryColor,
@@ -552,10 +556,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               style: const TextStyle(fontSize: 12),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your new password';
+                  return 'Vui lòng nhập mật khẩu mới';
                 }
                 if (value.length < 6) {
-                  return 'Password must be at least 6 characters';
+                  return 'Mật khẩu phải có ít nhất 6 ký tự';
                 }
                 return null;
               },
@@ -567,7 +571,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color: AppTheme.primaryColor.withOpacity(0.5),
+                color: AppTheme.primaryColor.withValues(alpha: 0.5),
                 width: 2,
               ),
             ),
@@ -575,7 +579,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               controller: _confirmPasswordController,
               obscureText: _obscureConfirmPassword,
               decoration: InputDecoration(
-                labelText: 'Confirm Password',
+                labelText: 'Xác nhận mật khẩu',
                 labelStyle: TextStyle(
                   fontSize: 10,
                   color: AppTheme.primaryColor,
@@ -605,10 +609,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               style: const TextStyle(fontSize: 12),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please confirm your password';
+                  return 'Vui lòng xác nhận mật khẩu';
                 }
                 if (value != _passwordController.text) {
-                  return 'Passwords do not match';
+                  return 'Mật khẩu không khớp';
                 }
                 return null;
               },
@@ -618,7 +622,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           const SizedBox(height: 24),
 
           _isLoading
-              ? NesContainer(
+              ? CustomContainer(
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -632,7 +636,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(
-                          'Processing...',
+                          'Đang xử lý...',
                           style: Theme.of(context).textTheme.bodyMedium,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -640,21 +644,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     ],
                   ),
                 )
-              : NesButton(
-                  type: NesButtonType.primary,
+              : CustomButton(
+                  type: CustomButtonType.primary,
                   onPressed: _handleResetPassword,
                   child: const Text(
-                    'Reset Password',
+                    'Đặt lại mật khẩu',
                     textAlign: TextAlign.center,
                   ),
                 ),
 
           const SizedBox(height: 16),
 
-          NesButton(
-            type: NesButtonType.normal,
+          CustomButton(
+            type: CustomButtonType.normal,
             onPressed: _previousStep,
-            child: Text('Back', textAlign: TextAlign.center),
+            child: Text('Quay lại', textAlign: TextAlign.center),
           ),
         ],
       ),
@@ -688,12 +692,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
               const SizedBox(height: 16),
 
-              NesButton(
-                type: NesButtonType.warning,
+              CustomButton(
+                type: CustomButtonType.warning,
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text('Back to Login', textAlign: TextAlign.center),
+                child: Text('Quay lại đăng nhập', textAlign: TextAlign.center),
               ),
             ],
           ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nes_ui/nes_ui.dart';
+import '../../widgets/custom/custom_button.dart';
 
 class ActionsWidget extends StatelessWidget {
   final VoidCallback? onRefreshAvatar;
@@ -66,8 +66,8 @@ class ActionsWidget extends StatelessWidget {
       buttons.add(
         SizedBox(
           width: double.infinity,
-          child: NesButton(
-            type: NesButtonType.primary,
+          child: CustomButton(
+            type: CustomButtonType.primary,
             onPressed: onEditProfile ?? () => _navigateToEditProfile(context),
             child: Text('Edit Profile', textAlign: TextAlign.center),
           ),
@@ -80,8 +80,8 @@ class ActionsWidget extends StatelessWidget {
       buttons.add(
         SizedBox(
           width: double.infinity,
-          child: NesButton(
-            type: NesButtonType.normal,
+          child: CustomButton(
+            type: CustomButtonType.normal,
             onPressed: onSettings,
             child: Text('Settings', textAlign: TextAlign.center),
           ),
@@ -94,8 +94,8 @@ class ActionsWidget extends StatelessWidget {
       buttons.add(
         SizedBox(
           width: double.infinity,
-          child: NesButton(
-            type: NesButtonType.error,
+          child: CustomButton(
+            type: CustomButtonType.error,
             onPressed: onLogout != null
                 ? () => _showLogoutConfirmation(context)
                 : null,

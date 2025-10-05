@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../domain/auth/user.dart';
+import '../data/models/user_model.dart';
 
 class UserLocalStorageService {
   static const String _userKey = 'current_user';

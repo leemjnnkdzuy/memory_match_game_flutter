@@ -70,7 +70,7 @@ class _HistoryCardState extends State<HistoryCard>
     final duration = Duration(seconds: seconds);
     final minutes = duration.inMinutes;
     final secs = duration.inSeconds % 60;
-    return '${minutes}:${secs.toString().padLeft(2, '0')}';
+    return '$minutes:${secs.toString().padLeft(2, '0')}';
   }
 
   String _formatDate(DateTime date) {

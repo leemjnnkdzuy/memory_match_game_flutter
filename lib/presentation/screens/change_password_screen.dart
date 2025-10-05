@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nes_ui/nes_ui.dart';
+import '../widgets/custom/custom_button.dart';
+import '../widgets/custom/custom_container.dart';
 import 'package:pixelarticons/pixel.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/request_service.dart';
@@ -172,7 +173,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          color: AppTheme.primaryColor.withOpacity(0.5),
+          color: AppTheme.primaryColor.withValues(alpha: 0.5),
           width: 2,
         ),
       ),
@@ -186,7 +187,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           labelStyle: TextStyle(fontSize: 10, color: AppTheme.primaryColor),
           hintStyle: TextStyle(
             fontSize: 10,
-            color: AppTheme.primaryColor.withOpacity(0.5),
+            color: AppTheme.primaryColor.withValues(alpha: 0.5),
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(16),
@@ -269,7 +270,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
                   const SizedBox(height: 30),
 
-                  NesContainer(
+                  CustomContainer(
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,7 +310,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   const SizedBox(height: 30),
 
                   _isChanging
-                      ? NesContainer(
+                      ? CustomContainer(
                           padding: const EdgeInsets.all(16),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -333,8 +334,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             ],
                           ),
                         )
-                      : NesButton(
-                          type: NesButtonType.primary,
+                      : CustomButton(
+                          type: CustomButtonType.primary,
                           onPressed: _changePassword,
                           child: const Text(
                             'Change Password',
@@ -344,9 +345,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
                   if (_errorMessage != null) ...[
                     const SizedBox(height: 20),
-                    NesContainer(
+                    CustomContainer(
                       padding: const EdgeInsets.all(12),
-                      backgroundColor: AppTheme.errorColor.withOpacity(0.1),
+                      backgroundColor: AppTheme.errorColor.withValues(
+                        alpha: 0.1,
+                      ),
                       child: Row(
                         children: [
                           Icon(
@@ -384,7 +387,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           child: Icon(
             Pixel.check,
             size: 12,
-            color: AppTheme.primaryColor.withOpacity(0.7),
+            color: AppTheme.primaryColor.withValues(alpha: 0.7),
           ),
         ),
         const SizedBox(width: 8),
@@ -392,7 +395,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           child: Text(
             text,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppTheme.primaryColor.withOpacity(0.8),
+              color: AppTheme.primaryColor.withValues(alpha: 0.8),
             ),
           ),
         ),

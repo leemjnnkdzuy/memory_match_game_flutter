@@ -1,12 +1,12 @@
-import '../../domain/auth/user.dart';
+import 'package:equatable/equatable.dart';
 
-class UserModel {
+class User extends Equatable {
   final String id;
   final String username;
   final String email;
   final String firstName;
   final String lastName;
-  final String avatar;
+  final String? avatar;
   final String? language;
   final String? bio;
   final bool isActive;
@@ -21,13 +21,13 @@ class UserModel {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  UserModel({
+  const User({
     required this.id,
     required this.username,
     required this.email,
     required this.firstName,
     required this.lastName,
-    required this.avatar,
+    this.avatar,
     this.language,
     this.bio,
     required this.isActive,
@@ -43,8 +43,81 @@ class UserModel {
     this.updatedAt,
   });
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    return UserModel(
+  String get fullName => '$firstName $lastName';
+
+  bool get hasCompleteProfile {
+    return avatar != null && bio != null && bio!.isNotEmpty;
+  }
+
+  User copyWith({
+    String? id,
+    String? username,
+    String? email,
+    String? firstName,
+    String? lastName,
+    String? avatar,
+    String? language,
+    String? bio,
+    bool? isActive,
+    bool? isVerified,
+    String? githubUrl,
+    String? linkedinUrl,
+    String? websiteUrl,
+    String? youtubeUrl,
+    String? facebookUrl,
+    String? instagramUrl,
+    List<dynamic>? historyMatch,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return User(
+      id: id ?? this.id,
+      username: username ?? this.username,
+      email: email ?? this.email,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      avatar: avatar ?? this.avatar,
+      language: language ?? this.language,
+      bio: bio ?? this.bio,
+      isActive: isActive ?? this.isActive,
+      isVerified: isVerified ?? this.isVerified,
+      githubUrl: githubUrl ?? this.githubUrl,
+      linkedinUrl: linkedinUrl ?? this.linkedinUrl,
+      websiteUrl: websiteUrl ?? this.websiteUrl,
+      youtubeUrl: youtubeUrl ?? this.youtubeUrl,
+      facebookUrl: facebookUrl ?? this.facebookUrl,
+      instagramUrl: instagramUrl ?? this.instagramUrl,
+      historyMatch: historyMatch ?? this.historyMatch,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+    id,
+    username,
+    email,
+    firstName,
+    lastName,
+    avatar,
+    language,
+    bio,
+    isActive,
+    isVerified,
+    githubUrl,
+    linkedinUrl,
+    websiteUrl,
+    youtubeUrl,
+    facebookUrl,
+    instagramUrl,
+    historyMatch,
+    createdAt,
+    updatedAt,
+  ];
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
       id: json['_id'] ?? json['id'] ?? '',
       username: json['username'] ?? '',
       email: json['email'] ?? '',
@@ -93,29 +166,5 @@ class UserModel {
       'created_at': createdAt?.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
     };
-  }
-
-  User toEntity() {
-    return User(
-      id: id,
-      username: username,
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-      avatar: avatar,
-      language: language,
-      bio: bio,
-      isActive: isActive,
-      isVerified: isVerified,
-      githubUrl: githubUrl,
-      linkedinUrl: linkedinUrl,
-      websiteUrl: websiteUrl,
-      youtubeUrl: youtubeUrl,
-      facebookUrl: facebookUrl,
-      instagramUrl: instagramUrl,
-      historyMatch: historyMatch,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
-    );
   }
 }

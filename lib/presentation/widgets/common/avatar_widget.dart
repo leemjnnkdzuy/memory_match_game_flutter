@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:memory_match_game/services/auth_service.dart';
 import 'package:pixelarticons/pixel.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:nes_ui/nes_ui.dart';
 import 'dart:convert';
 import 'dart:typed_data';
+import '../../widgets/custom/custom_button.dart';
 
 class AvatarWidget extends StatefulWidget {
   final double size;
@@ -285,8 +285,8 @@ class _AvatarWidgetState extends State<AvatarWidget> {
           SizedBox(
             width: widget.size,
             height: 48,
-            child: NesButton(
-              type: NesButtonType.primary,
+            child: CustomButton(
+              type: CustomButtonType.primary,
               onPressed: _isUploadingAvatar ? null : _pickAndUploadAvatar,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

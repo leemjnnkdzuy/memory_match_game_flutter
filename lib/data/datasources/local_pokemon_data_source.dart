@@ -1,30 +1,17 @@
 import '../models/pokemon_model.dart';
-import 'pokemon_data_source.dart';
 
-class LocalPokemonDataSource implements PokemonDataSource {
+class LocalPokemonDataSource {
   static const List<PokemonModel> _pokemonData = [
     PokemonModel(id: 1, imagePath: 'images/Abra.png', name: 'Abra'),
-    PokemonModel(
-      id: 2,
-      imagePath: 'images/Aerodactyl.png',
-      name: 'Aerodactyl',
-    ),
+    PokemonModel(id: 2, imagePath: 'images/Aerodactyl.png', name: 'Aerodactyl'),
     PokemonModel(id: 3, imagePath: 'images/Alakazam.png', name: 'Alakazam'),
     PokemonModel(id: 4, imagePath: 'images/Arbok.png', name: 'Arbok'),
     PokemonModel(id: 5, imagePath: 'images/Arcanine.png', name: 'Arcanine'),
     PokemonModel(id: 6, imagePath: 'images/Articuno.png', name: 'Articuno'),
     PokemonModel(id: 7, imagePath: 'images/Beedrill.png', name: 'Beedrill'),
-    PokemonModel(
-      id: 8,
-      imagePath: 'images/Bellsprout.png',
-      name: 'Bellsprout',
-    ),
+    PokemonModel(id: 8, imagePath: 'images/Bellsprout.png', name: 'Bellsprout'),
     PokemonModel(id: 9, imagePath: 'images/Blastoise.png', name: 'Blastoise'),
-    PokemonModel(
-      id: 10,
-      imagePath: 'images/Bulbasaur.png',
-      name: 'Bulbasaur',
-    ),
+    PokemonModel(id: 10, imagePath: 'images/Bulbasaur.png', name: 'Bulbasaur'),
     PokemonModel(
       id: 11,
       imagePath: 'images/Butterfree.png',
@@ -32,11 +19,7 @@ class LocalPokemonDataSource implements PokemonDataSource {
     ),
     PokemonModel(id: 12, imagePath: 'images/Caterpie.png', name: 'Caterpie'),
     PokemonModel(id: 13, imagePath: 'images/Chansey.png', name: 'Chansey'),
-    PokemonModel(
-      id: 14,
-      imagePath: 'images/Charizard.png',
-      name: 'Charizard',
-    ),
+    PokemonModel(id: 14, imagePath: 'images/Charizard.png', name: 'Charizard'),
     PokemonModel(
       id: 15,
       imagePath: 'images/Charmander.png',
@@ -56,16 +39,8 @@ class LocalPokemonDataSource implements PokemonDataSource {
     PokemonModel(id: 23, imagePath: 'images/Ditto.png', name: 'Ditto'),
     PokemonModel(id: 24, imagePath: 'images/Dodrio.png', name: 'Dodrio'),
     PokemonModel(id: 25, imagePath: 'images/Doduo.png', name: 'Doduo'),
-    PokemonModel(
-      id: 26,
-      imagePath: 'images/Dragonair.png',
-      name: 'Dragonair',
-    ),
-    PokemonModel(
-      id: 27,
-      imagePath: 'images/Dragonite.png',
-      name: 'Dragonite',
-    ),
+    PokemonModel(id: 26, imagePath: 'images/Dragonair.png', name: 'Dragonair'),
+    PokemonModel(id: 27, imagePath: 'images/Dragonite.png', name: 'Dragonite'),
     PokemonModel(id: 28, imagePath: 'images/Dratini.png', name: 'Dratini'),
     PokemonModel(id: 29, imagePath: 'images/Drowzee.png', name: 'Drowzee'),
     PokemonModel(id: 30, imagePath: 'images/Dugtrio.png', name: 'Dugtrio'),
@@ -76,21 +51,9 @@ class LocalPokemonDataSource implements PokemonDataSource {
       imagePath: 'images/Electabuzz.png',
       name: 'Electabuzz',
     ),
-    PokemonModel(
-      id: 34,
-      imagePath: 'images/Electrode.png',
-      name: 'Electrode',
-    ),
-    PokemonModel(
-      id: 35,
-      imagePath: 'images/Exeggcute.png',
-      name: 'Exeggcute',
-    ),
-    PokemonModel(
-      id: 36,
-      imagePath: 'images/Exeggutor.png',
-      name: 'Exeggutor',
-    ),
+    PokemonModel(id: 34, imagePath: 'images/Electrode.png', name: 'Electrode'),
+    PokemonModel(id: 35, imagePath: 'images/Exeggcute.png', name: 'Exeggcute'),
+    PokemonModel(id: 36, imagePath: 'images/Exeggutor.png', name: 'Exeggutor'),
     PokemonModel(
       id: 37,
       imagePath: 'images/Farfetch\'d.png',
@@ -108,11 +71,7 @@ class LocalPokemonDataSource implements PokemonDataSource {
     PokemonModel(id: 47, imagePath: 'images/Golem.png', name: 'Golem'),
     PokemonModel(id: 48, imagePath: 'images/Graveler.png', name: 'Graveler'),
     PokemonModel(id: 49, imagePath: 'images/Grimer.png', name: 'Grimer'),
-    PokemonModel(
-      id: 50,
-      imagePath: 'images/Growlithe.png',
-      name: 'Growlithe',
-    ),
+    PokemonModel(id: 50, imagePath: 'images/Growlithe.png', name: 'Growlithe'),
     PokemonModel(id: 51, imagePath: 'images/Gyarados.png', name: 'Gyarados'),
     PokemonModel(id: 52, imagePath: 'images/Haunter.png', name: 'Haunter'),
     PokemonModel(
@@ -120,11 +79,7 @@ class LocalPokemonDataSource implements PokemonDataSource {
       imagePath: 'images/Hitmonchan.png',
       name: 'Hitmonchan',
     ),
-    PokemonModel(
-      id: 54,
-      imagePath: 'images/Hitmonlee.png',
-      name: 'Hitmonlee',
-    ),
+    PokemonModel(id: 54, imagePath: 'images/Hitmonlee.png', name: 'Hitmonlee'),
     PokemonModel(id: 55, imagePath: 'images/Horsea.png', name: 'Horsea'),
     PokemonModel(id: 56, imagePath: 'images/Hypno.png', name: 'Hypno'),
     PokemonModel(id: 57, imagePath: 'images/Ivysaur.png', name: 'Ivysaur'),
@@ -148,21 +103,13 @@ class LocalPokemonDataSource implements PokemonDataSource {
     PokemonModel(id: 67, imagePath: 'images/Koffing.png', name: 'Koffing'),
     PokemonModel(id: 68, imagePath: 'images/Krabby.png', name: 'Krabby'),
     PokemonModel(id: 69, imagePath: 'images/Lapras.png', name: 'Lapras'),
-    PokemonModel(
-      id: 70,
-      imagePath: 'images/Lickitung.png',
-      name: 'Lickitung',
-    ),
+    PokemonModel(id: 70, imagePath: 'images/Lickitung.png', name: 'Lickitung'),
     PokemonModel(id: 71, imagePath: 'images/Machamp.png', name: 'Machamp'),
     PokemonModel(id: 72, imagePath: 'images/Machoke.png', name: 'Machoke'),
     PokemonModel(id: 73, imagePath: 'images/Machop.png', name: 'Machop'),
     PokemonModel(id: 74, imagePath: 'images/Magikarp.png', name: 'Magikarp'),
     PokemonModel(id: 75, imagePath: 'images/Magmar.png', name: 'Magmar'),
-    PokemonModel(
-      id: 76,
-      imagePath: 'images/Magnemite.png',
-      name: 'Magnemite',
-    ),
+    PokemonModel(id: 76, imagePath: 'images/Magnemite.png', name: 'Magnemite'),
     PokemonModel(id: 77, imagePath: 'images/Magneton.png', name: 'Magneton'),
     PokemonModel(id: 78, imagePath: 'images/Mankey.png', name: 'Mankey'),
     PokemonModel(id: 79, imagePath: 'images/Marowak.png', name: 'Marowak'),
@@ -174,11 +121,7 @@ class LocalPokemonDataSource implements PokemonDataSource {
     PokemonModel(id: 85, imagePath: 'images/Mr.Mime.png', name: 'Mr. Mime'),
     PokemonModel(id: 86, imagePath: 'images/Muk.png', name: 'Muk'),
     PokemonModel(id: 87, imagePath: 'images/Nidoking.png', name: 'Nidoking'),
-    PokemonModel(
-      id: 88,
-      imagePath: 'images/Nidoqueen.png',
-      name: 'Nidoqueen',
-    ),
+    PokemonModel(id: 88, imagePath: 'images/Nidoqueen.png', name: 'Nidoqueen'),
     PokemonModel(
       id: 89,
       imagePath: 'images/Nidoran_female.png',
@@ -191,11 +134,7 @@ class LocalPokemonDataSource implements PokemonDataSource {
     ),
     PokemonModel(id: 91, imagePath: 'images/Nidorina.png', name: 'Nidorina'),
     PokemonModel(id: 92, imagePath: 'images/Nidorino.png', name: 'Nidorino'),
-    PokemonModel(
-      id: 93,
-      imagePath: 'images/Ninetales.png',
-      name: 'Ninetales',
-    ),
+    PokemonModel(id: 93, imagePath: 'images/Ninetales.png', name: 'Ninetales'),
     PokemonModel(id: 94, imagePath: 'images/Oddish.png', name: 'Oddish'),
     PokemonModel(id: 95, imagePath: 'images/Omanyte.png', name: 'Omanyte'),
     PokemonModel(id: 96, imagePath: 'images/Omastar.png', name: 'Omastar'),
@@ -204,25 +143,13 @@ class LocalPokemonDataSource implements PokemonDataSource {
     PokemonModel(id: 99, imagePath: 'images/Parasect.png', name: 'Parasect'),
     PokemonModel(id: 100, imagePath: 'images/Persian.png', name: 'Persian'),
     PokemonModel(id: 101, imagePath: 'images/Pidgeot.png', name: 'Pidgeot'),
-    PokemonModel(
-      id: 102,
-      imagePath: 'images/Pidgeotto.png',
-      name: 'Pidgeotto',
-    ),
+    PokemonModel(id: 102, imagePath: 'images/Pidgeotto.png', name: 'Pidgeotto'),
     PokemonModel(id: 103, imagePath: 'images/Pidgey.png', name: 'Pidgey'),
     PokemonModel(id: 104, imagePath: 'images/Pikachu.png', name: 'Pikachu'),
     PokemonModel(id: 105, imagePath: 'images/Pinsir.png', name: 'Pinsir'),
     PokemonModel(id: 106, imagePath: 'images/Poliwag.png', name: 'Poliwag'),
-    PokemonModel(
-      id: 107,
-      imagePath: 'images/Poliwhirl.png',
-      name: 'Poliwhirl',
-    ),
-    PokemonModel(
-      id: 108,
-      imagePath: 'images/Poliwrath.png',
-      name: 'Poliwrath',
-    ),
+    PokemonModel(id: 107, imagePath: 'images/Poliwhirl.png', name: 'Poliwhirl'),
+    PokemonModel(id: 108, imagePath: 'images/Poliwrath.png', name: 'Poliwrath'),
     PokemonModel(id: 109, imagePath: 'images/Ponyta.png', name: 'Ponyta'),
     PokemonModel(id: 110, imagePath: 'images/Porygon.png', name: 'Porygon'),
     PokemonModel(id: 111, imagePath: 'images/Primeape.png', name: 'Primeape'),
@@ -233,16 +160,8 @@ class LocalPokemonDataSource implements PokemonDataSource {
     PokemonModel(id: 116, imagePath: 'images/Rattata.png', name: 'Rattata'),
     PokemonModel(id: 117, imagePath: 'images/Rhydon.png', name: 'Rhydon'),
     PokemonModel(id: 118, imagePath: 'images/Rhyhorn.png', name: 'Rhyhorn'),
-    PokemonModel(
-      id: 119,
-      imagePath: 'images/Sandshrew.png',
-      name: 'Sandshrew',
-    ),
-    PokemonModel(
-      id: 120,
-      imagePath: 'images/Sandslash.png',
-      name: 'Sandslash',
-    ),
+    PokemonModel(id: 119, imagePath: 'images/Sandshrew.png', name: 'Sandshrew'),
+    PokemonModel(id: 120, imagePath: 'images/Sandslash.png', name: 'Sandslash'),
     PokemonModel(id: 121, imagePath: 'images/Scyther.png', name: 'Scyther'),
     PokemonModel(id: 122, imagePath: 'images/Seadra.png', name: 'Seadra'),
     PokemonModel(id: 123, imagePath: 'images/Seaking.png', name: 'Seaking'),
@@ -257,11 +176,7 @@ class LocalPokemonDataSource implements PokemonDataSource {
     PokemonModel(id: 132, imagePath: 'images/Staryu.png', name: 'Staryu'),
     PokemonModel(id: 133, imagePath: 'images/Tangela.png', name: 'Tangela'),
     PokemonModel(id: 134, imagePath: 'images/Tauros.png', name: 'Tauros'),
-    PokemonModel(
-      id: 135,
-      imagePath: 'images/Tentacool.png',
-      name: 'Tentacool',
-    ),
+    PokemonModel(id: 135, imagePath: 'images/Tentacool.png', name: 'Tentacool'),
     PokemonModel(
       id: 136,
       imagePath: 'images/Tentacruel.png',
@@ -276,18 +191,10 @@ class LocalPokemonDataSource implements PokemonDataSource {
       imagePath: 'images/Victreebel.png',
       name: 'Victreebel',
     ),
-    PokemonModel(
-      id: 142,
-      imagePath: 'images/Vileplume.png',
-      name: 'Vileplume',
-    ),
+    PokemonModel(id: 142, imagePath: 'images/Vileplume.png', name: 'Vileplume'),
     PokemonModel(id: 143, imagePath: 'images/Voltorb.png', name: 'Voltorb'),
     PokemonModel(id: 144, imagePath: 'images/Vulpix.png', name: 'Vulpix'),
-    PokemonModel(
-      id: 145,
-      imagePath: 'images/Wartortle.png',
-      name: 'Wartortle',
-    ),
+    PokemonModel(id: 145, imagePath: 'images/Wartortle.png', name: 'Wartortle'),
     PokemonModel(id: 146, imagePath: 'images/Weedle.png', name: 'Weedle'),
     PokemonModel(
       id: 147,
@@ -304,13 +211,11 @@ class LocalPokemonDataSource implements PokemonDataSource {
     PokemonModel(id: 151, imagePath: 'images/Zubat.png', name: 'Zubat'),
   ];
 
-  @override
   Future<List<PokemonModel>> getAllPokemon() async {
     await Future.delayed(const Duration(milliseconds: 100));
     return _pokemonData;
   }
 
-  @override
   Future<PokemonModel?> getPokemonById(int id) async {
     await Future.delayed(const Duration(milliseconds: 50));
     try {

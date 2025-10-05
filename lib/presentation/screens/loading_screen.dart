@@ -66,20 +66,13 @@ class _LoadingScreenState extends State<LoadingScreen>
   Future<void> _startPreloading() async {
     _totalImages = widget.difficulty.cardPairs;
 
-    // Pokemon list is already randomized and selected from difficulty selection
     final selectedPokemon = widget.pokemonList;
     final imageCacheService = ImageCacheService();
-
-    print('Starting preload for ${selectedPokemon.length} Pokemon:');
-    for (final pokemon in selectedPokemon) {
-      print('  - ${pokemon.name}: ${pokemon.imagePath}');
-    }
 
     for (int i = 0; i < selectedPokemon.length; i++) {
       final pokemon = selectedPokemon[i];
 
       try {
-        // Preload vector graphics using cache service with context
         await imageCacheService.preloadImage(pokemon.imagePath, context);
 
         setState(() {
@@ -90,17 +83,10 @@ class _LoadingScreenState extends State<LoadingScreen>
 
         await Future.delayed(const Duration(milliseconds: 100));
       } catch (e) {
-        print('Failed to preload image for ${pokemon.name}: $e');
+        debugPrint('Failed to preload image for ${pokemon.name}: $e');
       }
     }
-
-    // Mark all images as fully loaded and ready for game
     imageCacheService.markAllImagesLoaded();
-
-    print(
-      'All images loaded and ready! Cache info: ${imageCacheService.getCacheInfo()}',
-    );
-
     await Future.delayed(const Duration(milliseconds: 500));
 
     if (mounted) {

@@ -12,7 +12,7 @@ class ImageCacheService {
       final imageProvider = AssetImage(imagePath);
       await precacheImage(imageProvider, context);
     } catch (e) {
-      print('Failed to preload $imagePath: $e');
+      debugPrint('Failed to preload $imagePath: $e');
     }
   }
 

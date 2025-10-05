@@ -6,7 +6,7 @@ class LoginResponseModel {
   final String refreshToken;
   final String accessTokenExpiresAt;
   final String refreshTokenExpiresAt;
-  final UserModel user;
+  final User user;
 
   LoginResponseModel({
     required this.accessToken,
@@ -22,7 +22,7 @@ class LoginResponseModel {
       refreshToken: json['refreshToken'] ?? '',
       accessTokenExpiresAt: json['accessTokenExpiresAt'] ?? '',
       refreshTokenExpiresAt: json['refreshTokenExpiresAt'] ?? '',
-      user: UserModel.fromJson(json['user'] ?? {}),
+      user: User.fromJson(json['user'] ?? {}),
     );
   }
 

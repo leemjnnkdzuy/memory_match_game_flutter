@@ -3,6 +3,7 @@ import '../../services/auth_service.dart';
 import '../../services/request_service.dart';
 import '../../domain/entities/offline_history_entity.dart';
 import '../widgets/common/history_card_widget.dart';
+import '../widgets/custom/custom_button.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -24,8 +25,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   String? _selectedDifficulty;
   bool? _selectedIsWin;
-  String _sortBy = 'datePlayed';
-  String _order = 'desc';
+  final String _sortBy = 'datePlayed';
+  final String _order = 'desc';
 
   @override
   void initState() {
@@ -37,7 +38,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     if (!_authService.isRealUser) {
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Please log in to view history';
+        _errorMessage = 'Vui lòng đăng nhập để xem lịch sử';
       });
       return;
     }
@@ -78,13 +79,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
       } else {
         setState(() {
           _isLoading = false;
-          _errorMessage = result.error ?? 'Unable to load history';
+          _errorMessage = result.error ?? 'Không thể tải lịch sử';
         });
       }
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _errorMessage = 'An error occurred: $e';
+        _errorMessage = 'Đã xảy ra lỗi: $e';
       });
     }
   }
@@ -106,17 +107,33 @@ class _HistoryScreenState extends State<HistoryScreen> {
           children: [
             Text(_errorMessage!, style: const TextStyle(color: Colors.red)),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => _loadHistories(),
-              child: const Text('Retry'),
-            ),
+            if (_errorMessage == 'Vui lòng đăng nhập để xem lịch sử')
+              SizedBox(
+                width: 200,
+                child: CustomButton(
+                  type: CustomButtonType.primary,
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/login');
+                  },
+                  child: const Text('Đăng nhập'),
+                ),
+              )
+            else
+              SizedBox(
+                width: 200,
+                child: CustomButton(
+                  type: CustomButtonType.normal,
+                  onPressed: () => _loadHistories(),
+                  child: const Text('Thử lại'),
+                ),
+              ),
           ],
         ),
       );
     }
 
     if (_histories.isEmpty) {
-      return const Center(child: Text('No game history available'));
+      return const Center(child: Text('Không có lịch sử trò chơi nào'));
     }
 
     return RefreshIndicator(
@@ -129,9 +146,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: ElevatedButton(
-                  onPressed: () => _loadHistories(loadMore: true),
-                  child: const Text('Load More'),
+                child: SizedBox(
+                  width: 200,
+                  child: CustomButton(
+                    type: CustomButtonType.primary,
+                    onPressed: () => _loadHistories(loadMore: true),
+                    child: const Text('Tải thêm'),
+                  ),
                 ),
               ),
             );

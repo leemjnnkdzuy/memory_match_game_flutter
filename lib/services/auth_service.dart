@@ -1,4 +1,5 @@
-import '../domain/auth/user.dart';
+import 'package:flutter/foundation.dart';
+import '../data/models/user_model.dart';
 import '../services/request_service.dart';
 import '../services/user_local_storage_service.dart';
 
@@ -53,7 +54,7 @@ class AuthService {
       final requestService = RequestService.instance;
       await requestService.logout();
     } catch (e) {
-      // Ignore logout errors
+      debugPrint('Error during logout: $e');
     }
 
     _currentUser = null;
@@ -136,7 +137,7 @@ class AuthService {
       }
       return false;
     } catch (e) {
-      print('Error updating avatar: $e');
+      debugPrint('Error updating avatar: $e');
       return false;
     }
   }

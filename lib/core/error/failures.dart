@@ -15,16 +15,13 @@ abstract class Failure {
 }
 
 class ServerFailure extends Failure {
-  const ServerFailure(String message, {String? code})
-    : super(message, code: code);
+  const ServerFailure(super.message, {super.code});
 }
 
 class CacheFailure extends Failure {
-  const CacheFailure(String message, {String? code})
-    : super(message, code: code);
+  const CacheFailure(super.message, {super.code});
 }
 
 class GameFailure extends Failure {
-  const GameFailure(String message, {String? code})
-    : super(message, code: code);
+  const GameFailure(super.message, {super.code});
 }

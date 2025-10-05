@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-/// Session domain entity
 class Session extends Equatable {
   final String id;
   final String deviceInfo;
@@ -18,29 +17,26 @@ class Session extends Equatable {
     required this.isExpired,
   });
 
-  /// Check if session is currently active
   bool get isActive => !isExpired && DateTime.now().isBefore(expiresAt);
 
-  /// Get remaining time until expiry
   Duration get timeUntilExpiry {
     if (isExpired) return Duration.zero;
     final now = DateTime.now();
     return expiresAt.isAfter(now) ? expiresAt.difference(now) : Duration.zero;
   }
 
-  /// Get device type from device info
   String get deviceType {
     final deviceLower = deviceInfo.toLowerCase();
     if (deviceLower.contains('android')) return 'Android';
     if (deviceLower.contains('ios')) return 'iOS';
     if (deviceLower.contains('windows')) return 'Windows';
-    if (deviceLower.contains('macos') || deviceLower.contains('mac os'))
+    if (deviceLower.contains('macos') || deviceLower.contains('mac os')) {
       return 'macOS';
+    }
     if (deviceLower.contains('linux')) return 'Linux';
     return 'Unknown';
   }
 
-  /// Copy with method for immutability
   Session copyWith({
     String? id,
     String? deviceInfo,

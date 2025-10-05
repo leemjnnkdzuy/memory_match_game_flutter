@@ -1,6 +1,5 @@
 // Game difficulty selection screen
 import 'package:flutter/material.dart';
-import 'package:nes_ui/nes_ui.dart';
 import 'package:pixelarticons/pixel.dart';
 import 'dart:math';
 import '../../domain/entities/offline_game_entity.dart';
@@ -9,6 +8,7 @@ import '../../domain/repositories/pokemon_repository.dart';
 import '../../data/repositories/pokemon_repository_impl.dart';
 import '../../data/datasources/local_pokemon_data_source.dart';
 import '../../core/theme/app_theme.dart';
+import '../widgets/custom/custom_button.dart';
 import 'loading_screen.dart';
 
 class DifficultySelectionScreen extends StatefulWidget {
@@ -81,8 +81,8 @@ class _DifficultySelectionScreenState extends State<DifficultySelectionScreen> {
               style: AppTheme.bodyMedium,
             ),
             actions: [
-              NesButton(
-                type: NesButtonType.primary,
+              CustomButton(
+                type: CustomButtonType.primary,
                 onPressed: () => Navigator.of(context).pop(),
                 child: Text('OK'),
               ),
@@ -210,24 +210,24 @@ class _DifficultyCard extends StatelessWidget {
     }
   }
 
-  NesButtonType get _buttonType {
+  CustomButtonType get _buttonType {
     switch (difficulty) {
       case GameDifficulty.veryEasy:
-        return NesButtonType.success;
+        return CustomButtonType.success;
       case GameDifficulty.easy:
-        return NesButtonType.success;
+        return CustomButtonType.success;
       case GameDifficulty.normal:
-        return NesButtonType.warning;
+        return CustomButtonType.warning;
       case GameDifficulty.medium:
-        return NesButtonType.warning;
+        return CustomButtonType.warning;
       case GameDifficulty.hard:
-        return NesButtonType.primary;
+        return CustomButtonType.primary;
       case GameDifficulty.superHard:
-        return NesButtonType.primary;
+        return CustomButtonType.primary;
       case GameDifficulty.insane:
-        return NesButtonType.error;
+        return CustomButtonType.error;
       case GameDifficulty.extreme:
-        return NesButtonType.error;
+        return CustomButtonType.error;
     }
   }
 
@@ -264,7 +264,7 @@ class _DifficultyCard extends StatelessWidget {
               ],
             ),
           ),
-          NesButton(
+          CustomButton(
             type: _buttonType,
             onPressed: onSelected,
             child: Text('SELECT'),

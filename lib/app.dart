@@ -10,7 +10,7 @@ class MemoryMatchApp extends StatelessWidget {
     return MaterialApp(
       key: const ValueKey('memory_match_app'),
       title: 'Memory Match Game',
-      theme: AppTheme.nesTheme,
+      theme: AppTheme.appTheme,
       debugShowCheckedModeBanner: false,
       initialRoute: AppRoutes.welcome,
       onGenerateRoute: AppRoutes.generateRoute,

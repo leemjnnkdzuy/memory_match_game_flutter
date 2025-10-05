@@ -34,7 +34,7 @@ class _OfflineGameplayScreenState extends State<OfflineGameplayScreen>
   late AnimationController _matchController;
 
   Duration _timeRemaining = Duration.zero;
-  List<CardEntity> _flippedCards = [];
+  final List<CardEntity> _flippedCards = [];
   bool _isProcessingMove = false;
   int _score = 0;
   int _moves = 0;
@@ -205,12 +205,12 @@ class _OfflineGameplayScreenState extends State<OfflineGameplayScreen>
       );
 
       if (result.isSuccess) {
-        print('Game history saved successfully: ${result.data?.id}');
+        debugPrint('Game history saved successfully: ${result.data?.id}');
       } else {
-        print('Failed to save game history: ${result.error}');
+        debugPrint('Failed to save game history: ${result.error}');
       }
     } catch (e) {
-      print('Error saving game history: $e');
+      debugPrint('Error saving game history: $e');
     }
   }
 
@@ -239,7 +239,7 @@ class _OfflineGameplayScreenState extends State<OfflineGameplayScreen>
 
   void _onCardTapped(CardEntity card) {
     if (!ImageCacheService().allImagesReady) {
-      print('Blocking card tap - images not ready yet');
+      debugPrint('Blocking card tap - images not ready yet');
       return;
     }
 
@@ -345,10 +345,10 @@ class _OfflineGameplayScreenState extends State<OfflineGameplayScreen>
                     Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withValues(alpha: 0.3),
                           width: 2,
                         ),
                       ),
@@ -383,7 +383,7 @@ class _OfflineGameplayScreenState extends State<OfflineGameplayScreen>
                     // Loading overlay if images not ready
                     if (!_imagesReady)
                       Container(
-                        color: Colors.black.withOpacity(0.7),
+                        color: Colors.black.withValues(alpha: 0.7),
                         child: const Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,

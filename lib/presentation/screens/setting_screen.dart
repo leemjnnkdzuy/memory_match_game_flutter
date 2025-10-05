@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nes_ui/nes_ui.dart';
 import '../routes/app_routes.dart';
+import '../widgets/custom/custom_container.dart';
+import '../widgets/custom/custom_icon.dart';
 
 class SettingScreen extends StatelessWidget {
   const SettingScreen({super.key});
@@ -17,7 +18,7 @@ class SettingScreen extends StatelessWidget {
             children: [
               _buildSettingOption(
                 context,
-                icon: NesIcons.user,
+                icon: CustomIcons.user,
                 title: 'Change Username',
                 subtitle: 'Update your username',
                 onTap: () {
@@ -28,7 +29,7 @@ class SettingScreen extends StatelessWidget {
 
               _buildSettingOption(
                 context,
-                icon: NesIcons.user,
+                icon: CustomIcons.user,
                 title: 'Change Password',
                 subtitle: 'Update your password',
                 onTap: () {
@@ -39,7 +40,7 @@ class SettingScreen extends StatelessWidget {
 
               _buildSettingOption(
                 context,
-                icon: NesIcons.user,
+                icon: CustomIcons.user,
                 title: 'Change Email',
                 subtitle: 'Update your email address',
                 onTap: () {
@@ -55,18 +56,18 @@ class SettingScreen extends StatelessWidget {
 
   Widget _buildSettingOption(
     BuildContext context, {
-    required NesIconData icon,
+    required CustomIconData icon,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
   }) {
     return InkWell(
       onTap: onTap,
-      child: NesContainer(
+      child: CustomContainer(
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            NesIcon(iconData: icon, size: const Size(32, 32)),
+            CustomIcon(iconData: icon, size: const Size(32, 32)),
             const SizedBox(width: 16),
             Expanded(
               child: Column(

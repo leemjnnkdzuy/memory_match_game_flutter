@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
-import 'package:nes_ui/nes_ui.dart';
+import '../custom/custom_button.dart';
 
 class GameModeCard extends StatefulWidget {
   final IconData icon;
@@ -148,8 +148,8 @@ class _GameModeCardState extends State<GameModeCard>
                     SizedBox(
                       width: 50,
                       height: 50,
-                      child: NesButton(
-                        type: NesButtonType.primary,
+                      child: CustomButton(
+                        type: CustomButtonType.primary,
                         onPressed: widget.onTap,
                         child: const Icon(
                           Icons.arrow_forward_ios,

@@ -1,4 +1,3 @@
-// Core error handling
 class AppException implements Exception {
   final String message;
   final String? code;
@@ -11,16 +10,29 @@ class AppException implements Exception {
 }
 
 class NetworkException extends AppException {
-  NetworkException(String message, {String? code, dynamic originalError})
-    : super(message, code: code, originalError: originalError);
+  NetworkException(super.message, {super.code, super.originalError});
 }
 
 class CacheException extends AppException {
-  CacheException(String message, {String? code, dynamic originalError})
-    : super(message, code: code, originalError: originalError);
+  CacheException(super.message, {super.code, super.originalError});
 }
 
 class GameException extends AppException {
-  GameException(String message, {String? code, dynamic originalError})
-    : super(message, code: code, originalError: originalError);
+  GameException(super.message, {super.code, super.originalError});
+}
+
+class ApiException extends AppException {
+  final int? statusCode;
+  final String? error;
+
+  ApiException(
+    super.message, {
+    this.statusCode,
+    this.error,
+    super.code,
+    super.originalError,
+  });
+
+  @override
+  String toString() => 'ApiException: $message (Status: $statusCode)';
 }

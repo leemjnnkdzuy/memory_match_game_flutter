@@ -1,4 +1,5 @@
-import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
+import 'package:just_audio/just_audio.dart';
 
 class SoundService {
   static final SoundService _instance = SoundService._internal();
@@ -18,9 +19,11 @@ class SoundService {
     if (!_isSoundEnabled) return;
 
     try {
-      await _audioPlayer.play(AssetSource('sounds/card_click_sound.WAV'));
+      await _audioPlayer.setAsset('assets/sounds/card_click_sound.WAV');
+      await _audioPlayer.play();
+      await _audioPlayer.seek(Duration.zero);
     } catch (e) {
-      print('Error playing card flip sound: $e');
+      debugPrint('Error playing card flip sound: $e');
     }
   }
 
@@ -28,7 +31,7 @@ class SoundService {
     try {
       await _audioPlayer.stop();
     } catch (e) {
-      print('Error stopping sounds: $e');
+      debugPrint('Error stopping sounds: $e');
     }
   }
 
@@ -36,7 +39,7 @@ class SoundService {
     try {
       await _audioPlayer.dispose();
     } catch (e) {
-      print('Error disposing audio player: $e');
+      debugPrint('Error disposing audio player: $e');
     }
   }
 }

@@ -24,9 +24,12 @@ class GameStatsWidget extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.3),
+          width: 2,
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -70,7 +73,9 @@ class _StatItem extends StatelessWidget {
       children: [
         Text(
           label,
-          style: AppTheme.labelLarge.copyWith(color: const Color.fromARGB(255, 255, 255, 255)),
+          style: AppTheme.labelLarge.copyWith(
+            color: const Color.fromARGB(255, 255, 255, 255),
+          ),
         ),
         const SizedBox(height: 4),
         Text(value, style: AppTheme.headlineSmall.copyWith(color: color)),

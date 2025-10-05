@@ -12,7 +12,7 @@ class OfflineHistoryModel {
   final DateTime datePlayed;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-  final UserModel? user;
+  final User? user;
 
   const OfflineHistoryModel({
     required this.id,
@@ -47,7 +47,7 @@ class OfflineHistoryModel {
           ? DateTime.parse(json['updatedAt'] as String)
           : null,
       user: json['userId'] is Map<String, dynamic>
-          ? UserModel.fromJson(json['userId'] as Map<String, dynamic>)
+          ? User.fromJson(json['userId'] as Map<String, dynamic>)
           : null,
     );
   }
@@ -74,7 +74,7 @@ class OfflineHistoryModel {
       datePlayed: datePlayed,
       createdAt: createdAt,
       updatedAt: updatedAt,
-      user: user?.toEntity(),
+      user: user,
     );
   }
 
@@ -91,13 +91,13 @@ class OfflineHistoryModel {
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       user: entity.user != null
-          ? UserModel(
+          ? User(
               id: entity.user!.id,
               username: entity.user!.username,
               email: entity.user!.email,
               firstName: entity.user!.firstName,
               lastName: entity.user!.lastName,
-              avatar: entity.user!.avatar ?? '',
+              avatar: entity.user!.avatar,
               language: entity.user!.language,
               bio: entity.user!.bio,
               isActive: entity.user!.isActive,

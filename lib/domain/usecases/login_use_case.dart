@@ -1,5 +1,5 @@
 import '../repositories/auth_repository.dart';
-import '../auth/user.dart';
+import '../../data/models/user_model.dart';
 
 class LoginUseCase {
   final AuthRepository _authRepository;

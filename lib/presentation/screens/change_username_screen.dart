@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nes_ui/nes_ui.dart';
+import '../widgets/custom/custom_button.dart';
+import '../widgets/custom/custom_container.dart';
 import '../../services/request_service.dart';
 import '../../services/auth_service.dart';
 
@@ -243,7 +244,7 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (currentUser != null) ...[
-                  NesContainer(
+                  CustomContainer(
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,7 +322,7 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
                 const SizedBox(height: 24),
 
                 _isChecking
-                    ? NesContainer(
+                    ? CustomContainer(
                         padding: const EdgeInsets.all(16),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -343,10 +344,10 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
                           ],
                         ),
                       )
-                    : NesButton(
+                    : CustomButton(
                         type: _canChange
-                            ? NesButtonType.success
-                            : NesButtonType.primary,
+                            ? CustomButtonType.success
+                            : CustomButtonType.primary,
                         onPressed: _canChange
                             ? _changeUsername
                             : _checkUsername,
@@ -356,7 +357,7 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
                 if (_errorMessage != null &&
                     (!_hasChecked || !_isAvailable)) ...[
                   const SizedBox(height: 16),
-                  NesContainer(
+                  CustomContainer(
                     padding: const EdgeInsets.all(12),
                     backgroundColor: Colors.red[50],
                     child: Row(

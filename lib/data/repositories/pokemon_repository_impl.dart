@@ -1,11 +1,10 @@
-// Repository implementation
 import 'dart:math';
 import '../../domain/entities/pokemon_entity.dart';
 import '../../domain/repositories/pokemon_repository.dart';
-import '../datasources/pokemon_data_source.dart';
+import '../datasources/local_pokemon_data_source.dart';
 
 class PokemonRepositoryImpl implements PokemonRepository {
-  final PokemonDataSource dataSource;
+  final LocalPokemonDataSource dataSource;
 
   PokemonRepositoryImpl(this.dataSource);
 

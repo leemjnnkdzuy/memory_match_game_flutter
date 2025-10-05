@@ -1,5 +1,6 @@
-import '../data/datasources/http_client.dart';
-import '../data/datasources/token_storage.dart';
+import '../core/utils/http_client_utils.dart';
+import '../data/repositories/http_client_impl.dart';
+import 'token_storage_service.dart';
 import '../data/datasources/auth_remote_data_source.dart';
 import '../data/datasources/offline_history_remote_data_source.dart';
 import '../data/repositories/auth_repository_impl.dart';
@@ -13,7 +14,7 @@ import '../domain/usecases/get_profile_use_case.dart';
 import '../domain/usecases/save_offline_history_use_case.dart';
 import '../domain/usecases/get_offline_history_use_case.dart';
 import '../domain/usecases/get_offline_histories_use_case.dart';
-import '../domain/auth/user.dart';
+import '../data/models/user_model.dart';
 import '../domain/auth/session.dart';
 import '../domain/entities/offline_history_entity.dart';
 

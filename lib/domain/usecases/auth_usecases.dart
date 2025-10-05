@@ -1,5 +1,5 @@
 import '../entities/user_entity.dart';
-import '../auth/user.dart';
+import '../../data/models/user_model.dart';
 import '../repositories/auth_repository.dart';
 
 class AuthUseCases {
@@ -175,7 +175,7 @@ class AuthUseCases {
       email: user.email,
       lastLogin: DateTime.now(),
       isGuest: false,
-      gamesPlayed: 0, 
+      gamesPlayed: 0,
       bestScore: 0,
     );
   }

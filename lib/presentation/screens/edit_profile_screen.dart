@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:nes_ui/nes_ui.dart';
 import 'package:pixelarticons/pixel.dart';
 import '../../services/auth_service.dart';
 import '../widgets/common/avatar_widget.dart';
+import '../widgets/custom/custom_button.dart';
+import '../widgets/custom/custom_container.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -491,8 +492,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: NesButton(
-                        type: NesButtonType.normal,
+                      child: CustomButton(
+                        type: CustomButtonType.normal,
                         onPressed: () => Navigator.pop(context),
                         child: Text('Cancel', textAlign: TextAlign.center),
                       ),
@@ -500,7 +501,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     const SizedBox(width: 16),
                     Expanded(
                       child: _isLoading
-                          ? NesContainer(
+                          ? CustomContainer(
                               padding: const EdgeInsets.all(16),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -526,8 +527,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 ],
                               ),
                             )
-                          : NesButton(
-                              type: NesButtonType.primary,
+                          : CustomButton(
+                              type: CustomButtonType.primary,
                               onPressed: _hasChanges ? _handleSave : null,
                               child: Text(
                                 'Save Changes',

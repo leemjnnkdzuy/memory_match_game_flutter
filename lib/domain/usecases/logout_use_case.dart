@@ -1,6 +1,5 @@
 import '../repositories/auth_repository.dart';
 
-/// Logout use case
 class LogoutUseCase {
   final AuthRepository _authRepository;
 

@@ -1,54 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/api_response_model.dart';
-
-class ApiException implements Exception {
-  final String message;
-  final int? statusCode;
-  final String? error;
-
-  ApiException(this.message, {this.statusCode, this.error});
-
-  @override
-  String toString() => 'ApiException: $message (Status: $statusCode)';
-}
-
-class NetworkException implements Exception {
-  final String message;
-
-  NetworkException(this.message);
-
-  @override
-  String toString() => 'NetworkException: $message';
-}
-
-abstract class HttpClient {
-  Future<ApiResponse<T>> get<T>(
-    String endpoint, {
-    Map<String, String>? headers,
-    T Function(dynamic)? fromJson,
-  });
-
-  Future<ApiResponse<T>> post<T>(
-    String endpoint, {
-    Map<String, String>? headers,
-    dynamic body,
-    T Function(dynamic)? fromJson,
-  });
-
-  Future<ApiResponse<T>> put<T>(
-    String endpoint, {
-    Map<String, String>? headers,
-    dynamic body,
-    T Function(dynamic)? fromJson,
-  });
-
-  Future<ApiResponse<T>> delete<T>(
-    String endpoint, {
-    Map<String, String>? headers,
-    T Function(dynamic)? fromJson,
-  });
-}
+import '../../core/utils/http_client_utils.dart';
+import '../../core/error/exceptions.dart';
 
 class HttpClientImpl implements HttpClient {
   static const String _baseUrl = 'http://localhost:3001/api';
@@ -160,7 +114,7 @@ class HttpClientImpl implements HttpClient {
       return _handleResponse<T>(response, fromJson);
     } catch (error) {
       if (error is ApiException) rethrow;
-      throw NetworkException('Network error: $error');
+      throw NetworkException('Network error: $error', originalError: error);
     }
   }
 

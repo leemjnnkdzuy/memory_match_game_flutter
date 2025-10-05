@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:nes_ui/nes_ui.dart';
 import 'package:pixelarticons/pixel.dart';
 import '../../core/theme/app_theme.dart';
 import '../routes/app_routes.dart';
 import '../../services/request_service.dart';
 import '../../services/auth_service.dart';
+import '../widgets/custom/custom_button.dart';
+import '../widgets/custom/custom_container.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -58,24 +59,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (errorMessage.contains('Invalid login credentials') ||
             errorMessage.contains('Thông tin đăng nhập không hợp lệ')) {
-          errorMessage = 'Invalid username or password. Please try again.';
+          errorMessage =
+              'Tên người dùng hoặc mật khẩu không hợp lệ. Vui lòng thử lại.';
         } else if (errorMessage.contains('verify email') ||
             errorMessage.contains('xác minh email')) {
-          errorMessage = 'Please verify your email before logging in.';
+          errorMessage = 'Vui lòng xác minh email trước khi đăng nhập.';
         } else if (errorMessage.contains('deactivated') ||
             errorMessage.contains('vô hiệu hóa')) {
           errorMessage =
-              'Your account has been deactivated. Please contact support.';
+              'Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ hỗ trợ.';
         } else if (errorMessage.contains('Network error')) {
-          errorMessage =
-              'Network error. Please check your internet connection.';
+          errorMessage = 'Lỗi mạng. Vui lòng kiểm tra kết nối internet.';
         }
 
         throw Exception(errorMessage);
       }
     } catch (e) {
       if (mounted) {
-        String errorMessage = 'Login failed';
+        String errorMessage = 'Đăng nhập thất bại';
         if (e is Exception) {
           errorMessage = e
               .toString()
@@ -124,67 +125,47 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 20),
 
                     Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppTheme.primaryColor.withOpacity(0.5),
-                          width: 2,
-                        ),
-                      ),
+                      margin: const EdgeInsets.only(bottom: 16),
                       child: TextFormField(
                         controller: _usernameController,
                         enabled: !_isLoading,
+                        style: const TextStyle(fontSize: 10),
                         decoration: InputDecoration(
-                          labelText: 'Username',
-                          labelStyle: TextStyle(
-                            fontFamily: 'PressStart2P',
-                            fontSize: 10,
-                            color: AppTheme.primaryColor,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.all(16),
+                          labelText: 'Tên người dùng',
+                          hintText: 'Nhập tên người dùng',
+                          border: const OutlineInputBorder(),
                           prefixIcon: Icon(
                             Pixel.user,
-                            color: AppTheme.primaryColor,
+                            color: Colors.black,
                             size: 20,
                           ),
                         ),
-                        style: const TextStyle(fontSize: 12),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your username';
+                            return 'Vui lòng nhập tên người dùng';
                           }
                           if (value.length < 3) {
-                            return 'Username must be at least 3 characters';
+                            return 'Tên người dùng phải có ít nhất 3 ký tự';
                           }
                           return null;
                         },
                       ),
                     ),
 
-                    const SizedBox(height: 16),
-
                     Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppTheme.primaryColor.withOpacity(0.5),
-                          width: 2,
-                        ),
-                      ),
+                      margin: const EdgeInsets.only(bottom: 16),
                       child: TextFormField(
                         controller: _passwordController,
                         enabled: !_isLoading,
                         obscureText: _obscurePassword,
+                        style: const TextStyle(fontSize: 10),
                         decoration: InputDecoration(
-                          labelText: 'Password',
-                          labelStyle: TextStyle(
-                            fontSize: 10,
-                            color: AppTheme.primaryColor,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.all(16),
+                          labelText: 'Mật khẩu',
+                          hintText: 'Nhập mật khẩu',
+                          border: const OutlineInputBorder(),
                           prefixIcon: Icon(
                             Pixel.lock,
-                            color: AppTheme.primaryColor,
+                            color: Colors.black,
                             size: 20,
                           ),
                           suffixIcon: _isLoading
@@ -196,7 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         : Icons.visibility,
                                     size: 20,
                                   ),
-                                  color: AppTheme.primaryColor,
+                                  color: Colors.black,
                                   onPressed: () {
                                     setState(() {
                                       _obscurePassword = !_obscurePassword;
@@ -204,13 +185,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                   },
                                 ),
                         ),
-                        style: const TextStyle(fontSize: 12),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
+                            return 'Vui lòng nhập mật khẩu';
                           }
                           if (value.length < 6) {
-                            return 'Password must be at least 6 characters';
+                            return 'Mật khẩu phải có ít nhất 6 ký tự';
                           }
                           return null;
                         },
@@ -220,7 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 24),
 
                     _isLoading
-                        ? NesContainer(
+                        ? CustomContainer(
                             padding: const EdgeInsets.all(16),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -236,7 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 const SizedBox(width: 8),
                                 Flexible(
                                   child: Text(
-                                    'Processing...',
+                                    'Đang xử lý...',
                                     style: Theme.of(
                                       context,
                                     ).textTheme.bodyMedium,
@@ -246,11 +226,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               ],
                             ),
                           )
-                        : NesButton(
-                            type: NesButtonType.primary,
+                        : CustomButton(
+                            type: CustomButtonType.primary,
                             onPressed: _handleLogin,
                             child: const Text(
-                              'Login',
+                              'Đăng nhập',
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -264,10 +244,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               AppRoutes.navigateToForgotPassword(context);
                             },
                       child: Text(
-                        'Forgot Password?',
+                        'Quên mật khẩu?',
                         style: TextStyle(
                           fontSize: 10,
-                          color: AppTheme.primaryColor.withOpacity(0.7),
+                          color: AppTheme.primaryColor.withValues(alpha: 0.7),
                         ),
                       ),
                     ),
@@ -279,23 +259,25 @@ class _LoginScreenState extends State<LoginScreen> {
                         Expanded(
                           child: Container(
                             height: 1,
-                            color: AppTheme.primaryColor.withOpacity(0.3),
+                            color: AppTheme.primaryColor.withValues(alpha: 0.3),
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
-                            'OR',
+                            'HOẶC',
                             style: TextStyle(
                               fontSize: 10,
-                              color: AppTheme.primaryColor.withOpacity(0.7),
+                              color: AppTheme.primaryColor.withValues(
+                                alpha: 0.7,
+                              ),
                             ),
                           ),
                         ),
                         Expanded(
                           child: Container(
                             height: 1,
-                            color: AppTheme.primaryColor.withOpacity(0.3),
+                            color: AppTheme.primaryColor.withValues(alpha: 0.3),
                           ),
                         ),
                       ],
@@ -303,30 +285,30 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 16),
 
-                    NesButton(
-                      type: NesButtonType.normal,
+                    CustomButton(
+                      type: CustomButtonType.normal,
                       onPressed: _isLoading
                           ? null
                           : () {
                               Navigator.pushNamed(context, '/register-verify');
                             },
                       child: const Text(
-                        'Create Account',
+                        'Tạo tài khoản',
                         textAlign: TextAlign.center,
                       ),
                     ),
 
                     const SizedBox(height: 12),
 
-                    NesButton(
-                      type: NesButtonType.warning,
+                    CustomButton(
+                      type: CustomButtonType.warning,
                       onPressed: _isLoading
                           ? null
                           : () {
                               AppRoutes.navigateBackToWelcome(context);
                             },
                       child: const Text(
-                        'Back to Welcome',
+                        'Quay lại trang chào mừng',
                         textAlign: TextAlign.center,
                       ),
                     ),

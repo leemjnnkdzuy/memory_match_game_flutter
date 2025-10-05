@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nes_ui/nes_ui.dart';
+import '../widgets/custom/custom_button.dart';
+import '../widgets/custom/custom_container.dart';
 import 'package:pixelarticons/pixel.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/request_service.dart';
@@ -275,13 +276,15 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
 
           _changeMailAuthHashCode = null;
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Email changed successfully!'),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 3),
-            ),
-          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Email changed successfully!'),
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 3),
+              ),
+            );
+          }
 
           await Future.delayed(const Duration(seconds: 1));
           if (mounted) {
@@ -328,7 +331,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          color: AppTheme.primaryColor.withOpacity(0.5),
+          color: AppTheme.primaryColor.withValues(alpha: 0.5),
           width: 2,
         ),
       ),
@@ -344,7 +347,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
           labelStyle: TextStyle(fontSize: 10, color: AppTheme.primaryColor),
           hintStyle: TextStyle(
             fontSize: 10,
-            color: AppTheme.primaryColor.withOpacity(0.5),
+            color: AppTheme.primaryColor.withValues(alpha: 0.5),
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(16),
@@ -367,7 +370,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          color: AppTheme.primaryColor.withOpacity(0.5),
+          color: AppTheme.primaryColor.withValues(alpha: 0.5),
           width: 2,
         ),
       ),
@@ -381,7 +384,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
           labelStyle: TextStyle(fontSize: 10, color: AppTheme.primaryColor),
           hintStyle: TextStyle(
             fontSize: 10,
-            color: AppTheme.primaryColor.withOpacity(0.5),
+            color: AppTheme.primaryColor.withValues(alpha: 0.5),
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(16),
@@ -399,7 +402,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
     required String title,
     required List<String> items,
   }) {
-    return NesContainer(
+    return CustomContainer(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -429,7 +432,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
                     child: Icon(
                       Pixel.check,
                       size: 12,
-                      color: AppTheme.primaryColor.withOpacity(0.7),
+                      color: AppTheme.primaryColor.withValues(alpha: 0.7),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -437,7 +440,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
                     child: Text(
                       item,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.primaryColor.withOpacity(0.8),
+                        color: AppTheme.primaryColor.withValues(alpha: 0.8),
                       ),
                     ),
                   ),
@@ -455,7 +458,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (_currentEmail != null) ...[
-          NesContainer(
+          CustomContainer(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -467,7 +470,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
                     Text(
                       'Current Email',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppTheme.primaryColor.withOpacity(0.7),
+                        color: AppTheme.primaryColor.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -498,8 +501,8 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
         const SizedBox(height: 30),
         _isLoading
             ? _buildLoadingButton()
-            : NesButton(
-                type: NesButtonType.primary,
+            : CustomButton(
+                type: CustomButtonType.primary,
                 onPressed: _requestChangeEmail,
                 child: const Text(
                   'Start Email Change',
@@ -520,7 +523,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          NesContainer(
+          CustomContainer(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -533,7 +536,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
                       child: Text(
                         'PIN sent to:',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.primaryColor.withOpacity(0.7),
+                          color: AppTheme.primaryColor.withValues(alpha: 0.7),
                         ),
                       ),
                     ),
@@ -569,8 +572,8 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
           const SizedBox(height: 30),
           _isLoading
               ? _buildLoadingButton()
-              : NesButton(
-                  type: NesButtonType.success,
+              : CustomButton(
+                  type: CustomButtonType.success,
                   onPressed: _confirmCurrentEmail,
                   child: const Text(
                     'Verify Current Email',
@@ -578,14 +581,14 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
                   ),
                 ),
           const SizedBox(height: 12),
-          NesButton(
-            type: NesButtonType.normal,
+          CustomButton(
+            type: CustomButtonType.normal,
             onPressed: _isLoading ? null : _requestChangeEmail,
             child: const Text('Resend PIN', textAlign: TextAlign.center),
           ),
           const SizedBox(height: 12),
-          NesButton(
-            type: NesButtonType.error,
+          CustomButton(
+            type: CustomButtonType.error,
             onPressed: _isLoading ? null : _resetFlow,
             child: const Text('Cancel', textAlign: TextAlign.center),
           ),
@@ -604,7 +607,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          NesContainer(
+          CustomContainer(
             padding: const EdgeInsets.all(16),
             backgroundColor: Colors.green[50],
             child: Row(
@@ -642,8 +645,8 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
           const SizedBox(height: 30),
           _isLoading
               ? _buildLoadingButton()
-              : NesButton(
-                  type: NesButtonType.primary,
+              : CustomButton(
+                  type: CustomButtonType.primary,
                   onPressed: _submitNewEmail,
                   child: const Text(
                     'Send PIN to New Email',
@@ -651,8 +654,8 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
                   ),
                 ),
           const SizedBox(height: 12),
-          NesButton(
-            type: NesButtonType.error,
+          CustomButton(
+            type: CustomButtonType.error,
             onPressed: _isLoading ? null : _resetFlow,
             child: const Text('Cancel', textAlign: TextAlign.center),
           ),
@@ -671,7 +674,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          NesContainer(
+          CustomContainer(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -684,7 +687,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
                       child: Text(
                         'PIN sent to new email:',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppTheme.primaryColor.withOpacity(0.7),
+                          color: AppTheme.primaryColor.withValues(alpha: 0.7),
                         ),
                       ),
                     ),
@@ -721,8 +724,8 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
           const SizedBox(height: 30),
           _isLoading
               ? _buildLoadingButton()
-              : NesButton(
-                  type: NesButtonType.success,
+              : CustomButton(
+                  type: CustomButtonType.success,
                   onPressed: _completeEmailChange,
                   child: const Text(
                     'Complete Email Change',
@@ -730,14 +733,14 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
                   ),
                 ),
           const SizedBox(height: 12),
-          NesButton(
-            type: NesButtonType.normal,
+          CustomButton(
+            type: CustomButtonType.normal,
             onPressed: _isLoading ? null : _submitNewEmail,
             child: const Text('Resend PIN', textAlign: TextAlign.center),
           ),
           const SizedBox(height: 12),
-          NesButton(
-            type: NesButtonType.error,
+          CustomButton(
+            type: CustomButtonType.error,
             onPressed: _isLoading ? null : _resetFlow,
             child: const Text('Cancel', textAlign: TextAlign.center),
           ),
@@ -751,7 +754,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
   }
 
   Widget _buildLoadingButton() {
-    return NesContainer(
+    return CustomContainer(
       padding: const EdgeInsets.all(16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -776,9 +779,9 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
   }
 
   Widget _buildErrorContainer(String message) {
-    return NesContainer(
+    return CustomContainer(
       padding: const EdgeInsets.all(12),
-      backgroundColor: AppTheme.errorColor.withOpacity(0.1),
+      backgroundColor: AppTheme.errorColor.withValues(alpha: 0.1),
       child: Row(
         children: [
           Icon(Pixel.close, color: AppTheme.errorColor, size: 20),
@@ -810,7 +813,7 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
               decoration: BoxDecoration(
                 color: isCompleted || isCurrent
                     ? AppTheme.primaryColor
-                    : AppTheme.primaryColor.withOpacity(0.2),
+                    : AppTheme.primaryColor.withValues(alpha: 0.2),
               ),
             ),
           );

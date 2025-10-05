@@ -17,7 +17,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10),
         ],
       ),
       child: BottomNavigationBar(
@@ -33,20 +33,20 @@ class CustomBottomNavigationBar extends StatelessWidget {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Pixel.home, size: 36),
-            label: 'Game',
+            label: 'Trò chơi',
           ),
           BottomNavigationBarItem(
             icon: Icon(Pixel.wallet, size: 36),
-            label: 'History',
+            label: 'Lịch sử',
           ),
 
           BottomNavigationBarItem(
             icon: Icon(Pixel.coin, size: 36),
-            label: 'Rewards',
+            label: 'Phần thưởng',
           ),
           BottomNavigationBarItem(
             icon: Icon(Pixel.user, size: 36),
-            label: 'Profile',
+            label: 'Hồ sơ',
           ),
         ],
       ),

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nes_ui/nes_ui.dart';
 import 'package:pixelarticons/pixel.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/request_service.dart';
 import '../routes/app_routes.dart';
+import '../widgets/custom/custom_button.dart';
+import '../widgets/custom/custom_container.dart';
 
 class RegisterVerifyScreen extends StatefulWidget {
   final Map<String, String>? initialData;
@@ -331,13 +332,13 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
 
           _buildNesTextField(
             controller: _usernameController,
-            label: 'Username',
+            label: 'Tên người dùng',
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Please enter your username';
+                return 'Vui lòng nhập tên người dùng';
               }
               if (value.length < 3) {
-                return 'Username must be at least 3 characters';
+                return 'Tên người dùng phải có ít nhất 3 ký tự';
               }
               return null;
             },
@@ -349,10 +350,10 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
             label: 'Email',
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Please enter your email';
+                return 'Vui lòng nhập email';
               }
               if (!_isValidEmail(value)) {
-                return 'Email not valid';
+                return 'Email không hợp lệ';
               }
               return null;
             },
@@ -364,10 +365,10 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
               Expanded(
                 child: _buildNesTextField(
                   controller: _firstNameController,
-                  label: 'First Name',
+                  label: 'Tên',
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Please enter your first name';
+                      return 'Vui lòng nhập tên';
                     }
                     return null;
                   },
@@ -377,10 +378,10 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
               Expanded(
                 child: _buildNesTextField(
                   controller: _lastNameController,
-                  label: 'Last Name',
+                  label: 'Họ',
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Please enter your last name';
+                      return 'Vui lòng nhập họ';
                     }
                     return null;
                   },
@@ -392,7 +393,7 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
 
           _buildNesTextField(
             controller: _passwordController,
-            label: 'Password',
+            label: 'Mật khẩu',
             obscureText: _obscurePassword,
             suffix: _isLoading
                 ? null
@@ -410,10 +411,10 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
                   ),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter a password';
+                return 'Vui lòng nhập mật khẩu';
               }
               if (value.length < 6) {
-                return 'Password must be at least 6 characters';
+                return 'Mật khẩu phải có ít nhất 6 ký tự';
               }
               return null;
             },
@@ -422,7 +423,7 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
 
           _buildNesTextField(
             controller: _confirmPasswordController,
-            label: 'Confirm Password',
+            label: 'Xác nhận mật khẩu',
             obscureText: _obscureConfirmPassword,
             suffix: _isLoading
                 ? null
@@ -440,10 +441,10 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
                   ),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please confirm password';
+                return 'Vui lòng xác nhận mật khẩu';
               }
               if (value != _passwordController.text) {
-                return 'Passwords do not match';
+                return 'Mật khẩu không khớp';
               }
               return null;
             },
@@ -451,7 +452,7 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
           const SizedBox(height: 24),
 
           _isLoading
-              ? NesContainer(
+              ? CustomContainer(
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -465,7 +466,7 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(
-                          'Processing...',
+                          'Đang xử lý...',
                           style: Theme.of(context).textTheme.bodyMedium,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -473,10 +474,10 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
                     ],
                   ),
                 )
-              : NesButton(
-                  type: NesButtonType.primary,
+              : CustomButton(
+                  type: CustomButtonType.primary,
                   onPressed: _handleRegister,
-                  child: const Text('Sign Up', textAlign: TextAlign.center),
+                  child: const Text('Đăng ký', textAlign: TextAlign.center),
                 ),
 
           const SizedBox(height: 16),
@@ -486,23 +487,23 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
               Expanded(
                 child: Container(
                   height: 1,
-                  color: AppTheme.primaryColor.withOpacity(0.3),
+                  color: AppTheme.primaryColor.withValues(alpha: 0.3),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  'OR',
+                  'HOẶC',
                   style: TextStyle(
                     fontSize: 10,
-                    color: AppTheme.primaryColor.withOpacity(0.7),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.7),
                   ),
                 ),
               ),
               Expanded(
                 child: Container(
                   height: 1,
-                  color: AppTheme.primaryColor.withOpacity(0.3),
+                  color: AppTheme.primaryColor.withValues(alpha: 0.3),
                 ),
               ),
             ],
@@ -510,26 +511,32 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
 
           const SizedBox(height: 16),
 
-          NesButton(
-            type: NesButtonType.normal,
+          CustomButton(
+            type: CustomButtonType.normal,
             onPressed: _isLoading
                 ? null
                 : () {
                     Navigator.pushNamed(context, '/login');
                   },
-            child: const Text('Back to Login', textAlign: TextAlign.center),
+            child: const Text(
+              'Quay lại đăng nhập',
+              textAlign: TextAlign.center,
+            ),
           ),
 
           const SizedBox(height: 12),
 
-          NesButton(
-            type: NesButtonType.warning,
+          CustomButton(
+            type: CustomButtonType.warning,
             onPressed: _isLoading
                 ? null
                 : () {
                     AppRoutes.navigateBackToWelcome(context);
                   },
-            child: const Text('Back to Welcome', textAlign: TextAlign.center),
+            child: const Text(
+              'Quay lại trang chào mừng',
+              textAlign: TextAlign.center,
+            ),
           ),
 
           const SizedBox(height: 20),
@@ -548,7 +555,7 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
           const SizedBox(height: 40),
 
           Text(
-            'Email Verification',
+            'Xác minh email',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -560,10 +567,10 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
           const SizedBox(height: 8),
 
           Text(
-            'Please enter the 6-digit code sent to your email',
+            'Vui lòng nhập mã 6 chữ số được gửi đến email của bạn',
             style: TextStyle(
               fontSize: 10,
-              color: AppTheme.primaryColor.withOpacity(0.7),
+              color: AppTheme.primaryColor.withValues(alpha: 0.7),
             ),
             textAlign: TextAlign.center,
           ),
@@ -572,17 +579,17 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
 
           _buildNesTextField(
             controller: _verificationCodeController,
-            label: 'Verification Code',
+            label: 'Mã xác minh',
             textAlign: TextAlign.center,
             maxLength: 6,
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Please enter the verification code';
+                return 'Vui lòng nhập mã xác minh';
               }
               if (value.length != 6) {
-                return 'The verification code must be 6 digits';
+                return 'Mã xác minh phải có 6 chữ số';
               }
               return null;
             },
@@ -590,7 +597,7 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
           const SizedBox(height: 24),
 
           _isLoading
-              ? NesContainer(
+              ? CustomContainer(
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -604,7 +611,7 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
                       const SizedBox(width: 8),
                       Flexible(
                         child: Text(
-                          'Processing...',
+                          'Đang xử lý...',
                           style: Theme.of(context).textTheme.bodyMedium,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -612,20 +619,20 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
                     ],
                   ),
                 )
-              : NesButton(
-                  type: NesButtonType.success,
+              : CustomButton(
+                  type: CustomButtonType.success,
                   onPressed: _handleVerification,
-                  child: const Text('Verify', textAlign: TextAlign.center),
+                  child: const Text('Xác minh', textAlign: TextAlign.center),
                 ),
           const SizedBox(height: 12),
 
-          NesButton(
-            type: NesButtonType.normal,
+          CustomButton(
+            type: CustomButtonType.normal,
             onPressed: _resendCooldown > 0 || _isLoading
                 ? null
                 : _handleResendVerification,
             child: Text(
-              _resendCooldown > 0 ? 'Resend ($_resendCooldown)' : 'Resend Code',
+              _resendCooldown > 0 ? 'Gửi lại ($_resendCooldown)' : 'Gửi lại mã',
               textAlign: TextAlign.center,
             ),
           ),
@@ -636,23 +643,23 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
               Expanded(
                 child: Container(
                   height: 1,
-                  color: AppTheme.primaryColor.withOpacity(0.3),
+                  color: AppTheme.primaryColor.withValues(alpha: 0.3),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  'OR',
+                  'HOẶC',
                   style: TextStyle(
                     fontSize: 10,
-                    color: AppTheme.primaryColor.withOpacity(0.7),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.7),
                   ),
                 ),
               ),
               Expanded(
                 child: Container(
                   height: 1,
-                  color: AppTheme.primaryColor.withOpacity(0.3),
+                  color: AppTheme.primaryColor.withValues(alpha: 0.3),
                 ),
               ),
             ],
@@ -660,15 +667,15 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
 
           const SizedBox(height: 16),
 
-          NesButton(
-            type: NesButtonType.warning,
+          CustomButton(
+            type: CustomButtonType.warning,
             onPressed: _isLoading ? null : _switchToRegistrationPhase,
-            child: const Text('Back to Sign Up', textAlign: TextAlign.center),
+            child: const Text('Quay lại đăng ký', textAlign: TextAlign.center),
           ),
           const SizedBox(height: 12),
 
-          NesButton(
-            type: NesButtonType.normal,
+          CustomButton(
+            type: CustomButtonType.normal,
             onPressed: _isLoading
                 ? null
                 : () {
@@ -678,7 +685,7 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
                       (route) => route.settings.name == '/welcome',
                     );
                   },
-            child: const Text('Go to Login', textAlign: TextAlign.center),
+            child: const Text('Đến đăng nhập', textAlign: TextAlign.center),
           ),
 
           const SizedBox(height: 40),
@@ -699,12 +706,7 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
     String? Function(String?)? validator,
   }) {
     return Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: AppTheme.primaryColor.withOpacity(0.5),
-          width: 2,
-        ),
-      ),
+      margin: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
         controller: controller,
         obscureText: obscureText,
@@ -714,15 +716,14 @@ class _RegisterVerifyScreenState extends State<RegisterVerifyScreen>
         inputFormatters: inputFormatters,
         validator: validator,
         enabled: !_isLoading,
+        style: const TextStyle(fontSize: 10),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(fontSize: 10, color: AppTheme.primaryColor),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(16),
+          hintText: 'Nhập $label',
+          border: const OutlineInputBorder(),
           suffixIcon: suffix,
           counterText: '',
         ),
-        style: const TextStyle(fontSize: 12),
       ),
     );
   }

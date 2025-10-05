@@ -6,7 +6,7 @@ import 'package:memory_match_game/presentation/widgets/common/social_links_widge
 import 'package:memory_match_game/presentation/widgets/common/account_info_widget.dart';
 import 'package:memory_match_game/presentation/widgets/common/actions_widget.dart';
 import 'package:pixelarticons/pixel.dart';
-import 'package:nes_ui/nes_ui.dart';
+import '../widgets/custom/custom_button.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -91,14 +91,14 @@ class _AccountScreenState extends State<AccountScreen> {
                     ),
                   ),
                   SizedBox(height: 36),
-                  NesButton(
-                    type: NesButtonType.primary,
+                  CustomButton(
+                    type: CustomButtonType.primary,
                     onPressed: () => Navigator.pushNamed(context, '/login'),
                     child: Text('Login', textAlign: TextAlign.center),
                   ),
                   SizedBox(height: 16),
-                  NesButton(
-                    type: NesButtonType.normal,
+                  CustomButton(
+                    type: CustomButtonType.normal,
                     onPressed: () =>
                         Navigator.pushNamed(context, '/register-verify'),
                     child: Text('Sign Up', textAlign: TextAlign.center),

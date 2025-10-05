@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nes_ui/nes_ui.dart';
 
 class AppTheme {
   AppTheme._();
@@ -10,15 +9,13 @@ class AppTheme {
   static const Color surfaceColor = Color(0xFFFAFAFA);
   static const Color backgroundColor = Color(0xFFFFFFFF);
 
-  static final ThemeData nesTheme = _buildNesTheme();
+  static final ThemeData appTheme = _buildAppTheme();
 
-  static ThemeData _buildNesTheme() {
-    final baseTheme = flutterNesTheme();
-    return baseTheme.copyWith(
+  static ThemeData _buildAppTheme() {
+    return ThemeData(
       primaryColor: primaryColor,
       scaffoldBackgroundColor: backgroundColor,
-      extensions: baseTheme.extensions.values,
-      textTheme: baseTheme.textTheme.copyWith(
+      textTheme: TextTheme(
         headlineLarge: headlineLarge,
         headlineMedium: headlineMedium,
         headlineSmall: headlineSmall,
@@ -32,7 +29,7 @@ class AppTheme {
         elevation: 0,
         centerTitle: true,
         titleTextStyle: const TextStyle(
-          fontFamily: 'PressStart2P',
+          fontFamily: 'AlanSans',
           fontSize: 16,
           fontWeight: FontWeight.bold,
           color: Colors.white,
@@ -42,44 +39,44 @@ class AppTheme {
   }
 
   static const TextStyle headlineLarge = TextStyle(
-    fontFamily: 'PressStart2P',
+    fontFamily: 'AlanSans',
     fontSize: 24,
     fontWeight: FontWeight.bold,
     color: Colors.black87,
   );
 
   static const TextStyle headlineMedium = TextStyle(
-    fontFamily: 'PressStart2P',
+    fontFamily: 'AlanSans',
     fontSize: 20,
     fontWeight: FontWeight.bold,
     color: Colors.black87,
   );
 
   static const TextStyle headlineSmall = TextStyle(
-    fontFamily: 'PressStart2P',
+    fontFamily: 'AlanSans',
     fontSize: 16,
     fontWeight: FontWeight.bold,
     color: Colors.black87,
   );
 
   static const TextStyle bodyLarge = TextStyle(
-    fontFamily: 'PressStart2P',
+    fontFamily: 'AlanSans',
     fontSize: 14,
     color: Colors.black87,
   );
 
   static const TextStyle bodyMedium = TextStyle(
-    fontFamily: 'PressStart2P',
+    fontFamily: 'AlanSans',
     fontSize: 12,
     color: Colors.black87,
   );
 
   static const TextStyle labelLarge = TextStyle(
-    fontFamily: 'PressStart2P',
+    fontFamily: 'AlanSans',
     fontSize: 10,
     fontWeight: FontWeight.bold,
     color: Colors.black87,
   );
 }
 
-ThemeData nesAppTheme() => AppTheme.nesTheme;
+ThemeData appTheme() => AppTheme.appTheme;
