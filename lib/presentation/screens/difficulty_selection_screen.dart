@@ -1,0 +1,276 @@
+// Game difficulty selection screen
+import 'package:flutter/material.dart';
+import 'package:nes_ui/nes_ui.dart';
+import 'package:pixelarticons/pixel.dart';
+import 'dart:math';
+import '../../domain/entities/offline_game_entity.dart';
+import '../../domain/entities/pokemon_entity.dart';
+import '../../domain/repositories/pokemon_repository.dart';
+import '../../data/repositories/pokemon_repository_impl.dart';
+import '../../data/datasources/local_pokemon_data_source.dart';
+import '../../core/theme/app_theme.dart';
+import 'loading_screen.dart';
+
+class DifficultySelectionScreen extends StatefulWidget {
+  final Function(GameDifficulty)? onDifficultySelected;
+  final VoidCallback? onBack;
+
+  const DifficultySelectionScreen({
+    super.key,
+    this.onDifficultySelected,
+    this.onBack,
+  });
+
+  @override
+  State<DifficultySelectionScreen> createState() =>
+      _DifficultySelectionScreenState();
+}
+
+class _DifficultySelectionScreenState extends State<DifficultySelectionScreen> {
+  late final PokemonRepository _pokemonRepository;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _pokemonRepository = PokemonRepositoryImpl(LocalPokemonDataSource());
+  }
+
+  Future<void> _onDifficultySelected(GameDifficulty difficulty) async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final allPokemonList = await _pokemonRepository.getAllPokemon();
+
+      final random = Random();
+      final selectedPokemon = <PokemonEntity>[];
+      final shuffledPokemon = List<PokemonEntity>.from(allPokemonList)
+        ..shuffle(random);
+      selectedPokemon.addAll(shuffledPokemon.take(difficulty.cardPairs));
+
+      if (!mounted) return;
+
+      widget.onDifficultySelected?.call(difficulty);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LoadingScreen(
+            difficulty: difficulty,
+            pokemonList: selectedPokemon,
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              'ERROR',
+              style: AppTheme.headlineMedium.copyWith(color: Colors.red),
+            ),
+            content: Text(
+              'Failed to load Pokemon data. Please try again.',
+              style: AppTheme.bodyMedium,
+            ),
+            actions: [
+              NesButton(
+                type: NesButtonType.primary,
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Pixel.arrowleft),
+          onPressed: widget.onBack ?? () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Choose Difficulty',
+          style: AppTheme.headlineLarge.copyWith(
+            color: Colors.white,
+            fontSize: 16,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF64B5F6), Color(0xFF1976D2)],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 48),
+
+                  if (_isLoading)
+                    const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    )
+                  else
+                    ...GameDifficulty.values.map((difficulty) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: _DifficultyCard(
+                            difficulty: difficulty,
+                            onSelected: () => _onDifficultySelected(difficulty),
+                          ),
+                        ),
+                      );
+                    }),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DifficultyCard extends StatelessWidget {
+  final GameDifficulty difficulty;
+  final VoidCallback onSelected;
+
+  const _DifficultyCard({required this.difficulty, required this.onSelected});
+
+  String get _difficultyName {
+    switch (difficulty) {
+      case GameDifficulty.veryEasy:
+        return 'VERY EASY';
+      case GameDifficulty.easy:
+        return 'EASY';
+      case GameDifficulty.normal:
+        return 'NORMAL';
+      case GameDifficulty.medium:
+        return 'MEDIUM';
+      case GameDifficulty.hard:
+        return 'HARD';
+      case GameDifficulty.superHard:
+        return 'SUPER HARD';
+      case GameDifficulty.insane:
+        return 'INSANE';
+      case GameDifficulty.extreme:
+        return 'EXTREME';
+    }
+  }
+
+  String get _difficultyDescription {
+    switch (difficulty) {
+      case GameDifficulty.veryEasy:
+        return '${difficulty.cardPairs} pairs • ${difficulty.timeLimit.inMinutes} min';
+      case GameDifficulty.easy:
+        return '${difficulty.cardPairs} pairs • ${difficulty.timeLimit.inMinutes} min';
+      case GameDifficulty.normal:
+        return '${difficulty.cardPairs} pairs • ${difficulty.timeLimit.inMinutes} min';
+      case GameDifficulty.medium:
+        return '${difficulty.cardPairs} pairs • ${difficulty.timeLimit.inMinutes} min';
+      case GameDifficulty.hard:
+        return '${difficulty.cardPairs} pairs • ${difficulty.timeLimit.inMinutes} min';
+      case GameDifficulty.superHard:
+        return '${difficulty.cardPairs} pairs • ${difficulty.timeLimit.inMinutes} min';
+      case GameDifficulty.insane:
+        return '${difficulty.cardPairs} pairs • ${difficulty.timeLimit.inMinutes} min';
+      case GameDifficulty.extreme:
+        return '${difficulty.cardPairs} pairs • ${difficulty.timeLimit.inMinutes} min';
+    }
+  }
+
+  NesButtonType get _buttonType {
+    switch (difficulty) {
+      case GameDifficulty.veryEasy:
+        return NesButtonType.success;
+      case GameDifficulty.easy:
+        return NesButtonType.success;
+      case GameDifficulty.normal:
+        return NesButtonType.warning;
+      case GameDifficulty.medium:
+        return NesButtonType.warning;
+      case GameDifficulty.hard:
+        return NesButtonType.primary;
+      case GameDifficulty.superHard:
+        return NesButtonType.primary;
+      case GameDifficulty.insane:
+        return NesButtonType.error;
+      case GameDifficulty.extreme:
+        return NesButtonType.error;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color.fromRGBO(255, 255, 255, 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color.fromRGBO(255, 255, 255, 0.3),
+          width: 2,
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _difficultyName,
+                  style: AppTheme.headlineMedium.copyWith(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _difficultyDescription,
+                  style: AppTheme.bodyMedium.copyWith(color: Colors.white70),
+                ),
+              ],
+            ),
+          ),
+          NesButton(
+            type: _buttonType,
+            onPressed: onSelected,
+            child: Text('SELECT'),
+          ),
+        ],
+      ),
+    );
+  }
+}
