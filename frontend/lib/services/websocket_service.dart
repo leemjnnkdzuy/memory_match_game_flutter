@@ -1,11 +1,11 @@
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import './token_storage_service.dart';
 
 class WebSocketService {
   static WebSocketService? _instance;
-  IO.Socket? _socket;
+  io.Socket? _socket;
 
   final String _baseUrl = 'http://localhost:3001';
   final _connectionStatusController = ValueNotifier<bool>(false);
@@ -34,7 +34,7 @@ class WebSocketService {
 
       final completer = Completer<void>();
 
-      _socket = IO.io(_baseUrl, <String, dynamic>{
+      _socket = io.io(_baseUrl, <String, dynamic>{
         'transports': ['websocket', 'polling'],
         'autoConnect': false,
         'auth': {'token': accessToken},

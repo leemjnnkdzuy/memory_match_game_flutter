@@ -53,8 +53,8 @@ class _SoloDuelScreenState extends State<SoloDuelScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => WillPopScope(
-        onWillPop: () async => false,
+      builder: (context) => PopScope(
+        canPop: false,
         child: SoloDuelRejoinDialog(
           onSurrender: () {
             Navigator.pop(context);
@@ -77,8 +77,8 @@ class _SoloDuelScreenState extends State<SoloDuelScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => WillPopScope(
-        onWillPop: () async => false,
+      builder: (context) => PopScope(
+        canPop: false,
         child: const SoloDuelLoadingDialog(message: 'Đang kết nối lại...'),
       ),
     );

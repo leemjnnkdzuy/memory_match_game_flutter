@@ -29,8 +29,6 @@ class SoloDuelGameService {
     null,
   );
   final _matchStateController = ValueNotifier<Map<String, dynamic>?>(null);
-
-  // ValueNotifier for current match to trigger UI updates
   final _currentMatchController = ValueNotifier<SoloDuelMatchEntity?>(null);
 
   SoloDuelMatchEntity? _currentMatch;
@@ -129,13 +127,11 @@ class SoloDuelGameService {
       _playerReconnectedController;
   ValueNotifier<Map<String, dynamic>?> get matchState => _matchStateController;
 
-  // Expose currentMatch as ValueNotifier for reactive updates
   ValueNotifier<SoloDuelMatchEntity?> get currentMatchNotifier =>
       _currentMatchController;
 
   SoloDuelMatchEntity? get currentMatch => _currentMatch;
 
-  // Helper method to update _currentMatch and notify listeners
   void _updateCurrentMatch(SoloDuelMatchEntity? match) {
     _currentMatch = match;
     _currentMatchController.value = match;

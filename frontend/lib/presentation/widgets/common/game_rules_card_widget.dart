@@ -41,7 +41,6 @@ class GameRulesCardWidget extends StatelessWidget {
   }
 }
 
-/// Widget hiển thị một mục luật chơi
 class _RuleItemWidget extends StatelessWidget {
   final String text;
 

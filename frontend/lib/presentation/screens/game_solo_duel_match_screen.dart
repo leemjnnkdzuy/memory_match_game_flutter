@@ -88,7 +88,6 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
   }
 
   void _onMatchUpdated() {
-    // Triggered whenever currentMatch changes (including score updates)
     if (mounted) {
       setState(() {});
     }
@@ -279,8 +278,8 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => WillPopScope(
-        onWillPop: () async => false,
+      builder: (context) => PopScope(
+        canPop: false,
         child: SoloDuelOpponentDisconnectedDialog(
           opponentUsername: opponentUsername,
           waitTimeSeconds: waitTime,
@@ -354,7 +353,6 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
         child: SafeArea(
           child: Column(
             children: [
-              // Only show avatars and pause button when game has started
               if (isGameStarted)
                 Padding(
                   padding: const EdgeInsets.all(16),
