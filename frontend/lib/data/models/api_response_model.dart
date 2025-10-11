@@ -1,4 +1,3 @@
-/// API Response model for all server responses
 class ApiResponse<T> {
   final bool success;
   final String message;

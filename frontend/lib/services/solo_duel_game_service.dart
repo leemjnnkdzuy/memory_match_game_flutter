@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../domain/entities/solo_duel_match_entity.dart';
 import './websocket_service.dart';
 import './auth_service.dart';
@@ -7,6 +9,7 @@ import './request_service.dart';
 
 class SoloDuelGameService {
   static SoloDuelGameService? _instance;
+  static const String _activeMatchKey = 'active_solo_duel_match';
 
   final WebSocketService _webSocketService = WebSocketService.instance;
   final AuthService _authService = AuthService.instance;
@@ -18,8 +21,17 @@ class SoloDuelGameService {
   final _gameOverController = ValueNotifier<Map<String, dynamic>?>(null);
   final _errorController = ValueNotifier<String?>(null);
   final _queueStatusController = ValueNotifier<Map<String, dynamic>?>(null);
+  final _playerReadyController = ValueNotifier<String?>(null);
+  final _playerDisconnectedController = ValueNotifier<Map<String, dynamic>?>(
+    null,
+  );
+  final _playerReconnectedController = ValueNotifier<Map<String, dynamic>?>(
+    null,
+  );
+  final _matchStateController = ValueNotifier<Map<String, dynamic>?>(null);
 
   SoloDuelMatchEntity? _currentMatch;
+  bool _isInitialized = false;
 
   static SoloDuelGameService get instance {
     _instance ??= SoloDuelGameService._internal();
@@ -28,6 +40,73 @@ class SoloDuelGameService {
 
   SoloDuelGameService._internal() {
     _setupWebSocketListeners();
+    _initializeService();
+  }
+
+  Future<void> _initializeService() async {
+    await _loadActiveMatch();
+    _isInitialized = true;
+  }
+
+  Future<void> waitForInitialization() async {
+    while (!_isInitialized) {
+      await Future.delayed(const Duration(milliseconds: 10));
+    }
+  }
+
+  Future<void> _loadActiveMatch() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final matchData = prefs.getString(_activeMatchKey);
+      if (matchData != null) {
+        final data = Map<String, dynamic>.from(jsonDecode(matchData));
+        // Only restore match if it's still active (not completed or cancelled)
+        final status = data['status'] as String?;
+        if (status == 'ready' || status == 'playing') {
+          _currentMatch = SoloDuelMatchEntity(
+            matchId: data['matchId'],
+            status: _parseMatchStatus(status),
+            players: [], // Will be updated when reconnecting
+            cards: [], // Will be updated when reconnecting
+            currentTurn: data['currentTurn'],
+            flippedCards: [],
+          );
+        } else {
+          // Clear if match is already completed
+          await _clearActiveMatch();
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading active match: $e');
+    }
+  }
+
+  Future<void> _saveActiveMatch() async {
+    if (_currentMatch == null) {
+      await _clearActiveMatch();
+      return;
+    }
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final matchData = {
+        'matchId': _currentMatch!.matchId,
+        'status': _currentMatch!.status.toString().split('.').last,
+        'currentTurn': _currentMatch!.currentTurn,
+      };
+      await prefs.setString(_activeMatchKey, jsonEncode(matchData));
+    } catch (e) {
+      debugPrint('Error saving active match: $e');
+    }
+  }
+
+  Future<void> _clearActiveMatch() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_activeMatchKey);
+    } catch (e) {
+      debugPrint('Error clearing active match: $e');
+    }
   }
 
   ValueNotifier<Map<String, dynamic>?> get matchFound => _matchFoundController;
@@ -40,6 +119,12 @@ class SoloDuelGameService {
   ValueNotifier<String?> get error => _errorController;
   ValueNotifier<Map<String, dynamic>?> get queueStatus =>
       _queueStatusController;
+  ValueNotifier<String?> get playerReady => _playerReadyController;
+  ValueNotifier<Map<String, dynamic>?> get playerDisconnected =>
+      _playerDisconnectedController;
+  ValueNotifier<Map<String, dynamic>?> get playerReconnected =>
+      _playerReconnectedController;
+  ValueNotifier<Map<String, dynamic>?> get matchState => _matchStateController;
 
   SoloDuelMatchEntity? get currentMatch => _currentMatch;
 
@@ -55,6 +140,7 @@ class SoloDuelGameService {
 
     _webSocketService.on('solo_duel:player_ready', (data) {
       _updatePlayerReady(data['userId']);
+      _playerReadyController.value = data['userId'];
     });
 
     _webSocketService.on('solo_duel:game_started', (data) {
@@ -92,6 +178,8 @@ class SoloDuelGameService {
             startedAt: DateTime.parse(data['startedAt']),
           );
         }
+        // Update storage with playing status
+        _saveActiveMatch();
       }
     });
 
@@ -107,10 +195,41 @@ class SoloDuelGameService {
 
     _webSocketService.on('solo_duel:game_over', (data) {
       _gameOverController.value = data;
+      // Clear storage when game is over
+      _clearActiveMatch();
     });
 
     _webSocketService.on('solo_duel:player_disconnected', (data) {
-      _errorController.value = 'Người chơi ${data['username']} đã ngắt kết nối';
+      _playerDisconnectedController.value = data;
+      if (_currentMatch != null) {
+        final disconnectedUserId = data['userId'];
+        final updatedPlayers = _currentMatch!.players.map((player) {
+          if (player.userId == disconnectedUserId) {
+            return player.copyWith(isConnected: false);
+          }
+          return player;
+        }).toList();
+        _currentMatch = _currentMatch!.copyWith(players: updatedPlayers);
+      }
+    });
+
+    _webSocketService.on('solo_duel:player_reconnected', (data) {
+      _playerReconnectedController.value = data;
+      if (_currentMatch != null) {
+        final reconnectedUserId = data['userId'];
+        final updatedPlayers = _currentMatch!.players.map((player) {
+          if (player.userId == reconnectedUserId) {
+            return player.copyWith(isConnected: true);
+          }
+          return player;
+        }).toList();
+        _currentMatch = _currentMatch!.copyWith(players: updatedPlayers);
+      }
+    });
+
+    _webSocketService.on('solo_duel:match_state', (data) {
+      _matchStateController.value = data;
+      _updateMatchState(data);
     });
 
     _webSocketService.on('solo_duel:error', (data) {
@@ -167,6 +286,9 @@ class SoloDuelGameService {
       currentTurn: data['isFirstPlayer'] ? myUserId : opponentData['userId'],
       flippedCards: [],
     );
+
+    // Save to persistent storage
+    _saveActiveMatch();
   }
 
   void _updatePlayerReady(String userId) {
@@ -189,12 +311,27 @@ class SoloDuelGameService {
     final flippedBy = data['flippedBy'];
 
     final updatedCards = List<SoloDuelCardEntity>.from(_currentMatch!.cards);
+
     updatedCards[cardIndex] = updatedCards[cardIndex].copyWith(
       isFlipped: true,
       flippedBy: flippedBy,
     );
 
-    _currentMatch = _currentMatch!.copyWith(cards: updatedCards);
+    final updatedFlippedCards = List<FlippedCardEntity>.from(
+      _currentMatch!.flippedCards,
+    );
+    updatedFlippedCards.add(
+      FlippedCardEntity(
+        cardIndex: cardIndex,
+        flippedBy: flippedBy,
+        flippedAt: DateTime.now(),
+      ),
+    );
+
+    _currentMatch = _currentMatch!.copyWith(
+      cards: updatedCards,
+      flippedCards: updatedFlippedCards,
+    );
   }
 
   void _updateMatchResult(Map<String, dynamic> data) {
@@ -211,6 +348,7 @@ class SoloDuelGameService {
     if (isMatch) {
       for (final index in cardIndices) {
         updatedCards[index] = updatedCards[index].copyWith(
+          isFlipped: false,
           isMatched: true,
           matchedBy: matchedBy,
         );
@@ -245,10 +383,99 @@ class SoloDuelGameService {
       cards: updatedCards,
       players: updatedPlayers,
       currentTurn: nextTurn,
+      flippedCards: [],
     );
   }
 
-  // Actions
+  void _updateMatchState(Map<String, dynamic> data) {
+    if (_currentMatch == null) return;
+
+    final playersData = List<Map<String, dynamic>>.from(data['players'] ?? []);
+    final cardsData = List<Map<String, dynamic>>.from(data['cards'] ?? []);
+    final myUserId = _authService.currentUser?.id ?? '';
+
+    final updatedPlayers = playersData.map((playerData) {
+      final userId = playerData['userId'].toString();
+      String? avatar;
+
+      // First priority: avatar from server response
+      if (playerData['avatar'] != null) {
+        avatar = playerData['avatar'];
+      }
+      // Second priority: try to find existing player to preserve avatar
+      else if (_currentMatch!.players.isNotEmpty) {
+        final existingPlayer = _currentMatch!.players.firstWhere(
+          (p) => p.userId == userId,
+          orElse: () => PlayerEntity(
+            userId: '',
+            username: '',
+            score: 0,
+            matchedCards: 0,
+            isReady: false,
+          ),
+        );
+
+        if (existingPlayer.userId.isNotEmpty) {
+          avatar = existingPlayer.avatar;
+        }
+      }
+
+      // Third priority: if this is current user and avatar not found, get from AuthService
+      if (avatar == null && userId == myUserId) {
+        avatar = _authService.currentUser?.avatar;
+      }
+
+      return PlayerEntity(
+        userId: userId,
+        username: playerData['username'],
+        score: playerData['score'],
+        matchedCards: playerData['matchedCards'],
+        isReady: true,
+        isConnected: playerData['isConnected'] ?? true,
+        avatar: avatar,
+      );
+    }).toList();
+
+    final updatedCards = <SoloDuelCardEntity>[];
+    for (int i = 0; i < cardsData.length; i++) {
+      final cardData = cardsData[i];
+      updatedCards.add(
+        SoloDuelCardEntity(
+          pokemonId: cardData['pokemonId'],
+          pokemonName: cardData['pokemonName'],
+          isFlipped: false,
+          isMatched: cardData['isMatched'],
+          matchedBy: cardData['matchedBy'],
+          position: i,
+        ),
+      );
+    }
+
+    _currentMatch = _currentMatch!.copyWith(
+      status: _parseMatchStatus(data['status']),
+      currentTurn: data['currentTurn'],
+      players: updatedPlayers,
+      cards: updatedCards,
+    );
+  }
+
+  MatchStatus _parseMatchStatus(String? status) {
+    switch (status) {
+      case 'waiting':
+        return MatchStatus.waiting;
+      case 'ready':
+        return MatchStatus.ready;
+      case 'playing':
+        return MatchStatus.playing;
+      case 'completed':
+        return MatchStatus.completed;
+      case 'cancelled':
+        return MatchStatus.cancelled;
+      default:
+        return MatchStatus.waiting;
+    }
+  }
+
   Future<void> joinQueue() async {
     final tokenStorage = TokenStorageImpl();
     if (await tokenStorage.isAccessTokenExpired()) {
@@ -281,6 +508,18 @@ class SoloDuelGameService {
     });
   }
 
+  void surrender(String matchId) {
+    _webSocketService.emit('solo_duel:surrender', {'matchId': matchId});
+  }
+
+  Future<void> rejoinMatch(String matchId) async {
+    // Ensure WebSocket is connected
+    if (!_webSocketService.isConnected) {
+      await _webSocketService.connect();
+    }
+    _webSocketService.emit('solo_duel:rejoin_match', {'matchId': matchId});
+  }
+
   void pauseMatch(String matchId) {
     _webSocketService.emit('solo_duel:pause', {'matchId': matchId});
   }
@@ -294,6 +533,9 @@ class SoloDuelGameService {
     _gameOverController.value = null;
     _errorController.value = null;
     _queueStatusController.value = null;
+    _playerReadyController.value = null;
+    // Clear from storage
+    _clearActiveMatch();
   }
 
   void dispose() {
@@ -304,5 +546,6 @@ class SoloDuelGameService {
     _gameOverController.dispose();
     _errorController.dispose();
     _queueStatusController.dispose();
+    _playerReadyController.dispose();
   }
 }

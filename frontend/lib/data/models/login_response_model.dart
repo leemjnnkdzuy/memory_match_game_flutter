@@ -1,6 +1,5 @@
 import 'user_model.dart';
 
-/// Login response data model
 class LoginResponseModel {
   final String accessToken;
   final String refreshToken;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/common/custom_bottom_navigation_bar.dart';
+import '../widgets/custom/custom_bottom_navigation_bar.dart';
 import 'game_match_screen.dart';
 import 'history_screen.dart';
 import 'leaderboard_screen.dart';

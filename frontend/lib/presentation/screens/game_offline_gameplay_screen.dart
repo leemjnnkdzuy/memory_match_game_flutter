@@ -374,7 +374,6 @@ class _OfflineGameplayScreenState extends State<OfflineGameplayScreen>
                       matchController: _matchController,
                     ),
 
-                    // Loading overlay if images not ready
                     if (!_imagesReady)
                       Container(
                         color: Colors.black.withValues(alpha: 0.7),

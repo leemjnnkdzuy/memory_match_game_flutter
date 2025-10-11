@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../custom/custom_container.dart';
+import 'custom_container.dart';
 
 class CustomLoadingButton extends StatelessWidget {
   const CustomLoadingButton({super.key});

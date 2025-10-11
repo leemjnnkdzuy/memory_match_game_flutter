@@ -4,16 +4,12 @@ const gameStateService = require("../services/gameStateService");
 const SoloDuelHistory = require("../models/soloDuelHistoryModel");
 
 class SoloDuelController {
-	/**
-	 * Khởi tạo WebSocket handlers
-	 */
 	initializeSocketHandlers(io) {
 		io.on("connection", (socket) => {
 			console.log(
 				`User connected: ${socket.username} (${socket.userId})`
 			);
 
-			// Join matchmaking queue
 			socket.on("solo_duel:join_queue", async () => {
 				try {
 					const result = await matchmakingService.addToQueue(
@@ -23,10 +19,8 @@ class SoloDuelController {
 					);
 
 					if (result) {
-						// Match found!
 						const {match, player1, player2} = result;
 
-						// Emit to both players
 						io.to(player1.socketId).emit("solo_duel:match_found", {
 							matchId: match.matchId,
 							opponent: {
@@ -53,7 +47,6 @@ class SoloDuelController {
 							isFirstPlayer: false,
 						});
 					} else {
-						// Added to queue
 						socket.emit("solo_duel:queue_joined", {
 							position:
 								matchmakingService.getQueueInfo().queueLength,
@@ -64,13 +57,11 @@ class SoloDuelController {
 				}
 			});
 
-			// Leave queue
 			socket.on("solo_duel:leave_queue", () => {
 				matchmakingService.removeFromQueue(socket.userId);
 				socket.emit("solo_duel:queue_left");
 			});
 
-			// Player ready
 			socket.on("solo_duel:player_ready", async ({matchId}) => {
 				try {
 					const match = await gameStateService.setPlayerReady(
@@ -78,13 +69,11 @@ class SoloDuelController {
 						socket.userId
 					);
 
-					// Broadcast to room
 					io.to(matchId).emit("solo_duel:player_ready", {
 						userId: socket.userId,
 						username: socket.username,
 					});
 
-					// If game started
 					if (match.status === "playing") {
 						io.to(matchId).emit("solo_duel:game_started", {
 							currentTurn: match.currentTurn,
@@ -96,13 +85,11 @@ class SoloDuelController {
 				}
 			});
 
-			// Join match room
 			socket.on("solo_duel:join_match", ({matchId}) => {
 				socket.join(matchId);
 				socket.matchId = matchId;
 			});
 
-			// Flip card
 			socket.on("solo_duel:flip_card", async ({matchId, cardIndex}) => {
 				try {
 					const match = await gameStateService.handleCardFlip(
@@ -111,7 +98,6 @@ class SoloDuelController {
 						cardIndex
 					);
 
-					// Broadcast to room
 					io.to(matchId).emit("solo_duel:card_flipped", {
 						cardIndex,
 						flippedBy: socket.userId,
@@ -119,7 +105,6 @@ class SoloDuelController {
 						pokemonName: match.cards[cardIndex].pokemonName,
 					});
 
-					// Check for match result
 					const flippedCount = match.flippedCards.filter(
 						(fc) =>
 							fc.flippedBy === socket.userId &&
@@ -147,7 +132,6 @@ class SoloDuelController {
 							})),
 						});
 
-						// Check game over
 						if (match.status === "completed") {
 							await this.saveMatchHistory(match);
 
@@ -170,7 +154,6 @@ class SoloDuelController {
 				}
 			});
 
-			// Disconnect
 			socket.on("disconnect", () => {
 				console.log(`User disconnected: ${socket.username}`);
 				matchmakingService.removeFromQueue(socket.userId);
@@ -188,9 +171,6 @@ class SoloDuelController {
 		});
 	}
 
-	/**
-	 * Lưu lịch sử trận đấu
-	 */
 	async saveMatchHistory(match) {
 		const gameTime = Math.floor(
 			(match.finishedAt - match.startedAt) / 1000

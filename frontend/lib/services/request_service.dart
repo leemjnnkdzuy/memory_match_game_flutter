@@ -2,26 +2,27 @@ import '../core/utils/http_client_utils.dart';
 import '../data/repositories/http_client_impl.dart';
 import 'token_storage_service.dart';
 import '../data/datasources/auth_remote_data_source.dart';
-import '../data/datasources/offline_history_remote_data_source.dart';
+import '../data/datasources/history_remote_data_source.dart';
 import '../data/datasources/solo_duel_remote_data_source.dart';
 import '../data/repositories/auth_repository_impl.dart';
-import '../data/repositories/offline_history_repository_impl.dart';
+import '../data/repositories/history_repository_impl.dart';
 import '../data/repositories/solo_duel_repository_impl.dart';
 import '../domain/repositories/auth_repository.dart';
-import '../domain/repositories/offline_history_repository.dart';
+import '../domain/repositories/history_repository.dart';
 import '../domain/repositories/solo_duel_repository.dart';
 import '../domain/usecases/login_use_case.dart';
 import '../domain/usecases/register_use_case.dart';
 import '../domain/usecases/logout_use_case.dart';
 import '../domain/usecases/get_profile_use_case.dart';
 import '../domain/usecases/save_offline_history_use_case.dart';
-import '../domain/usecases/get_offline_history_use_case.dart';
-import '../domain/usecases/get_offline_histories_use_case.dart';
+import '../domain/usecases/get_history_use_case.dart';
+import '../domain/usecases/get_histories_use_case.dart';
 import '../domain/usecases/get_solo_duel_histories_use_case.dart';
 import '../domain/usecases/get_solo_duel_history_use_case.dart';
 import '../data/models/user_model.dart';
 import '../domain/auth/session.dart';
 import '../domain/entities/offline_history_entity.dart';
+import '../domain/entities/history_entity.dart';
 import '../domain/entities/solo_duel_history_entity.dart';
 
 class RequestService {
@@ -30,10 +31,10 @@ class RequestService {
   late final HttpClient _httpClient;
   late final TokenStorage _tokenStorage;
   late final AuthRemoteDataSource _authRemoteDataSource;
-  late final OfflineHistoryRemoteDataSource _offlineHistoryRemoteDataSource;
+  late final HistoryRemoteDataSource _historyRemoteDataSource;
   late final SoloDuelRemoteDataSource _soloDuelRemoteDataSource;
   late final AuthRepository _authRepository;
-  late final OfflineHistoryRepository _offlineHistoryRepository;
+  late final HistoryRepository _historyRepository;
   late final SoloDuelRepository _soloDuelRepository;
 
   late final LoginUseCase _loginUseCase;
@@ -41,8 +42,8 @@ class RequestService {
   late final LogoutUseCase _logoutUseCase;
   late final GetProfileUseCase _getProfileUseCase;
   late final SaveOfflineHistoryUseCase _saveOfflineHistoryUseCase;
-  late final GetOfflineHistoryUseCase _getOfflineHistoryUseCase;
-  late final GetOfflineHistoriesUseCase _getOfflineHistoriesUseCase;
+  late final GetHistoryUseCase _getHistoryUseCase;
+  late final GetHistoriesUseCase _getHistoriesUseCase;
   late final GetSoloDuelHistoriesUseCase _getSoloDuelHistoriesUseCase;
   late final GetSoloDuelHistoryUseCase _getSoloDuelHistoryUseCase;
 
@@ -62,7 +63,7 @@ class RequestService {
       httpClient: _httpClient,
       tokenStorage: _tokenStorage,
     );
-    _offlineHistoryRemoteDataSource = OfflineHistoryRemoteDataSourceImpl(
+    _historyRemoteDataSource = HistoryRemoteDataSourceImpl(
       httpClient: _httpClient,
       tokenStorage: _tokenStorage,
     );
@@ -74,8 +75,8 @@ class RequestService {
       remoteDataSource: _authRemoteDataSource,
       tokenStorage: _tokenStorage,
     );
-    _offlineHistoryRepository = OfflineHistoryRepositoryImpl(
-      remoteDataSource: _offlineHistoryRemoteDataSource,
+    _historyRepository = HistoryRepositoryImpl(
+      remoteDataSource: _historyRemoteDataSource,
     );
     _soloDuelRepository = SoloDuelRepositoryImpl(
       remoteDataSource: _soloDuelRemoteDataSource,
@@ -85,15 +86,9 @@ class RequestService {
     _registerUseCase = RegisterUseCase(_authRepository);
     _logoutUseCase = LogoutUseCase(_authRepository);
     _getProfileUseCase = GetProfileUseCase(_authRepository);
-    _saveOfflineHistoryUseCase = SaveOfflineHistoryUseCase(
-      _offlineHistoryRepository,
-    );
-    _getOfflineHistoryUseCase = GetOfflineHistoryUseCase(
-      _offlineHistoryRepository,
-    );
-    _getOfflineHistoriesUseCase = GetOfflineHistoriesUseCase(
-      _offlineHistoryRepository,
-    );
+    _saveOfflineHistoryUseCase = SaveOfflineHistoryUseCase(_historyRepository);
+    _getHistoryUseCase = GetHistoryUseCase(_historyRepository);
+    _getHistoriesUseCase = GetHistoriesUseCase(_historyRepository);
     _getSoloDuelHistoriesUseCase = GetSoloDuelHistoriesUseCase(
       _soloDuelRepository,
     );
@@ -279,23 +274,27 @@ class RequestService {
     );
   }
 
-  Future<Result<OfflineHistoryEntity>> getOfflineHistory(String id) async {
-    return await _getOfflineHistoryUseCase(id);
+  // Get một history theo ID (cả offline và online)
+  Future<Result<HistoryEntity>> getHistory(String id) async {
+    return await _getHistoryUseCase(id);
   }
 
-  Future<Result<OfflineHistoriesResponse>> getOfflineHistories({
+  // Get tất cả histories (cả offline và online)
+  Future<Result<HistoriesResponse>> getHistories({
     int page = 1,
     int limit = 10,
     String? difficulty,
     bool? isWin,
+    String? type, // 'offline', 'online', hoặc null (tất cả)
     String sortBy = 'datePlayed',
     String order = 'desc',
   }) async {
-    return await _getOfflineHistoriesUseCase(
+    return await _getHistoriesUseCase(
       page: page,
       limit: limit,
       difficulty: difficulty,
       isWin: isWin,
+      type: type,
       sortBy: sortBy,
       order: order,
     );

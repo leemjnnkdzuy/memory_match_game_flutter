@@ -4,7 +4,7 @@ import '../../../core/theme/app_theme.dart';
 import '../custom/custom_button.dart';
 import '../custom/custom_container.dart';
 import 'pin_field_widget.dart';
-import 'custom_loading_button.dart';
+import '../custom/custom_loading_button.dart';
 import 'error_container_widget.dart';
 
 class ChangeEmailStep1 extends StatelessWidget {

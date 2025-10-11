@@ -3,7 +3,7 @@ import 'package:pixelarticons/pixel.dart';
 import '../../../core/theme/app_theme.dart';
 import '../custom/custom_button.dart';
 import '../custom/custom_container.dart';
-import 'custom_loading_button.dart';
+import '../custom/custom_loading_button.dart';
 import 'error_container_widget.dart';
 
 class ChangeEmailStep0 extends StatelessWidget {

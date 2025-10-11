@@ -1,5 +1,6 @@
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter/foundation.dart';
+import 'dart:async';
 import './token_storage_service.dart';
 
 class WebSocketService {
@@ -34,6 +35,8 @@ class WebSocketService {
         throw Exception('No access token found');
       }
 
+      final completer = Completer<void>();
+
       _socket = IO.io(_baseUrl, <String, dynamic>{
         'transports': ['websocket', 'polling'],
         'autoConnect': false,
@@ -43,8 +46,10 @@ class WebSocketService {
       _socket!.onConnect((_) {
         debugPrint('WebSocket connected');
         _connectionStatusController.value = true;
-
         _applyPendingListeners();
+        if (!completer.isCompleted) {
+          completer.complete();
+        }
       });
 
       _socket!.onDisconnect((_) {
@@ -55,13 +60,21 @@ class WebSocketService {
       _socket!.onConnectError((error) {
         debugPrint('WebSocket connection error: $error');
         _connectionStatusController.value = false;
+        if (!completer.isCompleted) {
+          completer.completeError(error);
+        }
       });
 
       _socket!.onError((error) {
         debugPrint('WebSocket error: $error');
+        if (!completer.isCompleted) {
+          completer.completeError(error);
+        }
       });
 
       _socket!.connect();
+
+      await completer.future;
     } catch (e) {
       debugPrint('Error connecting to WebSocket: $e');
       rethrow;

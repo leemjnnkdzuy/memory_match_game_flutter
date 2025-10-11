@@ -9,6 +9,7 @@ class SoloDuelCardWidget extends StatefulWidget {
   final PokemonEntity pokemon;
   final VoidCallback onTap;
   final bool isMyTurn;
+  final bool isPotentialMatch;
 
   const SoloDuelCardWidget({
     super.key,
@@ -16,6 +17,7 @@ class SoloDuelCardWidget extends StatefulWidget {
     required this.pokemon,
     required this.onTap,
     required this.isMyTurn,
+    required this.isPotentialMatch,
   });
 
   @override
@@ -68,8 +70,6 @@ class _SoloDuelCardWidgetState extends State<SoloDuelCardWidget>
 
   @override
   Widget build(BuildContext context) {
-    // Removed unused border logic variables
-
     return GestureDetector(
       onTap:
           (widget.card.isMatched || widget.card.isFlipped || !widget.isMyTurn)
@@ -90,8 +90,12 @@ class _SoloDuelCardWidgetState extends State<SoloDuelCardWidget>
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: widget.card.isMatched ? Colors.green : Colors.white,
-                    width: widget.card.isMatched ? 3 : 2,
+                    color: widget.card.isMatched || widget.isPotentialMatch
+                        ? Colors.green
+                        : Colors.white,
+                    width: widget.card.isMatched || widget.isPotentialMatch
+                        ? 3
+                        : 2,
                   ),
                 ),
                 child: ClipRRect(
@@ -168,7 +172,7 @@ class _SoloDuelCardWidgetState extends State<SoloDuelCardWidget>
               ),
             ),
           ),
-          if (widget.card.isMatched)
+          if (widget.card.isMatched || widget.isPotentialMatch)
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(

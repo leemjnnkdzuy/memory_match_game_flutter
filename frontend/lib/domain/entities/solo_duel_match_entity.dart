@@ -53,6 +53,7 @@ class PlayerEntity {
   final int matchedCards;
   final bool isReady;
   final String? avatar;
+  final bool isConnected;
 
   const PlayerEntity({
     required this.userId,
@@ -61,6 +62,7 @@ class PlayerEntity {
     required this.matchedCards,
     required this.isReady,
     this.avatar,
+    this.isConnected = true,
   });
 
   PlayerEntity copyWith({
@@ -70,6 +72,7 @@ class PlayerEntity {
     int? matchedCards,
     bool? isReady,
     String? avatar,
+    bool? isConnected,
   }) {
     return PlayerEntity(
       userId: userId ?? this.userId,
@@ -78,6 +81,7 @@ class PlayerEntity {
       matchedCards: matchedCards ?? this.matchedCards,
       isReady: isReady ?? this.isReady,
       avatar: avatar ?? this.avatar,
+      isConnected: isConnected ?? this.isConnected,
     );
   }
 }

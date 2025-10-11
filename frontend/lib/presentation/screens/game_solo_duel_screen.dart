@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:pixelarticons/pixel.dart';
 import '../../services/solo_duel_game_service.dart';
 import '../../services/auth_service.dart';
+import '../../domain/entities/solo_duel_match_entity.dart';
 import '../widgets/custom/custom_button.dart';
+import '../widgets/common/solo_duel_dialog_widgets.dart';
+import '../widgets/common/player_info_card_widget.dart';
+import '../widgets/common/game_rules_card_widget.dart';
 import './game_solo_duel_match_screen.dart';
 
 class SoloDuelScreen extends StatefulWidget {
-  const SoloDuelScreen({super.key});
+  final bool autoJoin;
+
+  const SoloDuelScreen({super.key, this.autoJoin = false});
 
   @override
   State<SoloDuelScreen> createState() => _SoloDuelScreenState();
@@ -16,11 +21,126 @@ class _SoloDuelScreenState extends State<SoloDuelScreen> {
   final _gameService = SoloDuelGameService.instance;
   final _authService = AuthService.instance;
   bool _isSearching = false;
+  bool _isRejoining = false;
 
   @override
   void initState() {
     super.initState();
     _setupListeners();
+    _initializeAndCheckMatch();
+    if (widget.autoJoin) {
+      Future.microtask(() => _startMatchmaking());
+    }
+  }
+
+  Future<void> _initializeAndCheckMatch() async {
+    await _gameService.waitForInitialization();
+    _checkForActiveMatch();
+  }
+
+  Future<void> _checkForActiveMatch() async {
+    final currentMatch = _gameService.currentMatch;
+    if (currentMatch != null &&
+        (currentMatch.status == MatchStatus.playing ||
+            currentMatch.status == MatchStatus.ready)) {
+      if (mounted) {
+        _showRejoinDialog(currentMatch.matchId);
+      }
+    }
+  }
+
+  void _showRejoinDialog(String matchId) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => WillPopScope(
+        onWillPop: () async => false,
+        child: SoloDuelRejoinDialog(
+          onSurrender: () {
+            Navigator.pop(context);
+            _gameService.surrender(matchId);
+            _gameService.resetMatch();
+          },
+          onRejoin: () {
+            Navigator.pop(context);
+            _handleRejoin(matchId);
+          },
+        ),
+      ),
+    );
+  }
+
+  void _handleRejoin(String matchId) {
+    if (_isRejoining) return;
+    _isRejoining = true;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => WillPopScope(
+        onWillPop: () async => false,
+        child: const SoloDuelLoadingDialog(message: 'Đang kết nối lại...'),
+      ),
+    );
+
+    void matchStateListener() {
+      final matchState = _gameService.matchState.value;
+      if (matchState != null &&
+          matchState['matchId'] == matchId &&
+          _isRejoining) {
+        _gameService.matchState.removeListener(matchStateListener);
+        _isRejoining = false;
+
+        if (mounted) {
+          Navigator.pop(context);
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SoloDuelMatchScreen(matchId: matchId),
+            ),
+          );
+        }
+      }
+    }
+
+    _gameService.matchState.addListener(matchStateListener);
+
+    _gameService.rejoinMatch(matchId).catchError((error) {
+      if (_isRejoining && mounted) {
+        _gameService.matchState.removeListener(matchStateListener);
+        _isRejoining = false;
+
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Lỗi kết nối: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    });
+
+    Future.delayed(const Duration(seconds: 10), () {
+      if (_isRejoining && mounted) {
+        _gameService.matchState.removeListener(matchStateListener);
+        _isRejoining = false;
+
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Không thể kết nối lại. Vui lòng thử lại.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    });
   }
 
   void _setupListeners() {
@@ -91,7 +211,6 @@ class _SoloDuelScreenState extends State<SoloDuelScreen> {
     final user = _authService.currentUser;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Đấu đơn'), centerTitle: true),
       body: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
@@ -108,108 +227,60 @@ class _SoloDuelScreenState extends State<SoloDuelScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Player Info Card
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.black, width: 3),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black,
-                        offset: const Offset(4, 4),
-                        blurRadius: 0,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Icon(Pixel.user, size: 64, color: Colors.orange.shade700),
-                      const SizedBox(height: 16),
-                      Text(
-                        user?.username ?? 'Người chơi',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Sẵn sàng chiến đấu!',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                    ],
-                  ),
+                PlayerInfoCardWidget(
+                  username: user?.username,
+                  avatar: user?.avatar,
+                ),
+
+                const SizedBox(height: 20),
+
+                GameRulesCardWidget(
+                  rules: const [
+                    '12 cặp thẻ Pokemon ngẫu nhiên',
+                    'Lượt chơi xen kẽ giữa 2 người',
+                    'Match được = 100 điểm',
+                    'Người có điểm cao hơn thắng',
+                  ],
                 ),
 
                 const SizedBox(height: 40),
 
-                // Game Rules
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.black, width: 3),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black,
-                        offset: const Offset(4, 4),
-                        blurRadius: 0,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            color: Colors.orange.shade700,
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'Luật chơi',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      _buildRuleItem('12 cặp thẻ Pokemon ngẫu nhiên'),
-                      _buildRuleItem('Lượt chơi xen kẽ giữa 2 người'),
-                      _buildRuleItem('Match được = 100 điểm'),
-                      _buildRuleItem('Người có điểm cao hơn thắng'),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 40),
-
-                // Matchmaking Button
                 if (!_isSearching)
-                  SizedBox(
-                    width: 250,
-                    child: CustomButton(
-                      type: CustomButtonType.primary,
-                      onPressed: _startMatchmaking,
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.flash_on, color: Colors.white),
-                          SizedBox(width: 8),
-                          Text(
-                            'Tìm đối thủ',
+                  Column(
+                    children: [
+                      SizedBox(
+                        width: 250,
+                        child: CustomButton(
+                          type: CustomButtonType.primary,
+                          onPressed: _startMatchmaking,
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.flash_on, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text(
+                                'Tìm đối thủ',
+                                style: TextStyle(fontSize: 16),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: 250,
+                        child: CustomButton(
+                          type: CustomButtonType.warning,
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text(
+                            'Quay về trang chủ',
                             style: TextStyle(fontSize: 16),
                             textAlign: TextAlign.center,
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   )
                 else
                   Column(
@@ -241,19 +312,6 @@ class _SoloDuelScreenState extends State<SoloDuelScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildRuleItem(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('• ', style: TextStyle(fontSize: 16)),
-          Expanded(child: Text(text, style: const TextStyle(fontSize: 14))),
-        ],
       ),
     );
   }

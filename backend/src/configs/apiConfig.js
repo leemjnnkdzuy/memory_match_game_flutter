@@ -1,10 +1,10 @@
 const express = require("express");
 const userRoutes = require("../routes/userRoutes");
-const offlineHistoryRoutes = require("../routes/offlineHistoryRoutes");
+const historyRoutes = require("../routes/historyRoutes");
 
 const router = express.Router();
 
 router.use("/users", userRoutes);
-router.use("/history-offline-game", offlineHistoryRoutes);
+router.use("/history", historyRoutes);
 
 module.exports = router;

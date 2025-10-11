@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pixelarticons/pixel.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -7,8 +6,14 @@ import '../../services/solo_duel_game_service.dart';
 import '../../services/auth_service.dart';
 import '../../domain/entities/solo_duel_match_entity.dart';
 import '../../domain/entities/pokemon_entity.dart';
-import '../widgets/custom/custom_button.dart';
+import '../../core/utils/pokemon_name_utils.dart';
 import '../widgets/common/solo_duel_card_widget.dart';
+import '../widgets/common/solo_duel_dialog_widgets.dart';
+import '../widgets/common/animated_not_your_turn_overlay.dart';
+import '../widgets/common/player_avatar_card_widget.dart';
+import '../widgets/common/solo_duel_ready_screen_widget.dart';
+import '../routes/app_routes.dart';
+import './game_solo_duel_screen.dart';
 
 class SoloDuelMatchScreen extends StatefulWidget {
   final String matchId;
@@ -26,18 +31,31 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
 
   bool _isReady = false;
   Timer? _turnTimer;
-  final List<int> _flippedCards = [];
   final Map<String, Uint8List?> _avatarCache = {};
+  Timer? _readyTimer;
+  int _countdown = 60;
+  bool _isDisconnectDialogShowing = false;
 
   @override
   void initState() {
     super.initState();
     _setupListeners();
+    _startReadyTimer();
   }
 
   @override
   void dispose() {
     _turnTimer?.cancel();
+    _readyTimer?.cancel();
+    _gameService.gameStarted.removeListener(_onGameStarted);
+    _gameService.cardFlipped.removeListener(_onCardFlipped);
+    _gameService.matchResult.removeListener(_onMatchResult);
+    _gameService.gameOver.removeListener(_onGameOver);
+    _gameService.error.removeListener(_onError);
+    _gameService.playerReady.removeListener(_onPlayerReady);
+    _gameService.playerDisconnected.removeListener(_onPlayerDisconnected);
+    _gameService.playerReconnected.removeListener(_onPlayerReconnected);
+    _gameService.matchState.removeListener(_onMatchStateReceived);
     super.dispose();
   }
 
@@ -47,10 +65,15 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
     _gameService.matchResult.addListener(_onMatchResult);
     _gameService.gameOver.addListener(_onGameOver);
     _gameService.error.addListener(_onError);
+    _gameService.playerReady.addListener(_onPlayerReady);
+    _gameService.playerDisconnected.addListener(_onPlayerDisconnected);
+    _gameService.playerReconnected.addListener(_onPlayerReconnected);
+    _gameService.matchState.addListener(_onMatchStateReceived);
   }
 
   void _onGameStarted() {
     if (_gameService.gameStarted.value && mounted) {
+      _readyTimer?.cancel();
       setState(() {});
     }
   }
@@ -65,15 +88,18 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
   void _onMatchResult() {
     final data = _gameService.matchResult.value;
     if (data != null && mounted) {
-      setState(() {
-        _flippedCards.clear();
-      });
+      setState(() {});
     }
   }
 
   void _onGameOver() {
     final data = _gameService.gameOver.value;
     if (data != null && mounted) {
+      if (_isDisconnectDialogShowing) {
+        _isDisconnectDialogShowing = false;
+        Navigator.pop(context);
+      }
+
       _showGameOverDialog(data);
     }
   }
@@ -84,6 +110,95 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(error), backgroundColor: Colors.red),
       );
+    }
+  }
+
+  void _onPlayerReady() {
+    final readyUserId = _gameService.playerReady.value;
+    if (readyUserId != null && mounted) {
+      final myUserId = _authService.currentUser?.id ?? '';
+      if (readyUserId == myUserId) {
+        setState(() {
+          _isReady = true;
+        });
+      }
+    }
+  }
+
+  void _onPlayerDisconnected() {
+    final data = _gameService.playerDisconnected.value;
+    if (data != null && mounted) {
+      final myUserId = _authService.currentUser?.id ?? '';
+      final disconnectedUserId = data['userId'];
+
+      if (disconnectedUserId != myUserId) {
+        _showOpponentDisconnectedDialog(data);
+      }
+      setState(() {});
+    }
+  }
+
+  void _onPlayerReconnected() {
+    final data = _gameService.playerReconnected.value;
+    if (data != null && mounted) {
+      if (_isDisconnectDialogShowing) {
+        _isDisconnectDialogShowing = false;
+        Navigator.pop(context);
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${data['username']} đã kết nối lại!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      setState(() {});
+    }
+  }
+
+  void _onMatchStateReceived() {
+    final data = _gameService.matchState.value;
+    if (data != null && mounted) {
+      setState(() {});
+    }
+  }
+
+  void _startReadyTimer() {
+    _readyTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (mounted) {
+        setState(() {
+          _countdown--;
+        });
+      }
+      if (_countdown <= 0) {
+        _onReadyTimeout();
+        timer.cancel();
+      }
+    });
+  }
+
+  void _onReadyTimeout() {
+    final match = _gameService.currentMatch;
+    if (match == null || !mounted) return;
+
+    final myUserId = _authService.currentUser?.id ?? '';
+    final me = match.players.firstWhere((p) => p.userId == myUserId);
+    final opponent = match.players.firstWhere((p) => p.userId != myUserId);
+
+    _gameService.resetMatch();
+
+    if (me.isReady && opponent.isReady) {
+      return;
+    } else if (me.isReady && !opponent.isReady) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const SoloDuelScreen(autoJoin: true),
+        ),
+      );
+    } else if (!me.isReady && opponent.isReady) {
+      AppRoutes.navigateBackToHome(context);
+    } else {
+      AppRoutes.navigateBackToHome(context);
     }
   }
 
@@ -101,25 +216,79 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
     final myUserId = _authService.currentUser?.id ?? '';
 
     if (match.currentTurn != myUserId) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Chưa đến lượt của bạn!'),
-          duration: Duration(seconds: 1),
-        ),
-      );
+      _showNotYourTurnOverlay();
       return;
     }
 
     final card = match.cards[index];
+
     if (card.isMatched || card.isFlipped) {
       return;
     }
 
-    setState(() {
-      _flippedCards.add(index);
-    });
+    if (match.flippedCards.length >= 2) {
+      return;
+    }
 
     _gameService.flipCard(widget.matchId, index);
+  }
+
+  void _showNotYourTurnOverlay() {
+    final overlay = Overlay.of(context);
+    late OverlayEntry overlayEntry;
+
+    overlayEntry = OverlayEntry(
+      builder: (context) => AnimatedNotYourTurnOverlay(
+        onDismiss: () {
+          overlayEntry.remove();
+        },
+      ),
+    );
+
+    overlay.insert(overlayEntry);
+
+    Future.delayed(const Duration(seconds: 2), () {
+      if (overlayEntry.mounted) {
+        overlayEntry.remove();
+      }
+    });
+  }
+
+  void _showSurrenderConfirmationDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => SoloDuelSurrenderConfirmationDialog(
+        onCancel: () => Navigator.pop(context),
+        onConfirm: () {
+          Navigator.pop(context);
+          _gameService.surrender(widget.matchId);
+        },
+      ),
+    );
+  }
+
+  void _showOpponentDisconnectedDialog(Map<String, dynamic> data) {
+    final opponentUsername = data['username'] ?? 'Đối thủ';
+    final waitTime = data['waitTimeSeconds'] ?? 30;
+
+    _isDisconnectDialogShowing = true;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => WillPopScope(
+        onWillPop: () async => false,
+        child: SoloDuelOpponentDisconnectedDialog(
+          opponentUsername: opponentUsername,
+          waitTimeSeconds: waitTime,
+          onClose: () {
+            _isDisconnectDialogShowing = false;
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    );
   }
 
   void _showGameOverDialog(Map<String, dynamic> data) {
@@ -133,50 +302,19 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text(
-          isWinner ? 'Chiến thắng!' : 'Thất bại!',
-          style: TextStyle(
-            color: isWinner ? Colors.green : Colors.red,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isWinner ? Pixel.trophy : Pixel.close,
-              size: 64,
-              color: isWinner ? Colors.amber : Colors.red,
-            ),
-            const SizedBox(height: 16),
-            // Show winner
-            Text(
-              '${winner['username']}: ${winner['score']} điểm (${winner['matchedCards']} cặp)',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-                fontSize: 14,
-              ),
-            ),
-            const SizedBox(height: 8),
-            // Show loser
-            Text(
-              '${loser['username']}: ${loser['score']} điểm (${loser['matchedCards']} cặp)',
-              style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
-            ),
-          ],
-        ),
-        actions: [
-          CustomButton(
-            type: CustomButtonType.primary,
-            onPressed: () {
-              _gameService.resetMatch();
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            },
-            child: const Text('Về trang chủ'),
-          ),
-        ],
+      builder: (context) => SoloDuelGameOverDialog(
+        isWinner: isWinner,
+        winnerUsername: winner['username'],
+        winnerScore: winner['score'],
+        winnerMatchedCards: winner['matchedCards'],
+        loserUsername: loser['username'],
+        loserScore: loser['score'],
+        loserMatchedCards: loser['matchedCards'],
+        onBackToHome: () {
+          _gameService.resetMatch();
+          Navigator.pop(context);
+          AppRoutes.navigateBackToHome(context);
+        },
       ),
     );
   }
@@ -214,73 +352,70 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
         child: SafeArea(
           child: Column(
             children: [
-              // Avatar | Pause Button | Avatar Layout
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // My Avatar
-                    Expanded(
-                      child: _buildAvatarCard(
-                        me,
-                        isMe: true,
-                        isActive: isMyTurn && isGameStarted,
+              // Only show avatars and pause button when game has started
+              if (isGameStarted)
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: PlayerAvatarCardWidget(
+                          username: me.username,
+                          score: me.score,
+                          matchedCards: me.matchedCards,
+                          avatarBytes: _processAvatarData(me.avatar),
+                          isMe: true,
+                          isActive: isMyTurn && isGameStarted,
+                        ),
                       ),
-                    ),
 
-                    // Pause Button
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: IconButton(
-                        icon: const Icon(Icons.pause_circle_filled, size: 48),
-                        color: Colors.white,
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Tạm dừng'),
-                              content: const Text('Bạn có muốn rời trận đấu?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('Tiếp tục'),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    _gameService.resetMatch();
-                                    Navigator.of(
-                                      context,
-                                    ).popUntil((route) => route.isFirst);
-                                  },
-                                  child: const Text('Rời trận'),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: IconButton(
+                          icon: const Icon(Icons.pause_circle_filled, size: 48),
+                          color: Colors.white,
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => SoloDuelPauseDialog(
+                                onResume: () => Navigator.pop(context),
+                                onSurrender: () {
+                                  Navigator.pop(context);
+                                  _showSurrenderConfirmationDialog();
+                                },
+                              ),
+                            );
+                          },
+                        ),
                       ),
-                    ),
 
-                    // Opponent Avatar
-                    Expanded(
-                      child: _buildAvatarCard(
-                        opponent,
-                        isMe: false,
-                        isActive: !isMyTurn && isGameStarted,
+                      Expanded(
+                        child: PlayerAvatarCardWidget(
+                          username: opponent.username,
+                          score: opponent.score,
+                          matchedCards: opponent.matchedCards,
+                          avatarBytes: _processAvatarData(opponent.avatar),
+                          isMe: false,
+                          isActive: !isMyTurn && isGameStarted,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
 
-              const SizedBox(height: 8),
+              if (isGameStarted) const SizedBox(height: 8),
 
-              // Game Board
               Expanded(
                 child: !isGameStarted
-                    ? _buildReadyScreen()
+                    ? SoloDuelReadyScreenWidget(
+                        players: match.players,
+                        currentUserId: myUserId,
+                        countdown: _countdown,
+                        isReady: _isReady,
+                        onSetReady: _setReady,
+                      )
                     : _buildGameBoard(match),
               ),
             ],
@@ -325,167 +460,18 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
     }
   }
 
-  Widget _buildAvatarCard(
-    PlayerEntity player, {
-    required bool isMe,
-    required bool isActive,
-  }) {
-    final avatarBytes = _processAvatarData(player.avatar);
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(
-          color: isActive ? (isMe ? Colors.blue : Colors.orange) : Colors.black,
-          width: isActive ? 3 : 2,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            offset: const Offset(2, 2),
-            blurRadius: 0,
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Avatar Image
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: isActive
-                    ? (isMe ? Colors.blue : Colors.orange)
-                    : Colors.grey,
-                width: 3,
-              ),
-            ),
-            child: ClipOval(
-              child: avatarBytes != null
-                  ? Image.memory(
-                      avatarBytes,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Icon(
-                          Pixel.user,
-                          size: 48,
-                          color: isActive
-                              ? (isMe ? Colors.blue : Colors.orange)
-                              : Colors.grey,
-                        );
-                      },
-                    )
-                  : Icon(
-                      Pixel.user,
-                      size: 48,
-                      color: isActive
-                          ? (isMe ? Colors.blue : Colors.orange)
-                          : Colors.grey,
-                    ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            isMe ? 'Bạn' : player.username,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '${player.score} điểm',
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              color: Colors.orange,
-            ),
-          ),
-          Text(
-            '${player.matchedCards} cặp',
-            style: const TextStyle(fontSize: 10, color: Colors.grey),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReadyScreen() {
-    final match = _gameService.currentMatch!;
-    final allReady = match.players.every((p) => p.isReady);
-
-    return Center(
-      child: Container(
-        margin: const EdgeInsets.all(20),
-        padding: const EdgeInsets.all(30),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.black, width: 3),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black,
-              offset: const Offset(4, 4),
-              blurRadius: 0,
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Pixel.zap, size: 64, color: Colors.orange),
-            const SizedBox(height: 16),
-            const Text(
-              'Sẵn sàng chiến đấu?',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
-            ...match.players.map((player) {
-              final myUserId = _authService.currentUser?.id ?? '';
-              final isMe = player.userId == myUserId;
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      player.isReady ? Pixel.check : Pixel.close,
-                      color: player.isReady ? Colors.green : Colors.grey,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      isMe ? 'Bạn' : player.username,
-                      style: TextStyle(
-                        fontWeight: player.isReady
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-            const SizedBox(height: 24),
-            if (!_isReady)
-              CustomButton(
-                type: CustomButtonType.primary,
-                onPressed: _setReady,
-                child: const Text('Sẵn sàng!'),
-              )
-            else if (!allReady)
-              const Text(
-                'Đang chờ đối thủ...',
-                style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildGameBoard(SoloDuelMatchEntity match) {
     final myUserId = _authService.currentUser?.id ?? '';
+
+    bool areTwoCardsFlippedAndMatching = false;
+    if (match.flippedCards.length == 2) {
+      final firstIndex = match.flippedCards[0].cardIndex;
+      final secondIndex = match.flippedCards[1].cardIndex;
+      final firstCard = match.cards[firstIndex];
+      final secondCard = match.cards[secondIndex];
+      areTwoCardsFlippedAndMatching =
+          firstCard.pokemonId == secondCard.pokemonId;
+    }
 
     return GridView.builder(
       padding: const EdgeInsets.all(16),
@@ -501,14 +487,21 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
         final pokemon = PokemonEntity(
           id: card.pokemonId,
           name: card.pokemonName,
-          imagePath: 'images/${card.pokemonName}.png',
+          imagePath: PokemonNameUtils.pokemonNameToImagePath(card.pokemonName),
         );
+
+        final showGreenBorder =
+            card.isMatched ||
+            (card.isFlipped &&
+                !card.isMatched &&
+                areTwoCardsFlippedAndMatching);
 
         return SoloDuelCardWidget(
           card: card,
           pokemon: pokemon,
           onTap: () => _onCardTap(index),
           isMyTurn: match.currentTurn == myUserId,
+          isPotentialMatch: showGreenBorder,
         );
       },
     );

@@ -1,6 +1,5 @@
 import '../../domain/auth/session.dart';
 
-/// Session data model
 class SessionModel {
   final String id;
   final String deviceInfo;
