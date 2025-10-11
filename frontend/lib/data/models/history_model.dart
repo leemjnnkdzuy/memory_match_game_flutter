@@ -68,21 +68,24 @@ class HistoryModel {
             : null,
       );
     } else {
-      final winnerData = json['winner'];
-
       return HistoryModel(
         id: json['id'] as String? ?? json['_id'] as String,
         type: type,
-        players: json['players'] != null
-            ? (json['players'] as List)
-                  .map((p) => PlayerModel.fromJson(p as Map<String, dynamic>))
-                  .toList()
+        score: (json['score'] as num?)?.toInt(),
+        moves: null,
+        timeElapsed: (json['gameTime'] as num?)?.toInt(),
+        isWin: json['isWin'] as bool?,
+        datePlayed: json['datePlayed'] != null
+            ? DateTime.parse(json['datePlayed'] as String)
             : null,
-        winner: winnerData is Map<String, dynamic>
-            ? User.fromJson(winnerData)
-            : winnerData,
+        user: json['opponent'] is Map<String, dynamic>
+            ? User.fromJson(json['opponent'] as Map<String, dynamic>)
+            : null,
         createdAt: json['createdAt'] != null
             ? DateTime.parse(json['createdAt'] as String)
+            : null,
+        updatedAt: json['updatedAt'] != null
+            ? DateTime.parse(json['updatedAt'] as String)
             : null,
       );
     }

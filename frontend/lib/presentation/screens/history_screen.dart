@@ -3,6 +3,9 @@ import '../../services/auth_service.dart';
 import '../../services/request_service.dart';
 import '../../domain/entities/history_entity.dart';
 import '../widgets/custom/custom_button.dart';
+import '../widgets/common/history_card_widget.dart';
+import '../widgets/common/online_history_card_widget.dart';
+import '../widgets/common/history_filter_dialog_widget.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -27,9 +30,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
   String? _selectedType;
   final String _sortBy = 'datePlayed';
   final String _order = 'desc';
-
-  int _totalOffline = 0;
-  int _totalOnline = 0;
 
   @override
   void initState() {
@@ -80,8 +80,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
             _currentPage = 1;
           }
           _hasMore = result.data!.pagination.hasNextPage;
-          _totalOffline = result.data!.pagination.totalOffline;
-          _totalOnline = result.data!.pagination.totalOnline;
           _isLoading = false;
           _errorMessage = null;
         });
@@ -103,132 +101,26 @@ class _HistoryScreenState extends State<HistoryScreen> {
   void _showFilterDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Lọc lịch sử'),
-        content: StatefulBuilder(
-          builder: (context, setDialogState) => SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Loại trận đấu:'),
-                RadioListTile<String?>(
-                  title: const Text('Tất cả'),
-                  value: null,
-                  groupValue: _selectedType,
-                  onChanged: (value) {
-                    setDialogState(() => _selectedType = value);
-                  },
-                ),
-                RadioListTile<String?>(
-                  title: const Text('Offline'),
-                  value: 'offline',
-                  groupValue: _selectedType,
-                  onChanged: (value) {
-                    setDialogState(() => _selectedType = value);
-                  },
-                ),
-                RadioListTile<String?>(
-                  title: const Text('Online'),
-                  value: 'online',
-                  groupValue: _selectedType,
-                  onChanged: (value) {
-                    setDialogState(() => _selectedType = value);
-                  },
-                ),
-                const Divider(),
-                if (_selectedType != 'online') ...[
-                  const Text('Độ khó:'),
-                  DropdownButton<String?>(
-                    value: _selectedDifficulty,
-                    isExpanded: true,
-                    hint: const Text('Tất cả độ khó'),
-                    items: const [
-                      DropdownMenuItem(value: null, child: Text('Tất cả')),
-                      DropdownMenuItem(
-                        value: 'veryEasy',
-                        child: Text('Rất dễ'),
-                      ),
-                      DropdownMenuItem(value: 'easy', child: Text('Dễ')),
-                      DropdownMenuItem(
-                        value: 'normal',
-                        child: Text('Bình thường'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'medium',
-                        child: Text('Trung bình'),
-                      ),
-                      DropdownMenuItem(value: 'hard', child: Text('Khó')),
-                      DropdownMenuItem(
-                        value: 'superHard',
-                        child: Text('Rất khó'),
-                      ),
-                      DropdownMenuItem(value: 'insane', child: Text('Cực khó')),
-                      DropdownMenuItem(
-                        value: 'expert',
-                        child: Text('Chuyên gia'),
-                      ),
-                    ],
-                    onChanged: (value) {
-                      setDialogState(() => _selectedDifficulty = value);
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  const Text('Kết quả:'),
-                  RadioListTile<bool?>(
-                    title: const Text('Tất cả'),
-                    value: null,
-                    groupValue: _selectedIsWin,
-                    onChanged: (value) {
-                      setDialogState(() => _selectedIsWin = value);
-                    },
-                  ),
-                  RadioListTile<bool?>(
-                    title: const Text('Thắng'),
-                    value: true,
-                    groupValue: _selectedIsWin,
-                    onChanged: (value) {
-                      setDialogState(() => _selectedIsWin = value);
-                    },
-                  ),
-                  RadioListTile<bool?>(
-                    title: const Text('Thua'),
-                    value: false,
-                    groupValue: _selectedIsWin,
-                    onChanged: (value) {
-                      setDialogState(() => _selectedIsWin = value);
-                    },
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _selectedType = null;
-                _selectedDifficulty = null;
-                _selectedIsWin = null;
-              });
-              Navigator.pop(context);
-              _loadHistories();
-            },
-            child: const Text('Xóa bộ lọc'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _loadHistories();
-            },
-            child: const Text('Áp dụng'),
-          ),
-        ],
+      builder: (context) => HistoryFilterDialog(
+        selectedDifficulty: _selectedDifficulty,
+        selectedIsWin: _selectedIsWin,
+        selectedType: _selectedType,
+        onApply: (difficulty, isWin, type) {
+          setState(() {
+            _selectedDifficulty = difficulty;
+            _selectedIsWin = isWin;
+            _selectedType = type;
+          });
+          _loadHistories();
+        },
+        onClear: () {
+          setState(() {
+            _selectedType = null;
+            _selectedDifficulty = null;
+            _selectedIsWin = null;
+          });
+          _loadHistories();
+        },
       ),
     );
   }
@@ -236,16 +128,26 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Lịch sử trận đấu'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: _showFilterDialog,
-          ),
-        ],
-      ),
       body: _buildBody(),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black, width: 3),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black,
+              offset: const Offset(4, 4),
+              blurRadius: 0,
+            ),
+          ],
+        ),
+        child: FloatingActionButton(
+          onPressed: _showFilterDialog,
+          backgroundColor: Colors.blue.shade600,
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          elevation: 0,
+          child: const Icon(Icons.filter_list, color: Colors.white),
+        ),
+      ),
     );
   }
 
@@ -292,20 +194,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     return Column(
       children: [
-        // Statistics bar
-        Container(
-          padding: const EdgeInsets.all(16),
-          color: Theme.of(context).colorScheme.primaryContainer,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildStatItem('Offline', _totalOffline),
-              _buildStatItem('Online', _totalOnline),
-              _buildStatItem('Tổng', _totalOffline + _totalOnline),
-            ],
-          ),
-        ),
-        // History list
         Expanded(
           child: RefreshIndicator(
             onRefresh: () => _loadHistories(),
@@ -339,108 +227,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildStatItem(String label, int count) {
-    return Column(
-      children: [
-        Text(
-          count.toString(),
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        Text(label),
-      ],
-    );
-  }
-
   Widget _buildHistoryCard(HistoryEntity history) {
     if (history.type == 'offline') {
-      return Card(
-        margin: const EdgeInsets.only(bottom: 12),
-        child: ListTile(
-          leading: CircleAvatar(
-            backgroundColor: history.isWin == true ? Colors.green : Colors.red,
-            child: Icon(
-              history.isWin == true ? Icons.check : Icons.close,
-              color: Colors.white,
-            ),
-          ),
-          title: Text(
-            'Offline - ${_getDifficultyText(history.difficulty ?? '')}',
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Điểm: ${history.score} | Nước đi: ${history.moves}'),
-              Text('Thời gian: ${history.timeElapsed}s'),
-              if (history.datePlayed != null)
-                Text(_formatDate(history.datePlayed!)),
-            ],
-          ),
-          isThreeLine: true,
-        ),
+      return HistoryCard(
+        difficulty: history.difficulty ?? '',
+        isWin: history.isWin ?? false,
+        score: history.score ?? 0,
+        moves: history.moves ?? 0,
+        timeElapsed: history.timeElapsed ?? 0,
+        datePlayed: history.datePlayed ?? DateTime.now(),
       );
     } else {
       // Online history
-      final isWinner = history.winner is Map
-          ? (history.winner as Map)['_id'] == _authService.currentUser?.id
-          : false;
-
-      return Card(
-        margin: const EdgeInsets.only(bottom: 12),
-        child: ListTile(
-          leading: CircleAvatar(
-            backgroundColor: isWinner ? Colors.green : Colors.red,
-            child: Icon(
-              isWinner ? Icons.emoji_events : Icons.group,
-              color: Colors.white,
-            ),
-          ),
-          title: Text('Online - ${isWinner ? 'Thắng' : 'Thua'}'),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Số người chơi: ${history.players?.length ?? 0}'),
-              if (history.createdAt != null)
-                Text(_formatDate(history.createdAt!)),
-            ],
-          ),
-          isThreeLine: true,
-          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          onTap: () {
-            // TODO: Navigate to detail screen
-          },
-        ),
+      return OnlineHistoryCard(
+        history: history,
+        currentUserId: _authService.currentUser?.id,
       );
-    }
-  }
-
-  String _getDifficultyText(String difficulty) {
-    const difficultyMap = {
-      'veryEasy': 'Rất dễ',
-      'easy': 'Dễ',
-      'normal': 'Bình thường',
-      'medium': 'Trung bình',
-      'hard': 'Khó',
-      'superHard': 'Rất khó',
-      'insane': 'Cực khó',
-      'expert': 'Chuyên gia',
-    };
-    return difficultyMap[difficulty] ?? difficulty;
-  }
-
-  String _formatDate(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
-    if (diff.inDays == 0) {
-      return 'Hôm nay ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
-    } else if (diff.inDays == 1) {
-      return 'Hôm qua ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
-    } else if (diff.inDays < 7) {
-      return '${diff.inDays} ngày trước';
-    } else {
-      return '${date.day}/${date.month}/${date.year}';
     }
   }
 }

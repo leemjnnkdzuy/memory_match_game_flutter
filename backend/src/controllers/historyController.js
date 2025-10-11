@@ -122,20 +122,15 @@ const getHistory = asyncHandle(async (req, res) => {
 		});
 	}
 
-	history = await SoloDuelHistory.findById(id).populate(
-		"player.playerId winner",
-		"username email first_name last_name avatar"
-	);
+	history = await SoloDuelHistory.findById(id)
+		.populate("userId", "username email first_name last_name avatar")
+		.populate("opponentId", "username email first_name last_name avatar");
 
 	if (!history) {
 		throw new AppError("Không tìm thấy lịch sử chơi", 404);
 	}
 
-	const isParticipant = history.player.some(
-		(p) => p.playerId._id.toString() === req.user.id
-	);
-
-	if (!isParticipant) {
+	if (history.userId._id.toString() !== req.user.id) {
 		throw new AppError("Bạn không có quyền xem lịch sử này", 403);
 	}
 
@@ -146,9 +141,18 @@ const getHistory = asyncHandle(async (req, res) => {
 			history: {
 				id: history._id,
 				type: "online",
-				players: history.player,
-				winner: history.winner,
+				matchId: history.matchId,
+				userId: history.userId,
+				opponentId: history.opponentId,
+				score: history.score,
+				opponentScore: history.opponentScore,
+				matchedCards: history.matchedCards,
+				isWin: history.isWin,
+				gameTime: history.gameTime,
+				datePlayed: history.datePlayed,
+				opponent: history.opponentId,
 				createdAt: history.createdAt,
+				updatedAt: history.updatedAt,
 			},
 		},
 	});
@@ -225,24 +229,34 @@ const getHistories = asyncHandle(async (req, res) => {
 
 	if (!type || type === "online") {
 		const onlineFilter = {
-			"player.playerId": req.user.id,
+			userId: req.user.id,
 		};
 
 		totalOnline = await SoloDuelHistory.countDocuments(onlineFilter);
 
 		const onlineDocs = await SoloDuelHistory.find(onlineFilter)
-			.sort({createdAt: sortOrder})
+			.sort({datePlayed: sortOrder})
+			.populate("userId", "username email first_name last_name avatar")
 			.populate(
-				"player.playerId winner",
+				"opponentId",
 				"username email first_name last_name avatar"
 			);
 
 		onlineHistories = onlineDocs.map((history) => ({
 			id: history._id,
 			type: "online",
-			players: history.player,
-			winner: history.winner,
+			matchId: history.matchId,
+			userId: history.userId._id,
+			opponentId: history.opponentId._id,
+			score: history.score,
+			opponentScore: history.opponentScore,
+			matchedCards: history.matchedCards,
+			isWin: history.isWin,
+			gameTime: history.gameTime,
+			datePlayed: history.datePlayed,
+			opponent: history.opponentId,
 			createdAt: history.createdAt,
+			updatedAt: history.updatedAt,
 		}));
 	}
 

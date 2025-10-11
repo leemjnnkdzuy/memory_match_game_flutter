@@ -109,6 +109,7 @@ class _HistoryCardState extends State<HistoryCard>
               duration: const Duration(milliseconds: 200),
               margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               padding: const EdgeInsets.all(20),
+              constraints: const BoxConstraints(minHeight: 120),
               decoration: BoxDecoration(
                 color: _getColor(),
                 borderRadius: BorderRadius.circular(0),

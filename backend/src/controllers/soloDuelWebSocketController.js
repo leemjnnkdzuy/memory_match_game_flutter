@@ -193,7 +193,7 @@ const setupSoloDuelHandlers = (io) => {
 						io.to(matchId).emit(
 							"solo_duel:match_result",
 							resultData
-						); // Check if game is over
+						);
 						if (updatedMatch.status === "completed") {
 							const getIdString = (obj) =>
 								typeof obj === "string"
@@ -225,23 +225,47 @@ const setupSoloDuelHandlers = (io) => {
 								finishedAt:
 									updatedMatch.finishedAt.toISOString(),
 							});
-							const timeTaken = Math.floor(
+							const gameTime = Math.floor(
 								(updatedMatch.finishedAt -
 									updatedMatch.startedAt) /
 									1000
 							);
 
-							const history = new SoloDuelHistory({
-								player: updatedMatch.players.map((p) => ({
-									playerId: p.userId,
-									score: p.score,
-									moves: p.matchedCards,
-									timeTaken: timeTaken,
-								})),
-								winner: updatedMatch.winner,
+							const winnerPlayer = updatedMatch.players.find(
+								(p) => getIdString(p.userId) === winnerId
+							);
+							const loserPlayer = updatedMatch.players.find(
+								(p) => getIdString(p.userId) !== winnerId
+							);
+
+							const winnerHistory = new SoloDuelHistory({
+								matchId: updatedMatch.matchId,
+								userId: getIdString(winnerPlayer.userId),
+								opponentId: getIdString(loserPlayer.userId),
+								score: winnerPlayer.score,
+								opponentScore: loserPlayer.score,
+								matchedCards: winnerPlayer.matchedCards,
+								isWin: true,
+								gameTime: gameTime,
+								datePlayed: updatedMatch.finishedAt,
 							});
 
-							await history.save();
+							const loserHistory = new SoloDuelHistory({
+								matchId: updatedMatch.matchId,
+								userId: getIdString(loserPlayer.userId),
+								opponentId: getIdString(winnerPlayer.userId),
+								score: loserPlayer.score,
+								opponentScore: winnerPlayer.score,
+								matchedCards: loserPlayer.matchedCards,
+								isWin: false,
+								gameTime: gameTime,
+								datePlayed: updatedMatch.finishedAt,
+							});
+
+							await Promise.all([
+								winnerHistory.save(),
+								loserHistory.save(),
+							]);
 						}
 					}, 1000);
 				}
@@ -255,15 +279,10 @@ const setupSoloDuelHandlers = (io) => {
 		socket.on("solo_duel:surrender", async (data) => {
 			try {
 				const {matchId} = data;
-				console.log(
-					`🏳️ ${socket.username} surrendering match ${matchId}`
-				);
-
 				const match = await gameStateService.surrenderMatch(
 					matchId,
 					socket.userId
 				);
-
 				const winner = match.players.find(
 					(p) => p.userId.toString() === match.winner.toString()
 				);
@@ -294,20 +313,33 @@ const setupSoloDuelHandlers = (io) => {
 					(match.finishedAt - match.startedAt) / 1000
 				);
 
-				const {
-					SoloDuelHistory,
-				} = require("../models/soloDuelHistoryModel");
-				const history = new SoloDuelHistory({
-					player: match.players.map((p) => ({
-						playerId: p.userId,
-						score: p.score,
-						moves: p.matchedCards,
-						timeTaken: timeTaken,
-					})),
-					winner: match.winner,
+				// Save history for winner
+				const winnerHistory = new SoloDuelHistory({
+					matchId: match.matchId,
+					userId: winner.userId.toString(),
+					opponentId: loser.userId.toString(),
+					score: winner.score,
+					opponentScore: loser.score,
+					matchedCards: winner.matchedCards,
+					isWin: true,
+					gameTime: timeTaken,
+					datePlayed: match.finishedAt,
 				});
 
-				await history.save();
+				// Save history for loser
+				const loserHistory = new SoloDuelHistory({
+					matchId: match.matchId,
+					userId: loser.userId.toString(),
+					opponentId: winner.userId.toString(),
+					score: loser.score,
+					opponentScore: winner.score,
+					matchedCards: loser.matchedCards,
+					isWin: false,
+					gameTime: timeTaken,
+					datePlayed: match.finishedAt,
+				});
+
+				await Promise.all([winnerHistory.save(), loserHistory.save()]);
 			} catch (error) {
 				socket.emit("solo_duel:error", {
 					message: error.message || "Failed to surrender",
@@ -455,17 +487,36 @@ const setupSoloDuelHandlers = (io) => {
 										1000
 								);
 
-								const history = new SoloDuelHistory({
-									player: finalMatch.players.map((p) => ({
-										playerId: p.userId,
-										score: p.score,
-										moves: p.matchedCards,
-										timeTaken: timeTaken,
-									})),
-									winner: finalMatch.winner,
+								// Save history for winner
+								const winnerHistory = new SoloDuelHistory({
+									matchId: finalMatch.matchId,
+									userId: winner.userId.toString(),
+									opponentId: loser.userId.toString(),
+									score: winner.score,
+									opponentScore: loser.score,
+									matchedCards: winner.matchedCards,
+									isWin: true,
+									gameTime: timeTaken,
+									datePlayed: finalMatch.finishedAt,
 								});
 
-								await history.save();
+								// Save history for loser
+								const loserHistory = new SoloDuelHistory({
+									matchId: finalMatch.matchId,
+									userId: loser.userId.toString(),
+									opponentId: winner.userId.toString(),
+									score: loser.score,
+									opponentScore: winner.score,
+									matchedCards: loser.matchedCards,
+									isWin: false,
+									gameTime: timeTaken,
+									datePlayed: finalMatch.finishedAt,
+								});
+
+								await Promise.all([
+									winnerHistory.save(),
+									loserHistory.save(),
+								]);
 							}
 
 							disconnectTimers.delete(timerKey);

@@ -22,10 +22,7 @@ class WebSocketService {
   ValueNotifier<bool> get connectionStatus => _connectionStatusController;
 
   Future<void> connect() async {
-    if (_socket != null && _socket!.connected) {
-      debugPrint('WebSocket already connected');
-      return;
-    }
+    if (_socket != null && _socket!.connected) return;
 
     try {
       final tokenStorage = TokenStorageImpl();
@@ -44,7 +41,6 @@ class WebSocketService {
       });
 
       _socket!.onConnect((_) {
-        debugPrint('WebSocket connected');
         _connectionStatusController.value = true;
         _applyPendingListeners();
         if (!completer.isCompleted) {
@@ -53,12 +49,10 @@ class WebSocketService {
       });
 
       _socket!.onDisconnect((_) {
-        debugPrint('WebSocket disconnected');
         _connectionStatusController.value = false;
       });
 
       _socket!.onConnectError((error) {
-        debugPrint('WebSocket connection error: $error');
         _connectionStatusController.value = false;
         if (!completer.isCompleted) {
           completer.completeError(error);
@@ -66,7 +60,6 @@ class WebSocketService {
       });
 
       _socket!.onError((error) {
-        debugPrint('WebSocket error: $error');
         if (!completer.isCompleted) {
           completer.completeError(error);
         }
@@ -76,7 +69,6 @@ class WebSocketService {
 
       await completer.future;
     } catch (e) {
-      debugPrint('Error connecting to WebSocket: $e');
       rethrow;
     }
   }
@@ -101,7 +93,6 @@ class WebSocketService {
 
   void emit(String event, dynamic data) {
     if (_socket == null || !_socket!.connected) {
-      debugPrint('Cannot emit - socket not connected');
       return;
     }
     _socket!.emit(event, data);
@@ -110,7 +101,6 @@ class WebSocketService {
   void on(String event, Function(dynamic) callback) {
     if (_socket == null || !_socket!.connected) {
       _pendingListeners[event] = callback;
-      debugPrint('Listener for "$event" queued - socket not yet connected');
       return;
     }
     _socket!.on(event, callback);
