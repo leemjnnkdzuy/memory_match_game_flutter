@@ -49,7 +49,7 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
     _readyTimer?.cancel();
     _gameService.gameStarted.removeListener(_onGameStarted);
     _gameService.cardFlipped.removeListener(_onCardFlipped);
-    _gameService.matchResult.removeListener(_onMatchResult);
+    _gameService.currentMatchNotifier.removeListener(_onMatchUpdated);
     _gameService.gameOver.removeListener(_onGameOver);
     _gameService.error.removeListener(_onError);
     _gameService.playerReady.removeListener(_onPlayerReady);
@@ -62,7 +62,9 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
   void _setupListeners() {
     _gameService.gameStarted.addListener(_onGameStarted);
     _gameService.cardFlipped.addListener(_onCardFlipped);
-    _gameService.matchResult.addListener(_onMatchResult);
+    _gameService.currentMatchNotifier.addListener(
+      _onMatchUpdated,
+    ); // Listen to match updates
     _gameService.gameOver.addListener(_onGameOver);
     _gameService.error.addListener(_onError);
     _gameService.playerReady.addListener(_onPlayerReady);
@@ -85,9 +87,9 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
     }
   }
 
-  void _onMatchResult() {
-    final data = _gameService.matchResult.value;
-    if (data != null && mounted) {
+  void _onMatchUpdated() {
+    // Triggered whenever currentMatch changes (including score updates)
+    if (mounted) {
       setState(() {});
     }
   }

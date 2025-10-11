@@ -30,6 +30,9 @@ class SoloDuelGameService {
   );
   final _matchStateController = ValueNotifier<Map<String, dynamic>?>(null);
 
+  // ValueNotifier for current match to trigger UI updates
+  final _currentMatchController = ValueNotifier<SoloDuelMatchEntity?>(null);
+
   SoloDuelMatchEntity? _currentMatch;
   bool _isInitialized = false;
 
@@ -60,19 +63,19 @@ class SoloDuelGameService {
       final matchData = prefs.getString(_activeMatchKey);
       if (matchData != null) {
         final data = Map<String, dynamic>.from(jsonDecode(matchData));
-        // Only restore match if it's still active (not completed or cancelled)
         final status = data['status'] as String?;
         if (status == 'ready' || status == 'playing') {
-          _currentMatch = SoloDuelMatchEntity(
-            matchId: data['matchId'],
-            status: _parseMatchStatus(status),
-            players: [], // Will be updated when reconnecting
-            cards: [], // Will be updated when reconnecting
-            currentTurn: data['currentTurn'],
-            flippedCards: [],
+          _updateCurrentMatch(
+            SoloDuelMatchEntity(
+              matchId: data['matchId'],
+              status: _parseMatchStatus(status),
+              players: [],
+              cards: [],
+              currentTurn: data['currentTurn'],
+              flippedCards: [],
+            ),
           );
         } else {
-          // Clear if match is already completed
           await _clearActiveMatch();
         }
       }
@@ -126,7 +129,17 @@ class SoloDuelGameService {
       _playerReconnectedController;
   ValueNotifier<Map<String, dynamic>?> get matchState => _matchStateController;
 
+  // Expose currentMatch as ValueNotifier for reactive updates
+  ValueNotifier<SoloDuelMatchEntity?> get currentMatchNotifier =>
+      _currentMatchController;
+
   SoloDuelMatchEntity? get currentMatch => _currentMatch;
+
+  // Helper method to update _currentMatch and notify listeners
+  void _updateCurrentMatch(SoloDuelMatchEntity? match) {
+    _currentMatch = match;
+    _currentMatchController.value = match;
+  }
 
   void _setupWebSocketListeners() {
     _webSocketService.on('solo_duel:queue_joined', (data) {
@@ -165,20 +178,23 @@ class SoloDuelGameService {
             return player;
           }).toList();
 
-          _currentMatch = _currentMatch!.copyWith(
-            status: MatchStatus.playing,
-            currentTurn: data['currentTurn'],
-            startedAt: DateTime.parse(data['startedAt']),
-            players: updatedPlayers,
+          _updateCurrentMatch(
+            _currentMatch!.copyWith(
+              status: MatchStatus.playing,
+              currentTurn: data['currentTurn'],
+              startedAt: DateTime.parse(data['startedAt']),
+              players: updatedPlayers,
+            ),
           );
         } else {
-          _currentMatch = _currentMatch!.copyWith(
-            status: MatchStatus.playing,
-            currentTurn: data['currentTurn'],
-            startedAt: DateTime.parse(data['startedAt']),
+          _updateCurrentMatch(
+            _currentMatch!.copyWith(
+              status: MatchStatus.playing,
+              currentTurn: data['currentTurn'],
+              startedAt: DateTime.parse(data['startedAt']),
+            ),
           );
         }
-        // Update storage with playing status
         _saveActiveMatch();
       }
     });
@@ -189,13 +205,15 @@ class SoloDuelGameService {
     });
 
     _webSocketService.on('solo_duel:match_result', (data) {
-      _matchResultController.value = data;
       _updateMatchResult(data);
+      _matchResultController.value = {
+        ...data,
+        '_timestamp': DateTime.now().millisecondsSinceEpoch,
+      };
     });
 
     _webSocketService.on('solo_duel:game_over', (data) {
       _gameOverController.value = data;
-      // Clear storage when game is over
       _clearActiveMatch();
     });
 
@@ -209,7 +227,7 @@ class SoloDuelGameService {
           }
           return player;
         }).toList();
-        _currentMatch = _currentMatch!.copyWith(players: updatedPlayers);
+        _updateCurrentMatch(_currentMatch!.copyWith(players: updatedPlayers));
       }
     });
 
@@ -223,7 +241,7 @@ class SoloDuelGameService {
           }
           return player;
         }).toList();
-        _currentMatch = _currentMatch!.copyWith(players: updatedPlayers);
+        _updateCurrentMatch(_currentMatch!.copyWith(players: updatedPlayers));
       }
     });
 
@@ -278,16 +296,17 @@ class SoloDuelGameService {
       ),
     ];
 
-    _currentMatch = SoloDuelMatchEntity(
-      matchId: data['matchId'],
-      status: MatchStatus.ready,
-      players: players,
-      cards: cards,
-      currentTurn: data['isFirstPlayer'] ? myUserId : opponentData['userId'],
-      flippedCards: [],
+    _updateCurrentMatch(
+      SoloDuelMatchEntity(
+        matchId: data['matchId'],
+        status: MatchStatus.ready,
+        players: players,
+        cards: cards,
+        currentTurn: data['isFirstPlayer'] ? myUserId : opponentData['userId'],
+        flippedCards: [],
+      ),
     );
 
-    // Save to persistent storage
     _saveActiveMatch();
   }
 
@@ -301,7 +320,7 @@ class SoloDuelGameService {
       return player;
     }).toList();
 
-    _currentMatch = _currentMatch!.copyWith(players: updatedPlayers);
+    _updateCurrentMatch(_currentMatch!.copyWith(players: updatedPlayers));
   }
 
   void _updateCardFlipped(Map<String, dynamic> data) {
@@ -328,9 +347,11 @@ class SoloDuelGameService {
       ),
     );
 
-    _currentMatch = _currentMatch!.copyWith(
-      cards: updatedCards,
-      flippedCards: updatedFlippedCards,
+    _updateCurrentMatch(
+      _currentMatch!.copyWith(
+        cards: updatedCards,
+        flippedCards: updatedFlippedCards,
+      ),
     );
   }
 
@@ -363,27 +384,34 @@ class SoloDuelGameService {
     }
 
     final updatedPlayers = _currentMatch!.players.map((player) {
-      final playerData = playersData.firstWhere((p) {
-        final userId = p['userId'];
-        if (userId is Map) {
-          return userId['_id'].toString() == player.userId;
-        }
-        return userId.toString() == player.userId;
-      }, orElse: () => {});
-      if (playerData.isNotEmpty) {
-        return player.copyWith(
-          score: playerData['score'],
-          matchedCards: playerData['matchedCards'],
-        );
+      Map<String, dynamic>? playerData;
+      try {
+        playerData = playersData.firstWhere((p) {
+          final userId = p['userId'];
+          String userIdStr = userId.toString();
+          return userIdStr == player.userId;
+        });
+      } catch (e) {
+        playerData = null;
+      }
+
+      if (playerData != null) {
+        final newScore = playerData['score'] as int? ?? player.score;
+        final newMatchedCards =
+            playerData['matchedCards'] as int? ?? player.matchedCards;
+
+        return player.copyWith(score: newScore, matchedCards: newMatchedCards);
       }
       return player;
     }).toList();
 
-    _currentMatch = _currentMatch!.copyWith(
-      cards: updatedCards,
-      players: updatedPlayers,
-      currentTurn: nextTurn,
-      flippedCards: [],
+    _updateCurrentMatch(
+      _currentMatch!.copyWith(
+        cards: updatedCards,
+        players: updatedPlayers,
+        currentTurn: nextTurn,
+        flippedCards: [],
+      ),
     );
   }
 
@@ -398,12 +426,9 @@ class SoloDuelGameService {
       final userId = playerData['userId'].toString();
       String? avatar;
 
-      // First priority: avatar from server response
       if (playerData['avatar'] != null) {
         avatar = playerData['avatar'];
-      }
-      // Second priority: try to find existing player to preserve avatar
-      else if (_currentMatch!.players.isNotEmpty) {
+      } else if (_currentMatch!.players.isNotEmpty) {
         final existingPlayer = _currentMatch!.players.firstWhere(
           (p) => p.userId == userId,
           orElse: () => PlayerEntity(
@@ -420,7 +445,6 @@ class SoloDuelGameService {
         }
       }
 
-      // Third priority: if this is current user and avatar not found, get from AuthService
       if (avatar == null && userId == myUserId) {
         avatar = _authService.currentUser?.avatar;
       }
@@ -451,11 +475,13 @@ class SoloDuelGameService {
       );
     }
 
-    _currentMatch = _currentMatch!.copyWith(
-      status: _parseMatchStatus(data['status']),
-      currentTurn: data['currentTurn'],
-      players: updatedPlayers,
-      cards: updatedCards,
+    _updateCurrentMatch(
+      _currentMatch!.copyWith(
+        status: _parseMatchStatus(data['status']),
+        currentTurn: data['currentTurn'],
+        players: updatedPlayers,
+        cards: updatedCards,
+      ),
     );
   }
 
@@ -513,7 +539,6 @@ class SoloDuelGameService {
   }
 
   Future<void> rejoinMatch(String matchId) async {
-    // Ensure WebSocket is connected
     if (!_webSocketService.isConnected) {
       await _webSocketService.connect();
     }
@@ -525,7 +550,7 @@ class SoloDuelGameService {
   }
 
   void resetMatch() {
-    _currentMatch = null;
+    _updateCurrentMatch(null);
     _matchFoundController.value = null;
     _gameStartedController.value = false;
     _cardFlippedController.value = null;
@@ -534,7 +559,6 @@ class SoloDuelGameService {
     _errorController.value = null;
     _queueStatusController.value = null;
     _playerReadyController.value = null;
-    // Clear from storage
     _clearActiveMatch();
   }
 
@@ -547,5 +571,6 @@ class SoloDuelGameService {
     _errorController.dispose();
     _queueStatusController.dispose();
     _playerReadyController.dispose();
+    _currentMatchController.dispose();
   }
 }

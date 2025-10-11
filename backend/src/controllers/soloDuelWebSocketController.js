@@ -4,20 +4,12 @@ const {SoloDuelHistory} = require("../models/soloDuelHistoryModel");
 const {User} = require("../models/userModel");
 const SoloDuelMatch = require("../models/soloDuelMatchModel");
 
-// Store disconnect timers
 const disconnectTimers = new Map();
 
 const setupSoloDuelHandlers = (io) => {
 	io.on("connection", (socket) => {
-		console.log(
-			`🎮 Solo Duel: User ${socket.username} (${socket.userId}) connected`
-		);
-
-		// ==================== JOIN QUEUE ====================
 		socket.on("solo_duel:join_queue", async () => {
 			try {
-				console.log(`📥 ${socket.username} joining queue...`);
-
 				const result = await matchmakingService.addToQueue(
 					socket.userId,
 					socket.username,
@@ -43,7 +35,6 @@ const setupSoloDuelHandlers = (io) => {
 						player1Socket.join(match.matchId);
 						player2Socket.join(match.matchId);
 
-						// Store socket IDs in match
 						const updatedMatch = await SoloDuelMatch.findOne({
 							matchId: match.matchId,
 						});
@@ -51,7 +42,6 @@ const setupSoloDuelHandlers = (io) => {
 						updatedMatch.players[1].socketId = player2.socketId;
 						await updatedMatch.save();
 
-						// Notify player 1
 						player1Socket.emit("solo_duel:match_found", {
 							matchId: match.matchId,
 							player: {
@@ -71,7 +61,6 @@ const setupSoloDuelHandlers = (io) => {
 							isFirstPlayer: true,
 						});
 
-						// Notify player 2
 						player2Socket.emit("solo_duel:match_found", {
 							matchId: match.matchId,
 							player: {
@@ -90,24 +79,15 @@ const setupSoloDuelHandlers = (io) => {
 							})),
 							isFirstPlayer: false,
 						});
-
-						console.log(
-							`✅ Match created: ${match.matchId}\n   Player 1: ${player1.username}\n   Player 2: ${player2.username}`
-						);
 					}
 				} else {
-					// Added to queue, waiting for opponent
 					const queueInfo = matchmakingService.getQueueInfo();
 					socket.emit("solo_duel:queue_joined", {
 						position: queueInfo.queueLength,
 						queueLength: queueInfo.queueLength,
 					});
-					console.log(
-						`⏳ ${socket.username} added to queue (position: ${queueInfo.queueLength})`
-					);
 				}
 			} catch (error) {
-				console.error("❌ Error joining queue:", error);
 				socket.emit("solo_duel:error", {
 					message: "Failed to join queue",
 					error: error.message,
@@ -115,43 +95,32 @@ const setupSoloDuelHandlers = (io) => {
 			}
 		});
 
-		// ==================== LEAVE QUEUE ====================
 		socket.on("solo_duel:leave_queue", () => {
 			try {
 				const removed = matchmakingService.removeFromQueue(
 					socket.userId
 				);
 				socket.emit("solo_duel:queue_left", {});
-				console.log(
-					`👋 ${socket.username} left queue ${
-						removed ? "(removed)" : "(not in queue)"
-					}`
-				);
 			} catch (error) {
-				console.error("❌ Error leaving queue:", error);
+				console.error("Error leaving queue:", error);
 			}
 		});
 
-		// ==================== PLAYER READY ====================
 		socket.on("solo_duel:player_ready", async (data) => {
 			try {
 				const {matchId} = data;
-				console.log(`✋ ${socket.username} ready for match ${matchId}`);
-
 				const match = await gameStateService.setPlayerReady(
 					matchId,
 					socket.userId
 				);
 
-				// Notify all players in the match
 				io.to(matchId).emit("solo_duel:player_ready", {
 					userId: socket.userId,
 					username: socket.username,
 				});
 
-				// If both players are ready, start the game
 				if (match.status === "playing") {
-					io.to(matchId).emit("solo_duel:game_started", {
+					const gameStartedData = {
 						matchId: match.matchId,
 						currentTurn: match.currentTurn,
 						startedAt: match.startedAt.toISOString(),
@@ -161,36 +130,30 @@ const setupSoloDuelHandlers = (io) => {
 							score: p.score,
 							matchedCards: p.matchedCards,
 						})),
-					});
+					};
 
-					console.log(
-						`🎮 Game started: ${matchId}\n   Current turn: ${match.currentTurn}`
+					io.to(matchId).emit(
+						"solo_duel:game_started",
+						gameStartedData
 					);
 				}
 			} catch (error) {
-				console.error("❌ Error setting player ready:", error);
 				socket.emit("solo_duel:error", {
 					message: error.message || "Failed to ready up",
 				});
 			}
 		});
 
-		// ==================== FLIP CARD ====================
 		socket.on("solo_duel:flip_card", async (data) => {
 			try {
 				const {matchId, cardIndex} = data;
-				console.log(
-					`🃏 ${socket.username} flipping card ${cardIndex} in match ${matchId}`
-				);
 
-				// Process the flip
 				const match = await gameStateService.handleCardFlip(
 					matchId,
 					socket.userId,
 					cardIndex
 				);
 
-				// Notify all players about the card flip immediately
 				io.to(matchId).emit("solo_duel:card_flipped", {
 					matchId,
 					cardIndex,
@@ -199,63 +162,62 @@ const setupSoloDuelHandlers = (io) => {
 					pokemonName: match.cards[cardIndex].pokemonName,
 				});
 
-				// Check if we just completed a pair (flippedCards is now empty after 2nd flip)
 				if (
 					match.flippedCards.length === 0 &&
 					match.lastMatchResult &&
 					match.lastMatchResult.cardIndices
 				) {
-					// Two cards were just processed
 					const {cardIndices, isMatch} = match.lastMatchResult;
 
-					console.log(
-						`${isMatch ? "✅" : "❌"} Match result: ${
-							isMatch ? "MATCH" : "NO MATCH"
-						} [${cardIndices[0]}, ${cardIndices[1]}]`
-					);
-
-					// Send result after 1 second delay
 					setTimeout(async () => {
 						const updatedMatch =
 							await gameStateService.getMatchState(matchId);
 
-						io.to(matchId).emit("solo_duel:match_result", {
+						const resultData = {
 							matchId,
 							cardIndices,
 							isMatch,
 							matchedBy: isMatch ? socket.userId : null,
 							nextTurn: updatedMatch.currentTurn,
 							players: updatedMatch.players.map((p) => ({
-								userId: p.userId.toString(),
+								userId:
+									typeof p.userId === "string"
+										? p.userId
+										: p.userId._id.toString(),
 								username: p.username,
 								score: p.score,
 								matchedCards: p.matchedCards,
 							})),
-						});
+						};
 
-						// Check if game is over
+						io.to(matchId).emit(
+							"solo_duel:match_result",
+							resultData
+						); // Check if game is over
 						if (updatedMatch.status === "completed") {
+							const getIdString = (obj) =>
+								typeof obj === "string"
+									? obj
+									: obj._id.toString();
+
+							const winnerId = getIdString(updatedMatch.winner);
 							const winner = updatedMatch.players.find(
-								(p) =>
-									p.userId.toString() ===
-									updatedMatch.winner.toString()
+								(p) => getIdString(p.userId) === winnerId
 							);
 							const loser = updatedMatch.players.find(
-								(p) =>
-									p.userId.toString() !==
-									updatedMatch.winner.toString()
+								(p) => getIdString(p.userId) !== winnerId
 							);
 
 							io.to(matchId).emit("solo_duel:game_over", {
 								matchId,
 								winner: {
-									userId: winner.userId.toString(),
+									userId: getIdString(winner.userId),
 									username: winner.username,
 									score: winner.score,
 									matchedCards: winner.matchedCards,
 								},
 								loser: {
-									userId: loser.userId.toString(),
+									userId: getIdString(loser.userId),
 									username: loser.username,
 									score: loser.score,
 									matchedCards: loser.matchedCards,
@@ -263,8 +225,6 @@ const setupSoloDuelHandlers = (io) => {
 								finishedAt:
 									updatedMatch.finishedAt.toISOString(),
 							});
-
-							// Save match history
 							const timeTaken = Math.floor(
 								(updatedMatch.finishedAt -
 									updatedMatch.startedAt) /
@@ -282,15 +242,10 @@ const setupSoloDuelHandlers = (io) => {
 							});
 
 							await history.save();
-
-							console.log(
-								`🏆 Game over: ${matchId}\n   Winner: ${winner.username} (${winner.score} points)\n   Loser: ${loser.username} (${loser.score} points)`
-							);
 						}
 					}, 1000);
 				}
 			} catch (error) {
-				console.error("❌ Error flipping card:", error);
 				socket.emit("solo_duel:error", {
 					message: error.message || "Failed to flip card",
 				});
@@ -353,12 +308,7 @@ const setupSoloDuelHandlers = (io) => {
 				});
 
 				await history.save();
-
-				console.log(
-					`🏳️ Match surrendered: ${matchId}\n   Surrendered by: ${loser.username}\n   Winner: ${winner.username}`
-				);
 			} catch (error) {
-				console.error("❌ Error surrendering match:", error);
 				socket.emit("solo_duel:error", {
 					message: error.message || "Failed to surrender",
 				});
@@ -368,9 +318,6 @@ const setupSoloDuelHandlers = (io) => {
 		socket.on("solo_duel:rejoin_match", async (data) => {
 			try {
 				const {matchId} = data;
-				console.log(
-					`🔄 ${socket.username} attempting to rejoin match ${matchId}`
-				);
 
 				const match = await gameStateService.handlePlayerReconnect(
 					matchId,
@@ -389,7 +336,6 @@ const setupSoloDuelHandlers = (io) => {
 				if (disconnectTimers.has(timerKey)) {
 					clearTimeout(disconnectTimers.get(timerKey));
 					disconnectTimers.delete(timerKey);
-					console.log(`⏹️ Cleared disconnect timer for ${timerKey}`);
 				}
 
 				socket.join(matchId);
@@ -427,9 +373,7 @@ const setupSoloDuelHandlers = (io) => {
 						pokemonName: c.pokemonName,
 					})),
 				});
-				console.log(`✅ ${socket.username} rejoined match ${matchId}`);
 			} catch (error) {
-				console.error("❌ Error rejoining match:", error);
 				socket.emit("solo_duel:error", {
 					message: error.message || "Failed to rejoin match",
 				});
@@ -437,10 +381,8 @@ const setupSoloDuelHandlers = (io) => {
 		});
 
 		socket.on("disconnect", async () => {
-			console.log(`👋 ${socket.username} disconnected`);
 			matchmakingService.removeFromQueue(socket.userId);
 
-			// Find active matches for this user
 			try {
 				const activeMatches = await SoloDuelMatch.find({
 					"players.userId": socket.userId,
@@ -455,7 +397,6 @@ const setupSoloDuelHandlers = (io) => {
 						);
 
 					if (disconnectedMatch) {
-						// Notify opponent
 						socket
 							.to(match.matchId)
 							.emit("solo_duel:player_disconnected", {
@@ -465,17 +406,8 @@ const setupSoloDuelHandlers = (io) => {
 								waitTimeSeconds: 30,
 							});
 
-						console.log(
-							`⏳ ${socket.username} disconnected from match ${match.matchId}. Starting 30s timer...`
-						);
-
-						// Set 30 second timer
 						const timerKey = `${match.matchId}_${socket.userId}`;
 						const timer = setTimeout(async () => {
-							console.log(
-								`⏰ 30s timer expired for ${socket.username} in match ${match.matchId}`
-							);
-
 							const finalMatch =
 								await gameStateService.handleDisconnectTimeout(
 									match.matchId,
@@ -517,7 +449,6 @@ const setupSoloDuelHandlers = (io) => {
 									}
 								);
 
-								// Save match history
 								const timeTaken = Math.floor(
 									(finalMatch.finishedAt -
 										finalMatch.startedAt) /
@@ -535,20 +466,16 @@ const setupSoloDuelHandlers = (io) => {
 								});
 
 								await history.save();
-
-								console.log(
-									`🏆 Match ended due to disconnect: ${match.matchId}\n   Winner: ${winner.username}\n   Disconnected: ${loser.username}`
-								);
 							}
 
 							disconnectTimers.delete(timerKey);
-						}, 30000); // 30 seconds
+						}, 30000);
 
 						disconnectTimers.set(timerKey, timer);
 					}
 				}
 			} catch (error) {
-				console.error("❌ Error handling disconnect:", error);
+				console.error("Error handling disconnect:", error);
 			}
 		});
 	});
