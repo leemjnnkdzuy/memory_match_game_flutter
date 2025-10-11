@@ -1,6 +1,7 @@
 const socketIo = require("socket.io");
 const {verifyAccessToken} = require("../utils/jwtService");
 const {User} = require("../models/userModel");
+const AppError = require("../utils/errors");
 
 let io;
 
@@ -46,23 +47,16 @@ const initializeWebSocket = (server) => {
 			socket.userId = socket.userId;
 			socket.username = user.username;
 			socket.email = user.email;
-
-			console.log(
-				`✅ User connected: ${socket.username} (${socket.userId})`
-			);
 			next();
 		} catch (error) {
 			if (error.message.includes("expired")) {
-				console.log(`❌ Token expired for connection attempt`);
 				return next(new Error("TOKEN_EXPIRED"));
 			} else if (
 				error.message.includes("invalid") ||
 				error.message.includes("malformed")
 			) {
-				console.log(`❌ Invalid token format for connection attempt`);
 				return next(new Error("TOKEN_INVALID"));
 			} else {
-				console.error(`❌ Auth error:`, error.message);
 				return next(new Error("AUTHENTICATION_FAILED"));
 			}
 		}
@@ -73,7 +67,7 @@ const initializeWebSocket = (server) => {
 
 const getIO = () => {
 	if (!io) {
-		throw new Error("Socket.io not initialized");
+		throw new AppError("Socket.io not initialized", 500);
 	}
 	return io;
 };

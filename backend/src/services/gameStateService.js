@@ -1,35 +1,36 @@
 const SoloDuelMatch = require("../models/soloDuelMatchModel");
+const AppError = require("../utils/errors");
 
 class GameStateService {
 	async handleCardFlip(matchId, userId, cardIndex) {
 		const match = await SoloDuelMatch.findOne({matchId});
 
 		if (!match) {
-			throw new Error("Match not found");
+			throw new AppError("Match not found", 404);
 		}
 
 		if (match.status !== "playing") {
-			throw new Error("Match is not in playing state");
+			throw new AppError("Match is not in playing state", 400);
 		}
 
 		if (match.currentTurn !== userId) {
-			throw new Error("Not your turn");
+			throw new AppError("Not your turn", 403);
 		}
 
 		const card = match.cards[cardIndex];
 		if (card.isMatched) {
-			throw new Error("Card already matched");
+			throw new AppError("Card already matched", 400);
 		}
 
 		const alreadyFlipped = match.flippedCards.some(
 			(fc) => fc.cardIndex === cardIndex
 		);
 		if (alreadyFlipped) {
-			throw new Error("Card already flipped this turn");
+			throw new AppError("Card already flipped this turn", 400);
 		}
 
 		if (match.flippedCards.length >= 2) {
-			throw new Error("Already flipped 2 cards this turn");
+			throw new AppError("Already flipped 2 cards this turn", 400);
 		}
 
 		match.flippedCards.push({
@@ -110,14 +111,14 @@ class GameStateService {
 		const match = await SoloDuelMatch.findOne({matchId});
 
 		if (!match) {
-			throw new Error("Match not found");
+			throw new AppError("Match not found", 404);
 		}
 
 		const player = match.players.find(
 			(p) => p.userId.toString() === userId
 		);
 		if (!player) {
-			throw new Error("Player not found in match");
+			throw new AppError("Player not found in match", 404);
 		}
 
 		player.isReady = true;
@@ -143,7 +144,7 @@ class GameStateService {
 		const match = await SoloDuelMatch.findOne({matchId});
 
 		if (!match) {
-			throw new Error("Match not found");
+			throw new AppError("Match not found", 404);
 		}
 
 		match.status = "cancelled";
@@ -157,11 +158,11 @@ class GameStateService {
 		const match = await SoloDuelMatch.findOne({matchId});
 
 		if (!match) {
-			throw new Error("Match not found");
+			throw new AppError("Match not found", 404);
 		}
 
 		if (match.status !== "playing") {
-			throw new Error("Match is not in playing state");
+			throw new AppError("Match is not in playing state", 400);
 		}
 
 		const surrenderingPlayer = match.players.find(
@@ -172,7 +173,7 @@ class GameStateService {
 		);
 
 		if (!surrenderingPlayer) {
-			throw new Error("Player not found in match");
+			throw new AppError("Player not found in match", 404);
 		}
 
 		match.status = "completed";
@@ -216,7 +217,7 @@ class GameStateService {
 		const match = await SoloDuelMatch.findOne({matchId});
 
 		if (!match) {
-			throw new Error("Match not found");
+			throw new AppError("Match not found", 404);
 		}
 
 		const player = match.players.find(
@@ -224,7 +225,7 @@ class GameStateService {
 		);
 
 		if (!player) {
-			throw new Error("Player not found in match");
+			throw new AppError("Player not found in match", 404);
 		}
 
 		player.isConnected = true;

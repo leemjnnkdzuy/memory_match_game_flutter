@@ -6,10 +6,6 @@ const SoloDuelHistory = require("../models/soloDuelHistoryModel");
 class SoloDuelController {
 	initializeSocketHandlers(io) {
 		io.on("connection", (socket) => {
-			console.log(
-				`User connected: ${socket.username} (${socket.userId})`
-			);
-
 			socket.on("solo_duel:join_queue", async () => {
 				try {
 					const result = await matchmakingService.addToQueue(
@@ -155,7 +151,6 @@ class SoloDuelController {
 			});
 
 			socket.on("disconnect", () => {
-				console.log(`User disconnected: ${socket.username}`);
 				matchmakingService.removeFromQueue(socket.userId);
 
 				if (socket.matchId) {

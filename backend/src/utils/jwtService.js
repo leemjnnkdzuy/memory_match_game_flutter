@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
+const AppError = require("./errors");
 
 class JWTService {
 	static generateAccessToken(userId) {
@@ -73,19 +74,19 @@ class JWTService {
 			});
 
 			if (decoded.type !== "access") {
-				throw new Error("Invalid token type");
+				throw new AppError("Invalid token type", 401);
 			}
 
 			return decoded;
 		} catch (error) {
 			if (error.name === "TokenExpiredError") {
-				throw new Error("Token expired");
+				throw new AppError("Token expired", 401);
 			} else if (error.name === "JsonWebTokenError") {
-				throw new Error("Token invalid");
+				throw new AppError("Token invalid", 401);
 			} else if (error.name === "NotBeforeError") {
-				throw new Error("Token not active");
+				throw new AppError("Token not active", 401);
 			} else {
-				throw new Error("Token verification failed");
+				throw new AppError("Token verification failed", 401);
 			}
 		}
 	}
@@ -129,12 +130,12 @@ class JWTService {
 			});
 
 			if (decoded.type !== "reset") {
-				throw new Error("Invalid token type");
+				throw new AppError("Invalid token type", 401);
 			}
 
 			return decoded;
 		} catch (error) {
-			throw new Error("Invalid or expired reset token");
+			throw new AppError("Invalid or expired reset token", 401);
 		}
 	}
 
