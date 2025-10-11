@@ -465,7 +465,7 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
                   ],
                 ),
               );
-            }).toList(),
+            }),
             const SizedBox(height: 24),
             if (!_isReady)
               CustomButton(
