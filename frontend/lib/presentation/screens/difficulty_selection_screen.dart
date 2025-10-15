@@ -5,7 +5,7 @@ import 'dart:math';
 import '../../domain/entities/offline_game_entity.dart';
 import '../../domain/entities/pokemon_entity.dart';
 import '../../domain/repositories/pokemon_repository.dart';
-import '../../data/repositories/pokemon_repository_impl.dart';
+import '../../data/implements/pokemon_repository_impl.dart';
 import '../../data/datasources/local_pokemon_data_source.dart';
 import '../../core/theme/app_theme.dart';
 import '../widgets/custom/custom_button.dart';

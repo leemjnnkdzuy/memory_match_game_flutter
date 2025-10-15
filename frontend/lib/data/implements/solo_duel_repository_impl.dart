@@ -1,4 +1,4 @@
-import '../../data/datasources/solo_duel_remote_data_source.dart';
+import '../datasources/solo_duel_remote_data_source.dart';
 import '../../domain/repositories/solo_duel_repository.dart';
 import '../../domain/repositories/auth_repository.dart' show Result;
 import '../../domain/entities/solo_duel_history_entity.dart';

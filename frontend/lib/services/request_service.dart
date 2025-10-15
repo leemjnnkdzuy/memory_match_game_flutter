@@ -1,12 +1,12 @@
 import '../core/utils/http_client_utils.dart';
-import '../data/repositories/http_client_impl.dart';
+import '../data/implements/http_client_impl.dart';
 import 'token_storage_service.dart';
 import '../data/datasources/auth_remote_data_source.dart';
 import '../data/datasources/history_remote_data_source.dart';
 import '../data/datasources/solo_duel_remote_data_source.dart';
-import '../data/repositories/auth_repository_impl.dart';
-import '../data/repositories/history_repository_impl.dart';
-import '../data/repositories/solo_duel_repository_impl.dart';
+import '../data/implements/auth_repository_impl.dart';
+import '../data/implements/history_repository_impl.dart';
+import '../data/implements/solo_duel_repository_impl.dart';
 import '../domain/repositories/auth_repository.dart';
 import '../domain/repositories/history_repository.dart';
 import '../domain/repositories/solo_duel_repository.dart';

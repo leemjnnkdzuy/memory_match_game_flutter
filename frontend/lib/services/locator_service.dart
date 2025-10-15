@@ -1,5 +1,5 @@
 import '../../data/datasources/local_pokemon_data_source.dart';
-import '../../data/repositories/pokemon_repository_impl.dart';
+import '../data/implements/pokemon_repository_impl.dart';
 import '../../domain/repositories/pokemon_repository.dart';
 import '../../domain/usecases/pokemon_use_cases.dart';
 
