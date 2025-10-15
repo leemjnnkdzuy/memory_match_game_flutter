@@ -19,7 +19,7 @@ const server = http.createServer(app);
 const io = initializeWebSocket(server);
 const PORT = process.env.PORT;
 
-app.use(express.json({limit: "10mb"}));
+app.use(express.json({limit: "20mb"}));
 app.use(corsConfig(false));
 
 app.use("/api", apiRoutes);
@@ -32,10 +32,10 @@ app.use(errorHandler);
 setupSoloDuelHandlers(io);
 
 try {
-	console.log(`Server is running on port ${PORT}`);
 	server.listen(PORT);
+	console.log(`Server đang chạy trên cổng ${PORT}`);
 } catch (error) {
-	console.error("Server startup error:", error);
+	console.error("Lỗi khởi động máy chủ:", error);
 	process.exit(1);
 }
 
