@@ -128,3 +128,153 @@ class GamePauseDialogWidget extends StatelessWidget {
     );
   }
 }
+
+class CloseRoomConfirmDialogWidget extends StatelessWidget {
+  final VoidCallback onConfirm;
+  final VoidCallback onCancel;
+  final int playerCount;
+
+  const CloseRoomConfirmDialogWidget({
+    super.key,
+    required this.onConfirm,
+    required this.onCancel,
+    this.playerCount = 0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(
+        'Xác Nhận Đóng Phòng',
+        style: AppTheme.headlineMedium.copyWith(color: Colors.red),
+        textAlign: TextAlign.center,
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Bạn có chắc chắn muốn đóng phòng?',
+            style: AppTheme.bodyMedium,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          if (playerCount > 1)
+            Text(
+              'Tất cả $playerCount người chơi trong phòng sẽ bị kick ra.',
+              style: AppTheme.bodyMedium.copyWith(
+                color: Colors.orange,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          if (playerCount <= 1)
+            Text(
+              'Phòng sẽ bị xóa hoàn toàn.',
+              style: AppTheme.bodyMedium.copyWith(
+                color: Colors.orange,
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+        ],
+      ),
+      actions: [
+        CustomButton(
+          type: CustomButtonType.normal,
+          onPressed: onCancel,
+          child: const Text('Hủy'),
+        ),
+        const SizedBox(height: 8),
+        CustomButton(
+          type: CustomButtonType.error,
+          onPressed: onConfirm,
+          child: const Text('Đóng Phòng'),
+        ),
+      ],
+    );
+  }
+}
+
+class KickPlayerConfirmDialogWidget extends StatelessWidget {
+  final VoidCallback onConfirm;
+  final VoidCallback onCancel;
+  final String playerName;
+
+  const KickPlayerConfirmDialogWidget({
+    super.key,
+    required this.onConfirm,
+    required this.onCancel,
+    required this.playerName,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(
+        'Xác Nhận Kick Người Chơi',
+        style: AppTheme.headlineMedium.copyWith(color: Colors.orange),
+        textAlign: TextAlign.center,
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Bạn có chắc chắn muốn kick người chơi này?',
+            style: AppTheme.bodyMedium,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.orange.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.orange.withOpacity(0.3)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.person, color: Colors.orange, size: 20),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    playerName,
+                    style: AppTheme.bodyMedium.copyWith(
+                      color: Colors.orange,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Người chơi sẽ bị đá ra khỏi phòng ngay lập tức.',
+            style: AppTheme.bodyMedium.copyWith(
+              fontSize: 14,
+              color: Colors.grey[600],
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+      actions: [
+        CustomButton(
+          type: CustomButtonType.normal,
+          onPressed: onCancel,
+          child: const Text('Hủy'),
+        ),
+        const SizedBox(height: 8),
+        CustomButton(
+          type: CustomButtonType.warning,
+          onPressed: onConfirm,
+          child: const Text('Kick Người Chơi'),
+        ),
+      ],
+    );
+  }
+}

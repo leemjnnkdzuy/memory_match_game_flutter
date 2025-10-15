@@ -14,11 +14,12 @@ const connectDatabase = async () => {
 			socketTimeoutMS: 45000,
 		});
 
-		console.log("MongoDB connected successfully");
+		console.log("Kết nối MongoDB thành công");
+		return true;
 	} catch (error) {
-		console.error("MongoDB connection error:", error);
-		process.exit(1);
+		console.error("Kết nối MongoDB thất bại:", error);
+		return false;
 	}
 };
 
-module.exports = connectDatabase;
+module.exports = {connectDatabase};

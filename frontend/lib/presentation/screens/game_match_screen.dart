@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import './difficulty_selection_screen.dart';
 import './login_screen.dart';
 import 'game_solo_duel_screen.dart';
+import 'battle_royale_mode_screen.dart';
 import '../widgets/common/game_mode_card_widget.dart';
 import '../../services/auth_service.dart';
 import 'package:pixelarticons/pixel.dart';
@@ -168,10 +169,11 @@ class _GameMatchScreenState extends State<GameMatchScreen> {
                   isEnabled: _isLoggedIn,
                   onTap: _isLoggedIn
                       ? () {
-                          // TODO: Navigate to Battle Royale screen
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Sinh Tử Chiến sắp ra mắt!'),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const BattleRoyaleModeScreen(),
                             ),
                           );
                         }

@@ -17,7 +17,9 @@ const initializeWebSocket = (server) => {
 
 	io.use(async (socket, next) => {
 		try {
-			const token = socket.handshake.auth.token;
+			// Lấy token từ auth hoặc query
+			const token =
+				socket.handshake.auth.token || socket.handshake.query.token;
 			if (!token) {
 				return next(new Error("No authentication token provided"));
 			}

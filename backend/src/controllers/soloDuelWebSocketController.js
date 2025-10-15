@@ -313,7 +313,6 @@ const setupSoloDuelHandlers = (io) => {
 					(match.finishedAt - match.startedAt) / 1000
 				);
 
-				// Save history for winner
 				const winnerHistory = new SoloDuelHistory({
 					matchId: match.matchId,
 					userId: winner.userId.toString(),
@@ -326,7 +325,6 @@ const setupSoloDuelHandlers = (io) => {
 					datePlayed: match.finishedAt,
 				});
 
-				// Save history for loser
 				const loserHistory = new SoloDuelHistory({
 					matchId: match.matchId,
 					userId: loser.userId.toString(),
@@ -487,7 +485,6 @@ const setupSoloDuelHandlers = (io) => {
 										1000
 								);
 
-								// Save history for winner
 								const winnerHistory = new SoloDuelHistory({
 									matchId: finalMatch.matchId,
 									userId: winner.userId.toString(),
@@ -500,7 +497,6 @@ const setupSoloDuelHandlers = (io) => {
 									datePlayed: finalMatch.finishedAt,
 								});
 
-								// Save history for loser
 								const loserHistory = new SoloDuelHistory({
 									matchId: finalMatch.matchId,
 									userId: loser.userId.toString(),
