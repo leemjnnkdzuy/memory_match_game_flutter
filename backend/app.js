@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const http = require("http");
 const dotenv = require("dotenv");
 const connectDatabase = require("./src/utils/connectDatabase");
@@ -15,26 +16,20 @@ connectDatabase();
 
 const app = express();
 const server = http.createServer(app);
+const io = initializeWebSocket(server);
+const PORT = process.env.PORT;
 
 app.use(express.json({limit: "10mb"}));
 app.use(corsConfig(false));
 
 app.use("/api", apiRoutes);
 app.get("/", (req, res) => {
-	res.send("SERVER GAME MEMORY MATCH IS RUNNING");
+	res.send("Máy chủ đang hoạt động!");
 });
 
 app.use(errorHandler);
 
-// Initialize WebSocket
-const io = initializeWebSocket(server);
-
-// Setup Solo Duel handlers
 setupSoloDuelHandlers(io);
-
-console.log("✅ Solo Duel WebSocket handlers initialized");
-
-const PORT = process.env.PORT;
 
 try {
 	console.log(`Server is running on port ${PORT}`);

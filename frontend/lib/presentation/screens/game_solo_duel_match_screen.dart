@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import '../../services/solo_duel_game_service.dart';
 import '../../services/auth_service.dart';
+import '../../services/sound_service.dart';
 import '../../domain/entities/solo_duel_match_entity.dart';
 import '../../domain/entities/pokemon_entity.dart';
 import '../../core/utils/pokemon_name_utils.dart';
@@ -35,10 +36,14 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
   Timer? _readyTimer;
   int _countdown = 60;
   bool _isDisconnectDialogShowing = false;
+  final Set<int> _matchedCardPositions = {};
+  bool _hasInitialMatchedSnapshot = false;
 
   @override
   void initState() {
     super.initState();
+    _resetMatchedTracking();
+    SoundService().preload();
     _setupListeners();
     _startReadyTimer();
   }
@@ -62,9 +67,7 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
   void _setupListeners() {
     _gameService.gameStarted.addListener(_onGameStarted);
     _gameService.cardFlipped.addListener(_onCardFlipped);
-    _gameService.currentMatchNotifier.addListener(
-      _onMatchUpdated,
-    ); // Listen to match updates
+    _gameService.currentMatchNotifier.addListener(_onMatchUpdated);
     _gameService.gameOver.addListener(_onGameOver);
     _gameService.error.addListener(_onError);
     _gameService.playerReady.addListener(_onPlayerReady);
@@ -75,6 +78,7 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
 
   void _onGameStarted() {
     if (_gameService.gameStarted.value && mounted) {
+      _resetMatchedTracking();
       _readyTimer?.cancel();
       setState(() {});
     }
@@ -83,12 +87,22 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
   void _onCardFlipped() {
     final data = _gameService.cardFlipped.value;
     if (data != null && mounted) {
+      final flippedBy = data['flippedBy'];
+      final myUserId = _authService.currentUser?.id;
+      if (flippedBy != null && flippedBy != myUserId) {
+        SoundService().playCardFlipSound();
+      }
       setState(() {});
     }
   }
 
   void _onMatchUpdated() {
     if (mounted) {
+      final match = _gameService.currentMatch;
+      if (match == null) {
+        debugPrint('WARNING: Match became null in _onMatchUpdated');
+      }
+      _updateMatchedCardSnapshot();
       setState(() {});
     }
   }
@@ -96,12 +110,19 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
   void _onGameOver() {
     final data = _gameService.gameOver.value;
     if (data != null && mounted) {
+      debugPrint('Game over event received');
+      _resetMatchedTracking();
       if (_isDisconnectDialogShowing) {
         _isDisconnectDialogShowing = false;
         Navigator.pop(context);
       }
 
-      _showGameOverDialog(data);
+      // Delay showing dialog to prevent issues
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          _showGameOverDialog(data);
+        }
+      });
     }
   }
 
@@ -160,8 +181,47 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
   void _onMatchStateReceived() {
     final data = _gameService.matchState.value;
     if (data != null && mounted) {
+      _updateMatchedCardSnapshot();
       setState(() {});
     }
+  }
+
+  void _resetMatchedTracking() {
+    _matchedCardPositions.clear();
+    _hasInitialMatchedSnapshot = false;
+  }
+
+  void _updateMatchedCardSnapshot() {
+    final match = _gameService.currentMatch;
+    if (match == null) {
+      return;
+    }
+
+    final currentMatchedPositions = <int>{};
+    for (var i = 0; i < match.cards.length; i++) {
+      if (match.cards[i].isMatched) {
+        currentMatchedPositions.add(i);
+      }
+    }
+
+    if (!_hasInitialMatchedSnapshot) {
+      _matchedCardPositions
+        ..clear()
+        ..addAll(currentMatchedPositions);
+      _hasInitialMatchedSnapshot = true;
+      return;
+    }
+
+    final newMatches = currentMatchedPositions.difference(
+      _matchedCardPositions,
+    );
+    if (newMatches.isNotEmpty) {
+      SoundService().playMatchSound();
+    }
+
+    _matchedCardPositions
+      ..clear()
+      ..addAll(currentMatchedPositions);
   }
 
   void _startReadyTimer() {
@@ -187,6 +247,7 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
     final opponent = match.players.firstWhere((p) => p.userId != myUserId);
 
     _gameService.resetMatch();
+    _resetMatchedTracking();
 
     if (me.isReady && opponent.isReady) {
       return;
@@ -231,6 +292,7 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
       return;
     }
 
+    SoundService().playCardFlipSound();
     _gameService.flipCard(widget.matchId, index);
   }
 
@@ -312,8 +374,8 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
         loserScore: loser['score'],
         loserMatchedCards: loser['matchedCards'],
         onBackToHome: () {
-          _gameService.resetMatch();
           Navigator.pop(context);
+          _gameService.resetMatch();
           AppRoutes.navigateBackToHome(context);
         },
       ),
@@ -325,7 +387,24 @@ class _SoloDuelMatchScreenState extends State<SoloDuelMatchScreen>
     final match = _gameService.currentMatch;
 
     if (match == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      debugPrint('Match is null in build, returning to previous screen');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
+      });
+      return const Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Loading match...'),
+            ],
+          ),
+        ),
+      );
     }
 
     final myUserId = _authService.currentUser?.id ?? '';

@@ -7,6 +7,7 @@ import '../../domain/entities/pokemon_entity.dart';
 import '../../services/image_cache_service.dart';
 import '../../services/auth_service.dart';
 import '../../services/request_service.dart';
+import '../../services/sound_service.dart';
 import '../widgets/common/game_stats_widget.dart';
 import '../widgets/common/game_board_widget.dart';
 import '../widgets/common/game_dialog_widgets.dart';
@@ -44,6 +45,7 @@ class _OfflineGameplayScreenState extends State<OfflineGameplayScreen>
   @override
   void initState() {
     super.initState();
+    SoundService().preload();
     _flipController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -255,6 +257,8 @@ class _OfflineGameplayScreenState extends State<OfflineGameplayScreen>
       _flippedCards.add(_game.cards[cardIndex]);
     });
 
+    SoundService().playCardFlipSound();
+
     _flipController.forward();
 
     if (_flippedCards.length == 2) {
@@ -284,6 +288,8 @@ class _OfflineGameplayScreenState extends State<OfflineGameplayScreen>
         final timeBonus = (_timeRemaining.inSeconds * 2).clamp(0, 200);
         _score += timeBonus;
       });
+
+      SoundService().playMatchSound();
 
       _matchController.forward().then((_) {
         _matchController.reset();
