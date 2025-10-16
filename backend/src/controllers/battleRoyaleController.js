@@ -12,6 +12,8 @@ const createRoom = async (req, res) => {
 	try {
 		const userId = req.user._id;
 		const username = req.user.username;
+		const avatarUrl = req.user.avatar || null;
+		const borderColor = req.user.borderColor || "#4CAF50";
 
 		const {
 			name,
@@ -61,6 +63,8 @@ const createRoom = async (req, res) => {
 				{
 					userId,
 					username,
+					avatarUrl,
+					borderColor,
 					isHost: true,
 					isReady: false,
 					isConnected: true,
@@ -76,7 +80,6 @@ const createRoom = async (req, res) => {
 			data: room,
 		});
 	} catch (error) {
-		console.error("Error creating room:", error);
 		return res.status(500).json({
 			success: false,
 			message: "Failed to create room",
@@ -116,7 +119,6 @@ const getPublicRooms = async (req, res) => {
 			data: {rooms: filteredRooms},
 		});
 	} catch (error) {
-		console.error("Error getting rooms:", error);
 		return res.status(500).json({
 			success: false,
 			message: "Failed to get rooms",
@@ -131,6 +133,8 @@ const joinRoom = async (req, res) => {
 		const {password} = req.body;
 		const userId = req.user._id;
 		const username = req.user.username;
+		const avatarUrl = req.user.avatar || null;
+		const borderColor = req.user.borderColor || "#4CAF50";
 
 		const room = await BattleRoyaleRoom.findById(roomId);
 
@@ -167,6 +171,8 @@ const joinRoom = async (req, res) => {
 			room.players.push({
 				userId,
 				username,
+				avatarUrl,
+				borderColor,
 				isHost: false,
 				isReady: false,
 				isConnected: true,
@@ -174,11 +180,12 @@ const joinRoom = async (req, res) => {
 		} else {
 			existingPlayer.isConnected = true;
 			existingPlayer.disconnectedAt = null;
+			existingPlayer.avatarUrl = avatarUrl;
+			existingPlayer.borderColor = borderColor;
 		}
 
 		await room.save();
 
-		// Thông báo cho tất cả người chơi trong phòng về người chơi mới
 		emitToRoom(roomId, "br:player_joined", {
 			player: {
 				userId,
@@ -194,7 +201,6 @@ const joinRoom = async (req, res) => {
 			data: room,
 		});
 	} catch (error) {
-		console.error("Error joining room:", error);
 		return res.status(500).json({
 			success: false,
 			message: "Failed to join room",
@@ -229,7 +235,6 @@ const setReady = async (req, res) => {
 		player.isReady = ready;
 		await room.save();
 
-		// Thông báo cho tất cả người chơi trong phòng
 		emitToRoom(roomId, "br:player_ready", {
 			userId: player.userId,
 			isReady: player.isReady,
@@ -242,7 +247,6 @@ const setReady = async (req, res) => {
 			data: {ready: player.isReady},
 		});
 	} catch (error) {
-		console.error("Error setting ready:", error);
 		return res.status(500).json({
 			success: false,
 			message: "Failed to set ready status",
@@ -276,7 +280,6 @@ const kickPlayer = async (req, res) => {
 		room.removePlayer(playerId);
 		await room.save();
 
-		// Thông báo cho tất cả người chơi trong phòng
 		emitToRoom(roomId, "br:player_left", {
 			userId: playerId,
 			players: room.players,
@@ -287,7 +290,6 @@ const kickPlayer = async (req, res) => {
 			message: "Player kicked",
 		});
 	} catch (error) {
-		console.error("Error kicking player:", error);
 		return res.status(500).json({
 			success: false,
 			message: "Failed to kick player",
@@ -320,7 +322,7 @@ const startMatch = async (req, res) => {
 		if (!room.canStart()) {
 			return res.status(400).json({
 				success: false,
-				message: "Not enough ready players to start",
+				message: "All players must be ready to start",
 			});
 		}
 
@@ -358,7 +360,6 @@ const startMatch = async (req, res) => {
 			},
 		});
 	} catch (error) {
-		console.error("Error starting match:", error);
 		return res.status(500).json({
 			success: false,
 			message: "Failed to start match",
@@ -387,7 +388,6 @@ const getRoomDetails = async (req, res) => {
 			data: room,
 		});
 	} catch (error) {
-		console.error("Error getting room details:", error);
 		return res.status(500).json({
 			success: false,
 			message: "Failed to get room details",
@@ -420,7 +420,6 @@ const getMatchLeaderboard = async (req, res) => {
 			},
 		});
 	} catch (error) {
-		console.error("Error getting leaderboard:", error);
 		return res.status(500).json({
 			success: false,
 			message: "Failed to get leaderboard",
@@ -450,12 +449,10 @@ const closeRoom = async (req, res) => {
 			});
 		}
 
-		// Nếu có match đang diễn ra, xóa luôn match
 		if (room.matchId) {
 			await BattleRoyaleMatch.findByIdAndDelete(room.matchId);
 		}
 
-		// Xóa phòng
 		await BattleRoyaleRoom.findByIdAndDelete(roomId);
 
 		return res.status(200).json({
@@ -463,7 +460,6 @@ const closeRoom = async (req, res) => {
 			message: "Room closed successfully",
 		});
 	} catch (error) {
-		console.error("Error closing room:", error);
 		return res.status(500).json({
 			success: false,
 			message: "Failed to close room",

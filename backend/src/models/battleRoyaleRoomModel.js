@@ -60,8 +60,11 @@ battleRoyaleRoomSchema.methods.isFull = function () {
 };
 
 battleRoyaleRoomSchema.methods.canStart = function () {
-	const readyCount = this.players.filter((p) => p.isReady || p.isHost).length;
-	return this.currentPlayers >= 2 && readyCount >= 2;
+	const nonHostPlayers = this.players.filter(
+		(p) => !p.isHost && p.isConnected
+	);
+	const allNonHostReady = nonHostPlayers.every((p) => p.isReady);
+	return this.currentPlayers >= 2 && allNonHostReady;
 };
 
 battleRoyaleRoomSchema.methods.getPlayer = function (userId) {
@@ -71,18 +74,24 @@ battleRoyaleRoomSchema.methods.getPlayer = function (userId) {
 battleRoyaleRoomSchema.methods.addPlayer = function (
 	userId,
 	username,
-	socketId
+	socketId,
+	avatarUrl = null,
+	borderColor = "#4CAF50"
 ) {
 	const existingPlayer = this.getPlayer(userId);
 	if (existingPlayer) {
 		existingPlayer.isConnected = true;
 		existingPlayer.socketId = socketId;
 		existingPlayer.disconnectedAt = null;
+		if (avatarUrl) existingPlayer.avatarUrl = avatarUrl;
+		if (borderColor) existingPlayer.borderColor = borderColor;
 	} else {
 		this.players.push({
 			userId,
 			username,
 			socketId,
+			avatarUrl,
+			borderColor,
 			isHost: this.players.length === 0,
 			isConnected: true,
 		});

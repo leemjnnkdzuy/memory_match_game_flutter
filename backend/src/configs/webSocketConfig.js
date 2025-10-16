@@ -17,7 +17,6 @@ const initializeWebSocket = (server) => {
 
 	io.use(async (socket, next) => {
 		try {
-			// Lấy token từ auth hoặc query
 			const token =
 				socket.handshake.auth.token || socket.handshake.query.token;
 			if (!token) {
@@ -33,7 +32,7 @@ const initializeWebSocket = (server) => {
 			}
 
 			const user = await User.findById(socket.userId).select(
-				"username email is_active isVerified"
+				"username email is_active isVerified avatar borderColor"
 			);
 
 			if (!user) {
@@ -49,6 +48,8 @@ const initializeWebSocket = (server) => {
 			socket.userId = socket.userId;
 			socket.username = user.username;
 			socket.email = user.email;
+			socket.avatar = user.avatar || null;
+			socket.borderColor = user.borderColor || "#4CAF50";
 			next();
 		} catch (error) {
 			if (error.message.includes("expired")) {

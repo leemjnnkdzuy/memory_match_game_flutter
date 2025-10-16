@@ -1,4 +1,3 @@
-// Game difficulty selection screen
 import 'package:flutter/material.dart';
 import 'package:pixelarticons/pixel.dart';
 import 'dart:math';

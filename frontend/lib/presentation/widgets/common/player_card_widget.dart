@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:typed_data';
 import '../../../data/models/battle_royale_player_model.dart';
 import 'package:pixelarticons/pixel.dart';
 
-class PlayerCardWidget extends StatelessWidget {
+class PlayerCardWidget extends StatefulWidget {
   final BattleRoyalePlayer player;
   final bool isCurrentUser;
   final VoidCallback? onKick;
@@ -14,13 +16,66 @@ class PlayerCardWidget extends StatelessWidget {
     this.onKick,
   });
 
+  @override
+  State<PlayerCardWidget> createState() => _PlayerCardWidgetState();
+}
+
+class _PlayerCardWidgetState extends State<PlayerCardWidget> {
+  Uint8List? _cachedAvatarBytes;
+
+  @override
+  void initState() {
+    super.initState();
+    _decodeAvatar();
+  }
+
+  @override
+  void didUpdateWidget(PlayerCardWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.player.avatarUrl != widget.player.avatarUrl) {
+      _decodeAvatar();
+    }
+  }
+
+  void _decodeAvatar() {
+    if (widget.player.avatarUrl == null || widget.player.avatarUrl!.isEmpty) {
+      _cachedAvatarBytes = null;
+      return;
+    }
+
+    try {
+      String base64String = widget.player.avatarUrl!;
+      if (base64String.contains('base64,')) {
+        base64String = base64String.split('base64,').last;
+      }
+
+      _cachedAvatarBytes = base64Decode(base64String);
+    } catch (e) {
+      _cachedAvatarBytes = null;
+    }
+  }
+
   Color _getBorderColor() {
     try {
-      final colorStr = player.borderColor.replaceAll('#', '');
+      final colorStr = widget.player.borderColor.replaceAll('#', '');
       return Color(int.parse('FF$colorStr', radix: 16));
     } catch (e) {
       return Colors.green;
     }
+  }
+
+  Widget _buildAvatar() {
+    if (_cachedAvatarBytes == null) {
+      return Icon(Pixel.user, color: _getBorderColor(), size: 24);
+    }
+
+    return Image.memory(
+      _cachedAvatarBytes!,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return Icon(Pixel.user, color: _getBorderColor(), size: 24);
+      },
+    );
   }
 
   @override
@@ -42,7 +97,6 @@ class PlayerCardWidget extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            // Avatar
             Container(
               width: 40,
               height: 40,
@@ -50,13 +104,10 @@ class PlayerCardWidget extends StatelessWidget {
                 color: _getBorderColor().withOpacity(0.2),
                 border: Border.all(color: _getBorderColor(), width: 2),
               ),
-              child: player.avatarUrl != null
-                  ? Image.network(player.avatarUrl!, fit: BoxFit.cover)
-                  : Icon(Pixel.user, color: _getBorderColor(), size: 24),
+              child: _buildAvatar(),
             ),
             const SizedBox(width: 12),
 
-            // Player Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,7 +116,7 @@ class PlayerCardWidget extends StatelessWidget {
                     children: [
                       Flexible(
                         child: Text(
-                          player.username,
+                          widget.player.username,
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -73,55 +124,35 @@ class PlayerCardWidget extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      if (player.isHost) ...[
+                      if (widget.player.isHost) ...[
                         const SizedBox(width: 4),
                         const Icon(Icons.star, color: Colors.orange, size: 16),
-                      ],
-                      if (isCurrentUser) ...[
-                        const SizedBox(width: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 4,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade100,
-                            border: Border.all(color: Colors.blue, width: 1),
-                          ),
-                          child: const Text(
-                            'BẠN',
-                            style: TextStyle(
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
                       ],
                     ],
                   ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      if (player.ping != null) ...[
+                      if (widget.player.ping != null) ...[
                         Icon(
                           Icons.wifi,
                           size: 12,
-                          color: player.ping! < 50
+                          color: widget.player.ping! < 50
                               ? Colors.green
-                              : player.ping! < 100
+                              : widget.player.ping! < 100
                               ? Colors.orange
                               : Colors.red,
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${player.ping}ms',
+                          '${widget.player.ping}ms',
                           style: TextStyle(
                             fontSize: 10,
                             color: Colors.grey[600],
                           ),
                         ),
                       ],
-                      if (!player.isConnected) ...[
+                      if (!widget.player.isConnected) ...[
                         const SizedBox(width: 8),
                         const Icon(Pixel.close, color: Colors.red, size: 12),
                         const SizedBox(width: 4),
@@ -140,7 +171,7 @@ class PlayerCardWidget extends StatelessWidget {
             ),
 
             // Ready Status
-            if (player.isReady)
+            if (widget.player.isReady)
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
@@ -149,7 +180,7 @@ class PlayerCardWidget extends StatelessWidget {
                 ),
                 child: const Icon(Pixel.check, color: Colors.green, size: 16),
               )
-            else if (!player.isHost)
+            else if (!widget.player.isHost)
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
@@ -160,10 +191,10 @@ class PlayerCardWidget extends StatelessWidget {
               ),
 
             // Kick Button (for host)
-            if (onKick != null && !player.isHost) ...[
+            if (widget.onKick != null && !widget.player.isHost) ...[
               const SizedBox(width: 8),
               GestureDetector(
-                onTap: onKick,
+                onTap: widget.onKick,
                 child: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import '../data/models/user_model.dart';
 import '../services/request_service.dart';
 import '../services/user_local_storage_service.dart';
@@ -54,7 +53,7 @@ class AuthService {
       final requestService = RequestService.instance;
       await requestService.logout();
     } catch (e) {
-      debugPrint('Error during logout: $e');
+      throw Exception('Logout failed');
     }
 
     _currentUser = null;
@@ -137,7 +136,6 @@ class AuthService {
       }
       return false;
     } catch (e) {
-      debugPrint('Error updating avatar: $e');
       return false;
     }
   }

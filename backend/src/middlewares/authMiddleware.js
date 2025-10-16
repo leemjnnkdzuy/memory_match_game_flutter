@@ -51,6 +51,7 @@ const authenticate = asyncHandle(async (req, res, next) => {
 			username: user.username,
 			first_name: user.first_name,
 			last_name: user.last_name,
+			avatar: user.avatar,
 		};
 
 		next();
@@ -105,6 +106,7 @@ const optionalAuth = asyncHandle(async (req, res, next) => {
 			username: user.username,
 			first_name: user.first_name,
 			last_name: user.last_name,
+			avatar: user.avatar,
 		};
 
 		next();

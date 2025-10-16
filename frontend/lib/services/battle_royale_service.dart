@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../data/models/battle_royale_room_model.dart';
 import '../data/models/battle_royale_player_model.dart';
@@ -76,7 +75,6 @@ class BattleRoyaleService {
       }
       return null;
     } catch (e) {
-      debugPrint('Error creating room: $e');
       return null;
     }
   }
@@ -106,7 +104,6 @@ class BattleRoyaleService {
       }
       return [];
     } catch (e) {
-      debugPrint('Error getting rooms: $e');
       return [];
     }
   }
@@ -125,7 +122,6 @@ class BattleRoyaleService {
       }
       return null;
     } catch (e) {
-      debugPrint('Error joining room: $e');
       return null;
     }
   }
@@ -144,43 +140,28 @@ class BattleRoyaleService {
 
   Future<bool> kickPlayer(String roomId, String playerId) async {
     try {
-      debugPrint('Attempting to kick player: $playerId from room: $roomId');
-      debugPrint('Socket connected: ${_socket?.connected}');
-
       if (_socket?.connected == true) {
         _socket?.emit('br:kick_player', {
           'roomId': roomId,
           'playerId': playerId,
         });
-        debugPrint('Kick player event emitted successfully');
         return true;
       }
-
-      debugPrint('Socket not connected, cannot kick player');
       return false;
     } catch (e) {
-      debugPrint('Error kicking player: $e');
       return false;
     }
   }
 
   Future<bool> startMatch(String roomId) async {
     try {
-      debugPrint('=== START MATCH ===');
-      debugPrint('Room ID: $roomId');
-      debugPrint('Socket connected: ${_socket?.connected}');
-
       if (_socket?.connected == true) {
-        debugPrint('Emitting br:start_match event...');
         _socket?.emit('br:start_match', {'roomId': roomId});
-        debugPrint('Event emitted successfully');
         return true;
       } else {
-        debugPrint('Socket not connected!');
+        throw Exception('Socket not connected');
       }
-      return false;
     } catch (e) {
-      debugPrint('Error starting match: $e');
       return false;
     }
   }
@@ -195,7 +176,6 @@ class BattleRoyaleService {
 
       return response.success;
     } catch (e) {
-      debugPrint('Error closing room: $e');
       return false;
     }
   }
@@ -236,7 +216,7 @@ class BattleRoyaleService {
         await Future<void>.delayed(const Duration(milliseconds: 100));
       }
     } catch (e) {
-      debugPrint('Error emitting br:leave_room: $e');
+      throw Exception('Error emitting br:leave_room: $e');
     } finally {
       _currentRoomId = null;
     }
@@ -252,12 +232,10 @@ class BattleRoyaleService {
     });
 
     _socket?.on('disconnect', (_) {
-      debugPrint('Socket disconnected');
       _connectionController.add(false);
     });
 
     _socket?.on('connect_error', (error) {
-      debugPrint('Socket connection error: $error');
       _connectionController.add(false);
     });
 
@@ -266,7 +244,7 @@ class BattleRoyaleService {
         final room = BattleRoyaleRoom.fromJson(data['room']);
         _roomUpdateController.add(room);
       } catch (e) {
-        debugPrint('Error parsing br:room_state: $e');
+        throw Exception('Error parsing br:room_state: $e');
       }
     });
 
@@ -275,7 +253,7 @@ class BattleRoyaleService {
         final room = BattleRoyaleRoom.fromJson(data);
         _roomUpdateController.add(room);
       } catch (e) {
-        debugPrint('Error parsing room:update: $e');
+        throw Exception('Error parsing room:update: $e');
       }
     });
 
@@ -284,27 +262,22 @@ class BattleRoyaleService {
     });
 
     _socket?.on('br:player_ready', (data) {
-      debugPrint('Received br:player_ready event');
       _handlePlayerUpdate(data);
     });
 
     _socket?.on('br:player_left', (data) {
-      debugPrint('Received br:player_left event');
       _handlePlayerUpdate(data);
     });
 
     _socket?.on('br:player_disconnected', (data) {
-      debugPrint('Received br:player_disconnected event');
       _handlePlayerUpdate(data);
     });
 
     _socket?.on('br:match_countdown', (data) {
-      debugPrint('Match countdown received: $data');
       // TODO: Show countdown UI
     });
 
     _socket?.on('br:match_start', (data) {
-      debugPrint('Match start received: $data');
       _matchStartController.add(data);
     });
 
@@ -317,7 +290,7 @@ class BattleRoyaleService {
         final player = BattleRoyalePlayer.fromJson(data);
         _scoreUpdateController.add(player);
       } catch (e) {
-        debugPrint('Error parsing score:update: $e');
+        throw Exception('Error parsing score:update: $e');
       }
     });
 
@@ -328,7 +301,7 @@ class BattleRoyaleService {
             .toList();
         _matchFinishController.add(leaderboard);
       } catch (e) {
-        debugPrint('Error parsing match:finish: $e');
+        throw Exception('Error parsing match:finish: $e');
       }
     });
 
@@ -345,24 +318,20 @@ class BattleRoyaleService {
     });
 
     _socket?.on('br:error', (data) {
-      debugPrint('WebSocket error received: $data');
       final message = data['message'] ?? 'Unknown error';
-      debugPrint('Error message: $message');
+      throw Exception('Error message: $message');
       // TODO: Show error to user
     });
   }
 
   void _handlePlayerUpdate(dynamic data) {
     try {
-      debugPrint('Received player update: $data');
       final players = (data['players'] as List)
           .map((p) => BattleRoyalePlayer.fromJson(p))
           .toList();
-      debugPrint('Parsed ${players.length} players');
       _playerUpdateController.add(players);
     } catch (e) {
-      debugPrint('Error parsing player update: $e');
-      debugPrint('Data was: $data');
+      throw Exception('Error parsing player update: $e');
     }
   }
 

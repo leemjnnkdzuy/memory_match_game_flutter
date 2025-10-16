@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 
 class SoundService {
@@ -29,7 +28,7 @@ class SoundService {
         _matchPlayer.setAsset('assets/sounds/match_two_card_sound.WAV'),
       ]);
     } catch (e) {
-      debugPrint('Error preloading sounds: $e');
+      throw Exception('Error preloading sounds: $e');
     }
   }
 
@@ -44,7 +43,7 @@ class SoundService {
       await _cardFlipPlayer.seek(Duration.zero);
       await _cardFlipPlayer.play();
     } catch (e) {
-      debugPrint('Error playing card flip sound: $e');
+      throw Exception('Error playing card flip sound: $e');
     }
   }
 
@@ -59,29 +58,23 @@ class SoundService {
       await _matchPlayer.seek(Duration.zero);
       await _matchPlayer.play();
     } catch (e) {
-      debugPrint('Error playing match sound: $e');
+      throw Exception('Error playing match sound: $e');
     }
   }
 
   Future<void> stopAll() async {
     try {
-      await Future.wait([
-        _cardFlipPlayer.stop(),
-        _matchPlayer.stop(),
-      ]);
+      await Future.wait([_cardFlipPlayer.stop(), _matchPlayer.stop()]);
     } catch (e) {
-      debugPrint('Error stopping sounds: $e');
+      throw Exception('Error stopping sounds: $e');
     }
   }
 
   Future<void> dispose() async {
     try {
-      await Future.wait([
-        _cardFlipPlayer.dispose(),
-        _matchPlayer.dispose(),
-      ]);
+      await Future.wait([_cardFlipPlayer.dispose(), _matchPlayer.dispose()]);
     } catch (e) {
-      debugPrint('Error disposing audio players: $e');
+      throw Exception('Error disposing audio players: $e');
     }
   }
 }

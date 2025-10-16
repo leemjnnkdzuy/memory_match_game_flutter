@@ -1,5 +1,6 @@
 const BattleRoyaleRoom = require("../models/battleRoyaleRoomModel");
 const BattleRoyaleMatch = require("../models/battleRoyaleMatchModel");
+const AppError = require("../utils/errors");
 
 let io = null;
 const roomSockets = new Map();
@@ -8,8 +9,6 @@ const setupBattleRoyale = (socketIo) => {
 	io = socketIo;
 
 	io.on("connection", (socket) => {
-		console.log(`Socket connected: ${socket.id}`);
-
 		socket.on("br:join_room", async ({roomId}) => {
 			try {
 				const room = await BattleRoyaleRoom.findById(roomId);
@@ -23,6 +22,9 @@ const setupBattleRoyale = (socketIo) => {
 					player.socketId = socket.id;
 					player.isConnected = true;
 					player.disconnectedAt = null;
+					if (socket.avatar) player.avatarUrl = socket.avatar;
+					if (socket.borderColor)
+						player.borderColor = socket.borderColor;
 					await room.save();
 
 					socket.join(roomId);
@@ -40,21 +42,18 @@ const setupBattleRoyale = (socketIo) => {
 						player: {
 							userId: player.userId,
 							username: player.username,
+							avatarUrl: player.avatarUrl,
+							borderColor: player.borderColor,
 							isHost: player.isHost,
 						},
 						players: room.players,
 					});
-
-					console.log(
-						`User ${socket.username} (${socket.userId}) joined room ${roomId}`
-					);
 				} else {
 					socket.emit("br:error", {
 						message: "Player not found in room",
 					});
 				}
 			} catch (error) {
-				console.error("Error joining room:", error);
 				socket.emit("br:error", {message: error.message});
 			}
 		});
@@ -76,28 +75,19 @@ const setupBattleRoyale = (socketIo) => {
 					});
 				}
 			} catch (error) {
-				console.error("Error toggling ready:", error);
 				socket.emit("br:error", {message: error.message});
 			}
 		});
 
 		socket.on("br:start_match", async ({roomId}) => {
 			try {
-				console.log(
-					`Start match request for room ${roomId} by ${socket.userId}`
-				);
-
 				const room = await BattleRoyaleRoom.findById(roomId);
 				if (!room) {
-					console.log(`Room ${roomId} not found`);
 					socket.emit("br:error", {message: "Room not found"});
 					return;
 				}
 
 				if (room.hostId.toString() !== socket.userId.toString()) {
-					console.log(
-						`User ${socket.userId} is not host of room ${roomId}`
-					);
 					socket.emit("br:error", {
 						message: "Only host can start match",
 					});
@@ -105,20 +95,14 @@ const setupBattleRoyale = (socketIo) => {
 				}
 
 				if (!room.canStart()) {
-					console.log(
-						`Room ${roomId} cannot start - not enough ready players`
-					);
 					socket.emit("br:error", {
-						message: "Not enough ready players",
+						message: "All players must be ready",
 					});
 					return;
 				}
 
-				// Tạo match nếu chưa có
 				let match;
 				if (!room.matchId) {
-					console.log(`Creating new match for room ${roomId}`);
-
 					const {
 						generatePokemonCards,
 					} = require("../utils/pokemonUtils");
@@ -145,10 +129,8 @@ const setupBattleRoyale = (socketIo) => {
 
 					await match.save();
 					room.matchId = match._id;
-					console.log(`Match created with ID: ${match._id}`);
 				} else {
 					match = await BattleRoyaleMatch.findById(room.matchId);
-					console.log(`Using existing match: ${match._id}`);
 				}
 
 				match.status = "inProgress";
@@ -158,13 +140,11 @@ const setupBattleRoyale = (socketIo) => {
 				room.startedAt = new Date();
 				await room.save();
 
-				console.log(`Sending countdown to room ${roomId}`);
 				io.to(roomId).emit("br:match_countdown", {
 					countdown: 3,
 				});
 
 				setTimeout(() => {
-					console.log(`Starting match in room ${roomId}`);
 					io.to(roomId).emit("br:match_start", {
 						matchId: match._id.toString(),
 						seed: match.seed,
@@ -172,10 +152,7 @@ const setupBattleRoyale = (socketIo) => {
 						startAt: new Date(),
 					});
 				}, 3000);
-
-				console.log(`Match started in room ${roomId}`);
 			} catch (error) {
-				console.error("Error starting match:", error);
 				socket.emit("br:error", {message: error.message});
 			}
 		});
@@ -199,7 +176,7 @@ const setupBattleRoyale = (socketIo) => {
 					timestamp: Date.now(),
 				});
 			} catch (error) {
-				console.error("Error flipping card:", error);
+				throw new AppError("Error flipping card:", error);
 			}
 		});
 
@@ -231,7 +208,7 @@ const setupBattleRoyale = (socketIo) => {
 						})),
 					});
 				} catch (error) {
-					console.error("Error updating progress:", error);
+					throw new AppError("Error updating progress:", error);
 				}
 			}
 		);
@@ -283,77 +260,47 @@ const setupBattleRoyale = (socketIo) => {
 							leaderboard,
 							finishedAt: match.finishedAt,
 						});
-
-						console.log(`Match finished in room ${room._id}`);
 					}
 				} catch (error) {
-					console.error("Error finishing player:", error);
+					throw new AppError("Error finishing player:", error);
 				}
 			}
 		);
 
 		socket.on("br:kick_player", async ({roomId, playerId}) => {
 			try {
-				console.log(
-					`Kick player request: ${playerId} from room ${roomId} by ${socket.userId}`
-				);
-				console.log(`playerId type:`, typeof playerId);
-				console.log(`playerId value:`, playerId);
-
 				const room = await BattleRoyaleRoom.findById(roomId);
 				if (!room) {
-					console.log(`Room ${roomId} not found`);
 					socket.emit("br:error", {message: "Room not found"});
 					return;
 				}
 
-				console.log(
-					`Room players:`,
-					room.players.map((p) => ({
-						_id: p._id?.toString(),
-						userId: p.userId.toString(),
-						username: p.username,
-						socketId: p.socketId,
-					}))
-				);
-
 				if (room.hostId.toString() !== socket.userId.toString()) {
-					console.log(
-						`User ${socket.userId} is not host of room ${roomId}`
-					);
 					socket.emit("br:error", {
 						message: "Only host can kick",
 					});
 					return;
 				}
 
-				// Tìm player bằng _id hoặc userId
 				const kickedPlayer = room.players.find(
 					(p) =>
 						p._id?.toString() === playerId.toString() ||
 						p.userId.toString() === playerId.toString()
 				);
-				console.log(`Kicked player found:`, kickedPlayer);
 
 				if (!kickedPlayer) {
-					console.log(`Player ${playerId} not found in room`);
 					socket.emit("br:error", {
 						message: "Player not found in room",
 					});
 					return;
 				}
 
-				// Gửi notification cho người bị kick
 				if (kickedPlayer.socketId) {
 					io.to(kickedPlayer.socketId).emit("br:kicked", {
 						message: "You have been kicked from the room",
 					});
-					console.log(
-						`Sent kick notification to socket ${kickedPlayer.socketId}`
-					);
 				}
 
-				// Xóa player bằng userId
 				const playerIndex = room.players.findIndex(
 					(p) =>
 						p._id?.toString() === playerId.toString() ||
@@ -364,11 +311,9 @@ const setupBattleRoyale = (socketIo) => {
 					room.players.splice(playerIndex, 1);
 				}
 
-				// Cập nhật currentPlayers
 				room.currentPlayers = room.players.length;
 				await room.save();
 
-				// Emit updated player list to all clients in room
 				io.to(roomId).emit("br:player_left", {
 					userId: kickedPlayer.userId,
 					players: room.players.map((p) => ({
@@ -382,12 +327,7 @@ const setupBattleRoyale = (socketIo) => {
 						isConnected: p.isConnected,
 					})),
 				});
-
-				console.log(
-					`Player ${kickedPlayer.username} (${kickedPlayer.userId}) kicked from room ${roomId} successfully. Remaining players: ${room.players.length}`
-				);
 			} catch (error) {
-				console.error("Error kicking player:", error);
 				socket.emit("br:error", {message: error.message});
 			}
 		});
@@ -401,7 +341,6 @@ const setupBattleRoyale = (socketIo) => {
 
 				if (room.players.length === 0) {
 					await BattleRoyaleRoom.findByIdAndDelete(roomId);
-					console.log(`Room ${roomId} deleted (empty)`);
 				} else {
 					await room.save();
 
@@ -420,7 +359,7 @@ const setupBattleRoyale = (socketIo) => {
 					roomSockets.get(roomId).delete(socket.id);
 				}
 			} catch (error) {
-				console.error("Error leaving room:", error);
+				throw new AppError("Error leaving room:", error);
 			}
 		});
 
@@ -452,17 +391,12 @@ const setupBattleRoyale = (socketIo) => {
 				if (roomSockets.has(roomId)) {
 					roomSockets.delete(roomId);
 				}
-
-				console.log(`Room ${roomId} closed by host`);
 			} catch (error) {
-				console.error("Error closing room:", error);
 				socket.emit("br:error", {message: error.message});
 			}
 		});
 
 		socket.on("disconnect", async () => {
-			console.log(`Socket disconnected: ${socket.id}`);
-
 			for (const [roomId, socketSet] of roomSockets.entries()) {
 				if (socketSet.has(socket.id)) {
 					try {
@@ -506,7 +440,7 @@ const setupBattleRoyale = (socketIo) => {
 							}
 						}
 					} catch (error) {
-						console.error("Error handling disconnect:", error);
+						throw new AppError("Error handling disconnect:", error);
 					}
 
 					socketSet.delete(socket.id);

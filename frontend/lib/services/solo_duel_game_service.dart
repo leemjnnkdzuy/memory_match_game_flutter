@@ -78,7 +78,7 @@ class SoloDuelGameService {
         }
       }
     } catch (e) {
-      debugPrint('Error loading active match: $e');
+      throw Exception('Error loading active match: $e');
     }
   }
 
@@ -97,7 +97,7 @@ class SoloDuelGameService {
       };
       await prefs.setString(_activeMatchKey, jsonEncode(matchData));
     } catch (e) {
-      debugPrint('Error saving active match: $e');
+      throw Exception('Error saving active match: $e');
     }
   }
 
@@ -106,7 +106,7 @@ class SoloDuelGameService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_activeMatchKey);
     } catch (e) {
-      debugPrint('Error clearing active match: $e');
+      throw Exception('Error clearing active match: $e');
     }
   }
 

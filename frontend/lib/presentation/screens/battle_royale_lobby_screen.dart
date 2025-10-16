@@ -159,7 +159,7 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
     if (!_currentRoom.canStart) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Cần ít nhất 2 người sẵn sàng để bắt đầu!'),
+          content: Text('Tất cả người chơi phải sẵn sàng để bắt đầu!'),
         ),
       );
       return;
@@ -254,7 +254,6 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
           child: SafeArea(
             child: Column(
               children: [
-                // Header
                 BattleRoyaleLobbyHeader(
                   room: _currentRoom,
                   onBack: () async {

@@ -102,7 +102,7 @@ const setupSoloDuelHandlers = (io) => {
 				);
 				socket.emit("solo_duel:queue_left", {});
 			} catch (error) {
-				console.error("Error leaving queue:", error);
+				throw new Error("Failed to leave queue");
 			}
 		});
 
@@ -522,7 +522,7 @@ const setupSoloDuelHandlers = (io) => {
 					}
 				}
 			} catch (error) {
-				console.error("Error handling disconnect:", error);
+				throw new Error("Error handling disconnect");
 			}
 		});
 	});

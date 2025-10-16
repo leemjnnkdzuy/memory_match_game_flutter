@@ -115,9 +115,11 @@ class BattleRoyaleRoom {
 
   bool get isFull => currentPlayers >= maxPlayers;
   bool get hasPassword => password != null && password!.isNotEmpty;
-  bool get canStart =>
-      currentPlayers >= 2 &&
-      players.where((p) => p.isReady || p.isHost).length >= 2;
+  bool get canStart {
+    final nonHostPlayers = players.where((p) => !p.isHost && p.isConnected);
+    final allNonHostReady = nonHostPlayers.every((p) => p.isReady);
+    return currentPlayers >= 2 && allNonHostReady;
+  }
 
   BattleRoyaleRoom copyWith({
     String? id,
