@@ -50,13 +50,6 @@ class CustomTextInput extends StatelessWidget {
           color: borderColor ?? Colors.black,
           width: borderWidth,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            offset: const Offset(4, 4),
-            blurRadius: 0,
-          ),
-        ],
       ),
       child: TextFormField(
         controller: controller,
@@ -80,10 +73,7 @@ class CustomTextInput extends StatelessWidget {
           border: InputBorder.none,
           prefixIcon: prefixIcon,
           suffixIcon: suffixIcon,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 12,
-          ),
+          contentPadding: const EdgeInsets.all(12),
         ),
       ),
     );

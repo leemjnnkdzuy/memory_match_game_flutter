@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:pixelarticons/pixel.dart';
 import 'dart:async';
-import '../widgets/custom/custom_button.dart';
-import '../widgets/common/player_card_widget.dart';
 import '../widgets/common/game_dialog_widgets.dart';
+import '../widgets/common/battle_royale_lobby_header.dart';
+import '../widgets/common/battle_royale_room_info.dart';
+import '../widgets/common/battle_royale_players_list.dart';
+import '../widgets/common/battle_royale_host_actions.dart';
+import '../widgets/common/battle_royale_player_actions.dart';
 import '../../services/battle_royale_service.dart';
 import '../../services/auth_service.dart';
 import '../../data/models/battle_royale_room_model.dart';
@@ -37,8 +38,38 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
     _currentRoom = widget.room;
     _players = widget.room.players;
     _checkIfHost();
+    _syncReadyState(_players);
     _connectToRoom();
     _setupListeners();
+  }
+
+  void _syncReadyState(List<BattleRoyalePlayer> players) {
+    if (_isHost) return;
+    final currentUserId = AuthService.instance.currentUser?.id;
+    if (currentUserId == null) return;
+    for (final player in players) {
+      if (player.id == currentUserId) {
+        _isReady = player.isReady;
+        break;
+      }
+    }
+  }
+
+  Future<bool> _confirmLeaveRoom() async {
+    final shouldLeave = await showDialog<bool>(
+      context: context,
+      builder: (context) => LeaveRoomConfirmDialogWidget(
+        onConfirm: () => Navigator.pop(context, true),
+        onCancel: () => Navigator.pop(context, false),
+      ),
+    );
+
+    if (shouldLeave == true) {
+      await BattleRoyaleService.instance.leaveRoom(_currentRoom.id);
+      return true;
+    }
+
+    return false;
   }
 
   @override
@@ -66,6 +97,8 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
       setState(() {
         _currentRoom = room;
         _players = room.players;
+        _checkIfHost();
+        _syncReadyState(room.players);
       });
     });
 
@@ -74,6 +107,12 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
     ) {
       setState(() {
         _players = players;
+        _currentRoom = _currentRoom.copyWith(
+          players: players,
+          currentPlayers: players.where((player) => player.isConnected).length,
+        );
+        _checkIfHost();
+        _syncReadyState(players);
       });
     });
 
@@ -137,14 +176,10 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
   }
 
   Future<void> _kickPlayer(String playerId) async {
-    // Tìm tên người chơi để hiển thị trong dialog
     final player = _players.firstWhere(
       (p) => p.id == playerId,
-      orElse: () => _players.first, // fallback
+      orElse: () => _players.first,
     );
-
-    debugPrint('Attempting to kick player: ${player.username} (ID: $playerId)');
-    debugPrint('Room ID: ${_currentRoom.id}');
 
     final confirm = await showDialog<bool>(
       context: context,
@@ -156,13 +191,10 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
     );
 
     if (confirm == true) {
-      debugPrint('Kick confirmed, calling service...');
       final success = await BattleRoyaleService.instance.kickPlayer(
         _currentRoom.id,
         playerId,
       );
-
-      debugPrint('Kick result: $success');
 
       if (!success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -172,8 +204,6 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
           ),
         );
       }
-    } else {
-      debugPrint('Kick cancelled by user');
     }
   }
 
@@ -188,10 +218,8 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
     );
 
     if (confirm == true) {
-      // Gọi WebSocket để thông báo cho tất cả người chơi
       BattleRoyaleService.instance.requestCloseRoom(_currentRoom.id);
 
-      // Gọi REST API để xóa phòng khỏi database
       final success = await BattleRoyaleService.instance.closeRoom(
         _currentRoom.id,
       );
@@ -211,26 +239,7 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
     final currentUserId = AuthService.instance.currentUser?.id;
 
     return WillPopScope(
-      onWillPop: () async {
-        final confirm = await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Rời phòng?'),
-            content: const Text('Bạn có chắc muốn rời khỏi phòng?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Ở lại'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Rời đi'),
-              ),
-            ],
-          ),
-        );
-        return confirm ?? false;
-      },
+      onWillPop: () => _confirmLeaveRoom(),
       child: Scaffold(
         body: Container(
           width: double.infinity,
@@ -246,217 +255,61 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
             child: Column(
               children: [
                 // Header
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      Expanded(
-                        child: Column(
-                          children: [
-                            Text(
-                              _currentRoom.name,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 1,
-                                ),
-                              ),
-                              child: Text(
-                                'Mã: ${_currentRoom.code}',
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontFamily: 'monospace',
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 48),
-                    ],
-                  ),
+                BattleRoyaleLobbyHeader(
+                  room: _currentRoom,
+                  onBack: () async {
+                    final shouldLeave = await _confirmLeaveRoom();
+                    if (shouldLeave && mounted) {
+                      Navigator.pop(context);
+                    }
+                  },
                 ),
 
-                // Room Info
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: Colors.black, width: 2),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildInfoItem(
-                        Pixel.users,
-                        '${_players.length}/${_currentRoom.maxPlayers}',
-                      ),
-                      _buildInfoItem(
-                        Pixel.grid,
-                        '${_currentRoom.pairCount} cặp',
-                      ),
-                      _buildInfoItem(
-                        Pixel.clock,
-                        '${_currentRoom.softCapTime}s',
-                      ),
-                    ],
-                  ),
+                BattleRoyaleRoomInfo(
+                  room: _currentRoom,
+                  playerCount: _players.length,
                 ),
                 const SizedBox(height: 16),
 
-                // Players List
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'NGƯỜI CHƠI',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Expanded(
-                          child: _players.isEmpty
-                              ? const Center(
-                                  child: Text(
-                                    'Đang tải...',
-                                    style: TextStyle(color: Colors.white70),
-                                  ),
-                                )
-                              : ListView.builder(
-                                  itemCount: _players.length,
-                                  itemBuilder: (context, index) {
-                                    final player = _players[index];
-                                    return PlayerCardWidget(
-                                      player: player,
-                                      isCurrentUser: player.id == currentUserId,
-                                      onKick:
-                                          _isHost && player.id != currentUserId
-                                          ? () => _kickPlayer(player.id)
-                                          : null,
-                                    );
-                                  },
-                                ),
-                        ),
-                      ],
-                    ),
-                  ),
+                BattleRoyalePlayersList(
+                  players: _players,
+                  currentUserId: currentUserId,
+                  isHost: _isHost,
+                  onKick: _kickPlayer,
                 ),
                 const SizedBox(height: 16),
 
-                // Action Buttons
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: _isHost
-                      ? _buildHostControls()
-                      : _buildPlayerControls(),
+                      ? BattleRoyaleHostActions(
+                          canStart: _currentRoom.canStart,
+                          onStartMatch: _startMatch,
+                          onSettings: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Cài đặt sắp ra mắt!'),
+                              ),
+                            );
+                          },
+                          onCloseRoom: _closeRoom,
+                        )
+                      : BattleRoyalePlayerActions(
+                          isReady: _isReady,
+                          onToggleReady: _toggleReady,
+                          onLeaveRoom: () async {
+                            final shouldLeave = await _confirmLeaveRoom();
+                            if (shouldLeave && mounted) {
+                              Navigator.pop(context);
+                            }
+                          },
+                        ),
                 ),
               ],
             ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildInfoItem(IconData icon, String label) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: const Color(0xFFE91E63)),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHostControls() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        CustomButton(
-          type: CustomButtonType.primary,
-          onPressed: _currentRoom.canStart ? _startMatch : null,
-          child: const Text('BẮT ĐẦU TRẬN ĐẤU'),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: CustomButton(
-                type: CustomButtonType.normal,
-                onPressed: () {
-                  // TODO: Room settings
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Cài đặt sắp ra mắt!')),
-                  );
-                },
-                child: const Text('CÀI ĐẶT', textAlign: TextAlign.center),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: CustomButton(
-                type: CustomButtonType.error,
-                onPressed: _closeRoom,
-                child: const Text('ĐÓNG PHÒNG', textAlign: TextAlign.center),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPlayerControls() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        CustomButton(
-          type: _isReady ? CustomButtonType.warning : CustomButtonType.success,
-          onPressed: _toggleReady,
-          child: Text(_isReady ? 'HỦY SẴN SÀNG' : 'SẴN SÀNG'),
-        ),
-        const SizedBox(height: 8),
-        CustomButton(
-          type: CustomButtonType.error,
-          onPressed: () => Navigator.pop(context),
-          child: const Text('RỜI PHÒNG'),
-        ),
-      ],
     );
   }
 }

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:pixelarticons/pixel.dart';
 import '../widgets/custom/custom_button.dart';
+import '../widgets/custom/custom_text_input.dart';
+import '../widgets/common/battle_royale_create_room_header.dart';
+import '../widgets/common/battle_royale_form_label.dart';
+import '../widgets/common/battle_royale_form_slider.dart';
+import '../widgets/common/battle_royale_form_checkbox.dart';
 import '../../services/battle_royale_service.dart';
 import '../../services/auth_service.dart';
 import 'battle_royale_lobby_screen.dart';
@@ -29,7 +33,7 @@ class _BattleRoyaleCreateRoomScreenState
   void initState() {
     super.initState();
     _nameController.text =
-        '${AuthService.instance.currentUser?.username ?? "Player"}\'s Room';
+        'Phòng của ${AuthService.instance.currentUser?.username ?? "Player"}';
   }
 
   @override
@@ -92,32 +96,8 @@ class _BattleRoyaleCreateRoomScreenState
         child: SafeArea(
           child: Column(
             children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    const Expanded(
-                      child: Text(
-                        'TẠO PHÒNG',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(width: 48),
-                  ],
-                ),
-              ),
+              const BattleRoyaleCreateRoomHeader(),
 
-              // Form
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
@@ -126,9 +106,8 @@ class _BattleRoyaleCreateRoomScreenState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Room Name
-                        _buildLabel('TÊN PHÒNG'),
-                        _buildTextField(
+                        const BattleRoyaleFormLabel(text: 'Tên Phòng'),
+                        CustomTextInput(
                           controller: _nameController,
                           hintText: 'Nhập tên phòng',
                           validator: (value) {
@@ -141,8 +120,8 @@ class _BattleRoyaleCreateRoomScreenState
                         const SizedBox(height: 16),
 
                         // Max Players
-                        _buildLabel('SỐ NGƯỜI TỐI ĐA'),
-                        _buildSlider(
+                        const BattleRoyaleFormLabel(text: 'SỐ NGƯỜI TỐI ĐA'),
+                        BattleRoyaleFormSlider(
                           value: _maxPlayers.toDouble(),
                           min: 2,
                           max: 8,
@@ -154,8 +133,10 @@ class _BattleRoyaleCreateRoomScreenState
                         const SizedBox(height: 16),
 
                         // Soft Cap Time
-                        _buildLabel('THỜI GIAN GỢI Ý (giây)'),
-                        _buildSlider(
+                        const BattleRoyaleFormLabel(
+                          text: 'THỜI GIAN GỢI Ý (giây)',
+                        ),
+                        BattleRoyaleFormSlider(
                           value: _softCapTime.toDouble(),
                           min: 60,
                           max: 180,
@@ -167,7 +148,7 @@ class _BattleRoyaleCreateRoomScreenState
                         const SizedBox(height: 16),
 
                         // Password Toggle
-                        _buildCheckbox(
+                        BattleRoyaleFormCheckbox(
                           value: _hasPassword,
                           label: 'ĐẶT MẬT KHẨU',
                           onChanged: (value) =>
@@ -176,7 +157,7 @@ class _BattleRoyaleCreateRoomScreenState
 
                         if (_hasPassword) ...[
                           const SizedBox(height: 8),
-                          _buildTextField(
+                          CustomTextInput(
                             controller: _passwordController,
                             hintText: 'Nhập mật khẩu',
                             obscureText: true,
@@ -192,8 +173,8 @@ class _BattleRoyaleCreateRoomScreenState
                         const SizedBox(height: 16),
 
                         // Seed (Optional)
-                        _buildLabel('SEED (Tùy chọn)'),
-                        _buildTextField(
+                        const BattleRoyaleFormLabel(text: 'SEED (Tùy chọn)'),
+                        CustomTextInput(
                           controller: _seedController,
                           hintText: 'Để trống để random',
                         ),
@@ -221,113 +202,6 @@ class _BattleRoyaleCreateRoomScreenState
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLabel(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hintText,
-    bool obscureText = false,
-    String? Function(String?)? validator,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.black, width: 2),
-      ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: obscureText,
-        validator: validator,
-        decoration: InputDecoration(
-          hintText: hintText,
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(12),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSlider({
-    required double value,
-    required double min,
-    required double max,
-    required int divisions,
-    required String label,
-    required ValueChanged<double> onChanged,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.black, width: 2),
-      ),
-      child: Column(
-        children: [
-          Text(
-            label,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            onChanged: onChanged,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCheckbox({
-    required bool value,
-    required String label,
-    required ValueChanged<bool?> onChanged,
-  }) {
-    return GestureDetector(
-      onTap: () => onChanged(!value),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.black, width: 2),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: value ? const Color(0xFFE91E63) : Colors.white,
-                border: Border.all(color: Colors.black, width: 2),
-              ),
-              child: value
-                  ? const Icon(Pixel.check, size: 16, color: Colors.white)
-                  : null,
-            ),
-            const SizedBox(width: 12),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-            ),
-          ],
         ),
       ),
     );

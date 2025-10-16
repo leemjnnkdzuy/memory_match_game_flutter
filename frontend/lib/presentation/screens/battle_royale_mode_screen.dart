@@ -43,7 +43,7 @@ class BattleRoyaleModeScreen extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    const SizedBox(width: 48), // Balance the back button
+                    const SizedBox(width: 48),
                   ],
                 ),
               ),
@@ -78,7 +78,6 @@ class BattleRoyaleModeScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 40),
 
-                        // Description
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
@@ -94,7 +93,6 @@ class BattleRoyaleModeScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 40),
 
-                        // Create Room Button
                         SizedBox(
                           width: double.infinity,
                           child: CustomButton(
@@ -113,14 +111,13 @@ class BattleRoyaleModeScreen extends StatelessWidget {
                               children: const [
                                 Icon(Pixel.plus, size: 16, color: Colors.white),
                                 SizedBox(width: 8),
-                                Text('TẠO PHÒNG'),
+                                Text('Tạo Phòng'),
                               ],
                             ),
                           ),
                         ),
                         const SizedBox(height: 16),
 
-                        // Join Room Button
                         SizedBox(
                           width: double.infinity,
                           child: CustomButton(
@@ -143,7 +140,7 @@ class BattleRoyaleModeScreen extends StatelessWidget {
                                   color: Colors.black87,
                                 ),
                                 SizedBox(width: 8),
-                                Text('THAM GIA PHÒNG'),
+                                Text('Tham Gia Phòng'),
                               ],
                             ),
                           ),

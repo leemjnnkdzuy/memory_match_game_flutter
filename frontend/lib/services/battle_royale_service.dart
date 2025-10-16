@@ -219,6 +219,29 @@ class BattleRoyaleService {
     }
   }
 
+  Future<void> leaveRoom([String? roomId]) async {
+    final targetRoomId = roomId ?? _currentRoomId;
+    if (targetRoomId == null) {
+      return;
+    }
+
+    if (_socket == null) {
+      _currentRoomId = null;
+      return;
+    }
+
+    try {
+      if (_socket!.connected) {
+        _socket!.emit('br:leave_room', {'roomId': targetRoomId});
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
+    } catch (e) {
+      debugPrint('Error emitting br:leave_room: $e');
+    } finally {
+      _currentRoomId = null;
+    }
+  }
+
   void _setupSocketListeners() {
     _socket?.on('connect', (_) {
       _connectionController.add(true);

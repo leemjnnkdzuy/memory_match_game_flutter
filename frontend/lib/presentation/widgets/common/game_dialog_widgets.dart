@@ -152,17 +152,11 @@ class CloseRoomConfirmDialogWidget extends StatelessWidget {
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            'Bạn có chắc chắn muốn đóng phòng?',
-            style: AppTheme.bodyMedium,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
           if (playerCount > 1)
             Text(
               'Tất cả $playerCount người chơi trong phòng sẽ bị kick ra.',
               style: AppTheme.bodyMedium.copyWith(
-                color: Colors.orange,
+                color: Colors.grey[600],
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
@@ -273,6 +267,70 @@ class KickPlayerConfirmDialogWidget extends StatelessWidget {
           type: CustomButtonType.warning,
           onPressed: onConfirm,
           child: const Text('Kick Người Chơi'),
+        ),
+      ],
+    );
+  }
+}
+
+class LeaveRoomConfirmDialogWidget extends StatelessWidget {
+  final VoidCallback onConfirm;
+  final VoidCallback onCancel;
+  final bool showDisconnectHint;
+
+  const LeaveRoomConfirmDialogWidget({
+    super.key,
+    required this.onConfirm,
+    required this.onCancel,
+    this.showDisconnectHint = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(
+        'Rời phòng?',
+        style: AppTheme.headlineMedium,
+        textAlign: TextAlign.center,
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (showDisconnectHint) ...[
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.blue.withOpacity(0.2)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.wifi_off, color: Colors.blue, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Nếu bị mất kết nối ngoài ý muốn, hãy chờ ứng dụng tự kết nối lại để giữ vị trí.',
+                      style: AppTheme.bodyMedium.copyWith(color: Colors.blue),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+      actions: [
+        CustomButton(
+          type: CustomButtonType.normal,
+          onPressed: onCancel,
+          child: const Text('Ở lại'),
+        ),
+        const SizedBox(height: 8),
+        CustomButton(
+          type: CustomButtonType.error,
+          onPressed: onConfirm,
+          child: const Text('Rời phòng'),
         ),
       ],
     );
