@@ -4,14 +4,10 @@ const {getRandomPokemon, generateGameCards} = require("../utils/pokemonUtils");
 
 class MatchmakingService {
 	constructor() {
-		this.waitingQueue = []; // Hàng đợi người chơi
+		this.waitingQueue = [];
 	}
 
-	/**
-	 * Thêm người chơi vào hàng đợi
-	 */
 	async addToQueue(userId, username, socketId) {
-		// Kiểm tra xem người chơi đã trong hàng đợi chưa
 		const existingIndex = this.waitingQueue.findIndex(
 			(p) => p.userId === userId
 		);
@@ -20,7 +16,6 @@ class MatchmakingService {
 			return null;
 		}
 
-		// Thêm vào hàng đợi
 		this.waitingQueue.push({
 			userId,
 			username,
@@ -28,7 +23,6 @@ class MatchmakingService {
 			joinedAt: Date.now(),
 		});
 
-		// Nếu có ít nhất 2 người, ghép trận
 		if (this.waitingQueue.length >= 2) {
 			return await this.createMatch();
 		}
@@ -36,9 +30,6 @@ class MatchmakingService {
 		return null;
 	}
 
-	/**
-	 * Xóa người chơi khỏi hàng đợi
-	 */
 	removeFromQueue(userId) {
 		const index = this.waitingQueue.findIndex((p) => p.userId === userId);
 		if (index !== -1) {
@@ -48,23 +39,17 @@ class MatchmakingService {
 		return false;
 	}
 
-	/**
-	 * Tạo trận đấu mới
-	 */
 	async createMatch() {
 		if (this.waitingQueue.length < 2) {
 			return null;
 		}
 
-		// Lấy 2 người chơi đầu tiên
 		const player1 = this.waitingQueue.shift();
 		const player2 = this.waitingQueue.shift();
 
-		// Random 12 Pokemon
 		const randomPokemon = getRandomPokemon(12);
 		const cards = generateGameCards(randomPokemon);
 
-		// Tạo match trong database
 		const match = new SoloDuelMatch({
 			matchId: uuidv4(),
 			status: "ready",
@@ -85,7 +70,7 @@ class MatchmakingService {
 				},
 			],
 			cards: cards,
-			currentTurn: player1.userId, // Player 1 đi trước
+			currentTurn: player1.userId,
 			createdAt: new Date(),
 		});
 
@@ -98,9 +83,6 @@ class MatchmakingService {
 		};
 	}
 
-	/**
-	 * Lấy thông tin hàng đợi
-	 */
 	getQueueInfo() {
 		return {
 			queueLength: this.waitingQueue.length,

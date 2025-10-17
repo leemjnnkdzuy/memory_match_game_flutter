@@ -7,13 +7,18 @@ class CustomButton extends StatelessWidget {
   final CustomButtonType type;
   final VoidCallback? onPressed;
   final Widget child;
+  final bool isLoading;
 
   const CustomButton({
     super.key,
     required this.type,
     required this.onPressed,
     required this.child,
+    this.isLoading = false,
   });
+
+  bool get _hasAction => onPressed != null;
+  bool get _isEnabled => _hasAction && !isLoading;
 
   Color get _backgroundColor {
     switch (type) {
@@ -44,11 +49,16 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool showActiveStyle = (_isEnabled || (isLoading && _hasAction));
+    final Color backgroundColor =
+        showActiveStyle ? _backgroundColor : Colors.grey[400]!;
+    final Color textColor = showActiveStyle ? _textColor : Colors.grey[600]!;
+
     return Container(
       constraints: const BoxConstraints(minWidth: 80, minHeight: 40),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.black, width: 3),
-        boxShadow: onPressed != null
+        boxShadow: showActiveStyle
             ? [
                 BoxShadow(
                   color: Colors.black,
@@ -59,9 +69,9 @@ class CustomButton extends StatelessWidget {
             : null,
       ),
       child: Material(
-        color: onPressed != null ? _backgroundColor : Colors.grey[400],
+        color: backgroundColor,
         child: InkWell(
-          onTap: onPressed,
+          onTap: _isEnabled ? onPressed : null,
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             child: Center(
@@ -70,7 +80,7 @@ class CustomButton extends StatelessWidget {
                   fontFamily: 'AlanSans',
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: onPressed != null ? _textColor : Colors.grey[600],
+                  color: textColor,
                 ),
                 textAlign: TextAlign.center,
                 child: child,

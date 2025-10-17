@@ -23,7 +23,7 @@ class BattleRoyalePlayersList extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
+          color: Colors.white.withValues(alpha: 0.1),
           border: Border.all(color: Colors.white, width: 2),
         ),
         child: Column(

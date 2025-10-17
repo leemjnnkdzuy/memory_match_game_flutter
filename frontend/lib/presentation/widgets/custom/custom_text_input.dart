@@ -61,6 +61,8 @@ class CustomTextInput extends StatelessWidget {
         maxLines: maxLines,
         maxLength: maxLength,
         textAlign: textAlign,
+        enableIMEPersonalizedLearning: false,
+        enableInteractiveSelection: true,
         style: TextStyle(
           fontFamily: 'Roboto',
           fontSize: fontSize,
@@ -74,6 +76,7 @@ class CustomTextInput extends StatelessWidget {
           prefixIcon: prefixIcon,
           suffixIcon: suffixIcon,
           contentPadding: const EdgeInsets.all(12),
+          counterText: maxLength != null ? '' : null,
         ),
       ),
     );

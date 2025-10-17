@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pixelarticons/pixel.dart';
-import '../../../core/theme/app_theme.dart';
 import 'custom_text_input.dart';
 
 class CustomPasswordInput extends StatefulWidget {
@@ -56,11 +54,9 @@ class _CustomPasswordInputState extends State<CustomPasswordInput> {
       textAlign: widget.textAlign,
       maxLength: widget.maxLength,
       keyboardType: widget.keyboardType,
-      prefixIcon: Icon(Pixel.lock, color: AppTheme.primaryColor, size: 20),
       suffixIcon: IconButton(
         icon: Icon(
-          _obscureText ? Pixel.eye : Pixel.eyeclosed,
-          color: AppTheme.primaryColor,
+          _obscureText ? Icons.visibility_off : Icons.visibility,
           size: 20,
         ),
         onPressed: () {

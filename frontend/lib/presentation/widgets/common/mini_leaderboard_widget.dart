@@ -13,12 +13,12 @@ class MiniLeaderboardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Sort by score descending
     final sortedPlayers = List<BattleRoyalePlayer>.from(players)
       ..sort((a, b) {
         if (a.score != b.score) return b.score.compareTo(a.score);
-        if (a.completionTime != b.completionTime)
+        if (a.completionTime != b.completionTime) {
           return a.completionTime.compareTo(b.completionTime);
+        }
         return a.flipCount.compareTo(b.flipCount);
       });
 
@@ -26,7 +26,7 @@ class MiniLeaderboardWidget extends StatelessWidget {
       width: 200,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.7),
+        color: Colors.black.withValues(alpha: 0.7),
         border: Border.all(color: Colors.white, width: 2),
       ),
       child: Column(
@@ -50,12 +50,12 @@ class MiniLeaderboardWidget extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
               decoration: BoxDecoration(
                 color: isCurrentUser
-                    ? Colors.blue.withOpacity(0.5)
+                    ? Colors.blue.withValues(alpha: 0.5)
                     : Colors.transparent,
                 border: Border.all(
                   color: isCurrentUser
                       ? Colors.blue
-                      : Colors.white.withOpacity(0.3),
+                      : Colors.white.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -100,7 +100,7 @@ class MiniLeaderboardWidget extends StatelessWidget {
                 ],
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );

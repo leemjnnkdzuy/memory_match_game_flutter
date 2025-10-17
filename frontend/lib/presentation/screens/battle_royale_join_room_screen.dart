@@ -3,6 +3,7 @@ import '../widgets/common/battle_royale_join_room_header.dart';
 import '../widgets/common/battle_royale_join_room_tabs.dart';
 import '../widgets/common/battle_royale_public_rooms_list.dart';
 import '../widgets/common/battle_royale_enter_code_form.dart';
+import '../widgets/common/game_dialog_widgets.dart';
 import '../../services/battle_royale_service.dart';
 import '../../data/models/battle_royale_room_model.dart';
 import 'battle_royale_lobby_screen.dart';
@@ -45,6 +46,55 @@ class _BattleRoyaleJoinRoomScreenState
     } catch (e) {
       setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _joinByCode() async {
+    if (_codeController.text.isEmpty) return;
+
+    setState(() => _isLoading = true);
+    try {
+      final room = await BattleRoyaleService.instance.getRoomByCode(
+        _codeController.text.toUpperCase(),
+      );
+
+      if (!mounted) return;
+
+      if (room != null) {
+        if (room.hasPassword) {
+          _showPasswordDialog(room);
+        } else {
+          await _joinRoom(room.id);
+        }
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Mã phòng không hợp lệ!')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Không thể tìm phòng!')));
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _showPasswordDialog(BattleRoyaleRoom room) async {
+    await showDialog(
+      context: context,
+      builder: (context) => EnterPasswordDialogWidget(
+        roomName: room.name,
+        onConfirm: (password) async {
+          Navigator.pop(context);
+          await _joinRoom(room.id, password: password);
+        },
+        onCancel: () {
+          Navigator.pop(context);
+        },
+      ),
+    );
   }
 
   Future<void> _joinRoom(String roomId, {String? password}) async {
@@ -110,16 +160,7 @@ class _BattleRoyaleJoinRoomScreenState
                     : BattleRoyaleEnterCodeForm(
                         codeController: _codeController,
                         isLoading: _isLoading,
-                        onJoin: () {
-                          if (_codeController.text.isNotEmpty) {
-                            // TODO: Implement join by code
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Tính năng đang phát triển!'),
-                              ),
-                            );
-                          }
-                        },
+                        onJoin: _joinByCode,
                       ),
               ),
             ],

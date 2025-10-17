@@ -103,10 +103,12 @@ class _HistoryFilterDialogState extends State<HistoryFilterDialog> {
                     const SizedBox(height: 8),
                     _buildTypeOption('Tất cả', null),
                     _buildTypeOption('Offline', 'offline'),
-                    _buildTypeOption('Online', 'online'),
+                    _buildTypeOption('Solo Duel', 'online'),
+                    _buildTypeOption('Battle Royale', 'battle_royale'),
 
-                    // Chỉ hiển thị độ khó và kết quả nếu không phải online
-                    if (_selectedType != 'online') ...[
+                    // Chỉ hiển thị độ khó và kết quả nếu không phải online hoặc battle royale
+                    if (_selectedType != 'online' &&
+                        _selectedType != 'battle_royale') ...[
                       const SizedBox(height: 20),
                       _buildDivider(),
                       const SizedBox(height: 20),
@@ -210,8 +212,8 @@ class _HistoryFilterDialogState extends State<HistoryFilterDialog> {
       onTap: () {
         setState(() {
           _selectedType = value;
-          // Reset difficulty and result when switching to online
-          if (value == 'online') {
+          // Reset difficulty and result when switching to online or battle royale
+          if (value == 'online' || value == 'battle_royale') {
             _selectedDifficulty = null;
             _selectedIsWin = null;
           }

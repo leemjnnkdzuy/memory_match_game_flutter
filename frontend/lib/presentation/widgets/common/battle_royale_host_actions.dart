@@ -3,6 +3,7 @@ import '../custom/custom_button.dart';
 
 class BattleRoyaleHostActions extends StatelessWidget {
   final bool canStart;
+  final bool isStarting;
   final VoidCallback onStartMatch;
   final VoidCallback onSettings;
   final VoidCallback onCloseRoom;
@@ -10,6 +11,7 @@ class BattleRoyaleHostActions extends StatelessWidget {
   const BattleRoyaleHostActions({
     super.key,
     required this.canStart,
+    this.isStarting = false,
     required this.onStartMatch,
     required this.onSettings,
     required this.onCloseRoom,
@@ -22,28 +24,42 @@ class BattleRoyaleHostActions extends StatelessWidget {
       children: [
         CustomButton(
           type: CustomButtonType.primary,
+          isLoading: isStarting,
           onPressed: canStart ? onStartMatch : null,
-          child: const Text('Bắt Đầu Trận Đấu', textAlign: TextAlign.center),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            transitionBuilder: (child, animation) =>
+                FadeTransition(opacity: animation, child: child),
+            child: isStarting
+                ? Row(
+                    key: const ValueKey('starting_match'),
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : const Text(
+                    'Bắt đầu Trận đấu',
+                    key: ValueKey('start_match_label'),
+                    textAlign: TextAlign.center,
+                  ),
+          ),
         ),
         const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: CustomButton(
-                type: CustomButtonType.normal,
-                onPressed: onSettings,
-                child: const Text('Cài Đặt', textAlign: TextAlign.center),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: CustomButton(
-                type: CustomButtonType.error,
-                onPressed: onCloseRoom,
-                child: const Text('Đóng Phòng', textAlign: TextAlign.center),
-              ),
-            ),
-          ],
+        CustomButton(
+          type: CustomButtonType.error,
+          onPressed: onCloseRoom,
+          child: const Text('Đóng phòng', textAlign: TextAlign.center),
         ),
       ],
     );

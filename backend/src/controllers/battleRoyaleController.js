@@ -127,6 +127,40 @@ const getPublicRooms = async (req, res) => {
 	}
 };
 
+const getRoomByCode = async (req, res) => {
+	try {
+		const {code} = req.params;
+
+		const room = await BattleRoyaleRoom.findOne({code: code.toUpperCase()})
+			.select("-players.socketId")
+			.lean();
+
+		if (!room) {
+			return res.status(404).json({
+				success: false,
+				message: "Room not found",
+			});
+		}
+
+		const roomData = {
+			...room,
+			hasPassword: room.password ? true : false,
+		};
+		delete roomData.password;
+
+		return res.status(200).json({
+			success: true,
+			data: roomData,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: "Failed to get room",
+			error: error.message,
+		});
+	}
+};
+
 const joinRoom = async (req, res) => {
 	try {
 		const {roomId} = req.params;
@@ -471,6 +505,7 @@ const closeRoom = async (req, res) => {
 module.exports = {
 	createRoom,
 	getPublicRooms,
+	getRoomByCode,
 	joinRoom,
 	setReady,
 	kickPlayer,

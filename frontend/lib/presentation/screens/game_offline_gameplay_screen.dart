@@ -234,11 +234,8 @@ class _OfflineGameplayScreenState extends State<OfflineGameplayScreen>
   }
 
   void _onCardTapped(CardEntity card) {
-    if (!ImageCacheService().allImagesReady) {
-      debugPrint('Lỗi: Chưa tải xong hình ảnh Pokemon');
-      return;
-    }
-
+    // Allow card interaction regardless of image loading status
+    // Images will load asynchronously and display when ready
     if (_gameStatus == GameStatus.notStarted) {
       _startGame();
     }

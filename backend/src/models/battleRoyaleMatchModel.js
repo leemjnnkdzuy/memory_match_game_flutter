@@ -9,6 +9,8 @@ const cardSchema = new mongoose.Schema({
 const playerResultSchema = new mongoose.Schema({
 	userId: {type: mongoose.Schema.Types.ObjectId, ref: "User", required: true},
 	username: {type: String, required: true},
+	avatarUrl: {type: String, default: null},
+	borderColor: {type: String, default: "#4CAF50"},
 	pairsFound: {type: Number, default: 0},
 	flipCount: {type: Number, default: 0},
 	completionTime: {type: Number, default: 0},

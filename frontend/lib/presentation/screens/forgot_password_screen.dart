@@ -204,6 +204,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+
+      // Clear any composing text to prevent range errors
+      _emailController.clearComposing();
+      _pinController.clearComposing();
+      _passwordController.clearComposing();
+      _confirmPasswordController.clearComposing();
     }
   }
 
@@ -216,6 +222,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+
+      // Clear any composing text to prevent range errors
+      _emailController.clearComposing();
+      _pinController.clearComposing();
+      _passwordController.clearComposing();
+      _confirmPasswordController.clearComposing();
     }
   }
 

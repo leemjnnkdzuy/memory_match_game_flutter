@@ -18,6 +18,7 @@ class BattleRoyaleService {
 
   IO.Socket? _socket;
   String? _currentRoomId;
+  List<BattleRoyalePlayer> _latestPlayers = [];
 
   final _roomUpdateController = StreamController<BattleRoyaleRoom>.broadcast();
   final _playerUpdateController =
@@ -42,6 +43,8 @@ class BattleRoyaleService {
   Stream<bool> get connectionStatus => _connectionController.stream;
   Stream<String> get roomClosed => _roomClosedController.stream;
   Stream<String> get kicked => _kickedController.stream;
+  List<BattleRoyalePlayer> get latestPlayers =>
+      List.unmodifiable(_latestPlayers);
 
   Future<BattleRoyaleRoom?> createRoom({
     required String name,
@@ -86,7 +89,6 @@ class BattleRoyaleService {
   }) async {
     try {
       final token = await _tokenStorage.getAccessToken();
-      // TODO: Add query parameters support when backend is ready
       final response = await _httpClient.get(
         '/battle-royale/rooms?public=1',
         headers: token != null ? {'Authorization': 'Bearer $token'} : null,
@@ -105,6 +107,23 @@ class BattleRoyaleService {
       return [];
     } catch (e) {
       return [];
+    }
+  }
+
+  Future<BattleRoyaleRoom?> getRoomByCode(String code) async {
+    try {
+      final token = await _tokenStorage.getAccessToken();
+      final response = await _httpClient.get(
+        '/battle-royale/rooms/code/$code',
+        headers: token != null ? {'Authorization': 'Bearer $token'} : null,
+      );
+
+      if (response.success && response.data != null) {
+        return BattleRoyaleRoom.fromJson(response.data);
+      }
+      return null;
+    } catch (e) {
+      return null;
     }
   }
 
@@ -242,6 +261,7 @@ class BattleRoyaleService {
     _socket?.on('br:room_state', (data) {
       try {
         final room = BattleRoyaleRoom.fromJson(data['room']);
+        _latestPlayers = room.players;
         _roomUpdateController.add(room);
       } catch (e) {
         throw Exception('Error parsing br:room_state: $e');
@@ -251,6 +271,7 @@ class BattleRoyaleService {
     _socket?.on('room:update', (data) {
       try {
         final room = BattleRoyaleRoom.fromJson(data);
+        _latestPlayers = room.players;
         _roomUpdateController.add(room);
       } catch (e) {
         throw Exception('Error parsing room:update: $e');
@@ -273,8 +294,15 @@ class BattleRoyaleService {
       _handlePlayerUpdate(data);
     });
 
+    _socket?.on('br:leaderboard_update', (data) {
+      try {
+        _handleLeaderboardSnapshot(data);
+      } catch (e) {
+        throw Exception('Error parsing br:leaderboard_update: $e');
+      }
+    });
+
     _socket?.on('br:match_countdown', (data) {
-      // TODO: Show countdown UI
     });
 
     _socket?.on('br:match_start', (data) {
@@ -285,10 +313,37 @@ class BattleRoyaleService {
       _matchStartController.add(data);
     });
 
+    _socket?.on('br:player_finished', (data) {
+      try {
+        final player = BattleRoyalePlayer.fromJson(
+          Map<String, dynamic>.from(data),
+        );
+        final updatedPlayer = _mergeScoreData(player);
+        _scoreUpdateController.add(updatedPlayer);
+      } catch (e) {
+        throw Exception('Error parsing br:player_finished: $e');
+      }
+    });
+
+    _socket?.on('br:match_finished', (data) {
+      try {
+        final leaderboard = ((data as Map)['leaderboard'] as List)
+            .map(
+              (p) => BattleRoyalePlayer.fromJson(Map<String, dynamic>.from(p)),
+            )
+            .toList();
+        _latestPlayers = leaderboard;
+        _matchFinishController.add(leaderboard);
+      } catch (e) {
+        throw Exception('Error parsing br:match_finished: $e');
+      }
+    });
+
     _socket?.on('score:update', (data) {
       try {
         final player = BattleRoyalePlayer.fromJson(data);
-        _scoreUpdateController.add(player);
+        final updatedPlayer = _mergeScoreData(player);
+        _scoreUpdateController.add(updatedPlayer);
       } catch (e) {
         throw Exception('Error parsing score:update: $e');
       }
@@ -297,8 +352,11 @@ class BattleRoyaleService {
     _socket?.on('match:finish', (data) {
       try {
         final leaderboard = (data['leaderboard'] as List)
-            .map((p) => BattleRoyalePlayer.fromJson(p))
+            .map(
+              (p) => BattleRoyalePlayer.fromJson(Map<String, dynamic>.from(p)),
+            )
             .toList();
+        _latestPlayers = leaderboard;
         _matchFinishController.add(leaderboard);
       } catch (e) {
         throw Exception('Error parsing match:finish: $e');
@@ -320,31 +378,54 @@ class BattleRoyaleService {
     _socket?.on('br:error', (data) {
       final message = data['message'] ?? 'Unknown error';
       throw Exception('Error message: $message');
-      // TODO: Show error to user
     });
   }
 
   void _handlePlayerUpdate(dynamic data) {
     try {
-      final players = (data['players'] as List)
-          .map((p) => BattleRoyalePlayer.fromJson(p))
+      final incomingPlayers = (data['players'] as List)
+          .map((p) => BattleRoyalePlayer.fromJson(Map<String, dynamic>.from(p)))
           .toList();
-      _playerUpdateController.add(players);
+      final previousPlayers = List<BattleRoyalePlayer>.from(_latestPlayers);
+      final updatedPlayers = incomingPlayers
+          .map((player) => _mergeMetaData(player, previousPlayers))
+          .toList();
+      _latestPlayers = updatedPlayers;
+      _playerUpdateController.add(updatedPlayers);
     } catch (e) {
       throw Exception('Error parsing player update: $e');
     }
   }
 
-  void sendFlipRequest(int cardIndex) {
-    _socket?.emit('flip:request', {'index': cardIndex});
+  void _handleLeaderboardSnapshot(dynamic data) {
+    Map<String, dynamic> payload;
+    if (data is Map<String, dynamic>) {
+      payload = data;
+    } else if (data is Map) {
+      payload = Map<String, dynamic>.from(data);
+    } else {
+      throw Exception('Invalid leaderboard payload: $data');
+    }
+
+    final players = (payload['players'] as List? ?? [])
+        .map((p) => BattleRoyalePlayer.fromJson(Map<String, dynamic>.from(p)))
+        .toList();
+    _latestPlayers = players;
+    _playerUpdateController.add(List<BattleRoyalePlayer>.from(players));
+  }
+
+  void sendFlipRequest({required String matchId, required int cardIndex}) {
+    _socket?.emit('br:flip_card', {'matchId': matchId, 'cardIndex': cardIndex});
   }
 
   void sendScoreUpdate({
+    required String matchId,
     required int pairsFound,
     required int flipCount,
     required int completionTime,
   }) {
-    _socket?.emit('score:update', {
+    _socket?.emit('br:update_progress', {
+      'matchId': matchId,
       'pairsFound': pairsFound,
       'flipCount': flipCount,
       'completionTime': completionTime,
@@ -352,12 +433,14 @@ class BattleRoyaleService {
   }
 
   void sendMatchFinish({
+    required String matchId,
     required int pairsFound,
     required int flipCount,
     required int completionTime,
     required double score,
   }) {
-    _socket?.emit('match:finish', {
+    _socket?.emit('br:player_finished', {
+      'matchId': matchId,
       'pairsFound': pairsFound,
       'flipCount': flipCount,
       'completionTime': completionTime,
@@ -374,6 +457,7 @@ class BattleRoyaleService {
     _socket?.dispose();
     _socket = null;
     _currentRoomId = null;
+    _latestPlayers = [];
     _connectionController.add(false);
   }
 
@@ -387,5 +471,56 @@ class BattleRoyaleService {
     _connectionController.close();
     _roomClosedController.close();
     _kickedController.close();
+  }
+
+  BattleRoyalePlayer _mergeMetaData(
+    BattleRoyalePlayer incoming,
+    List<BattleRoyalePlayer> previous,
+  ) {
+    final existingIndex = previous.indexWhere((p) => p.id == incoming.id);
+    if (existingIndex == -1) {
+      return incoming;
+    }
+    final existing = previous[existingIndex];
+    return existing.copyWith(
+      username: incoming.username,
+      avatarUrl: incoming.avatarUrl ?? existing.avatarUrl,
+      borderColor: incoming.borderColor.isNotEmpty
+          ? incoming.borderColor
+          : existing.borderColor,
+      isReady: incoming.isReady,
+      isHost: incoming.isHost,
+      ping: incoming.ping ?? existing.ping,
+      isConnected: incoming.isConnected,
+    );
+  }
+
+  BattleRoyalePlayer _mergeScoreData(BattleRoyalePlayer incoming) {
+    final existingIndex = _latestPlayers.indexWhere(
+      (player) => player.id == incoming.id,
+    );
+    if (existingIndex == -1) {
+      _latestPlayers.add(incoming);
+      return incoming;
+    }
+    final existing = _latestPlayers[existingIndex];
+    final merged = existing.copyWith(
+      username: incoming.username,
+      avatarUrl: incoming.avatarUrl ?? existing.avatarUrl,
+      borderColor: incoming.borderColor.isNotEmpty
+          ? incoming.borderColor
+          : existing.borderColor,
+      pairsFound: incoming.pairsFound,
+      flipCount: incoming.flipCount,
+      completionTime: incoming.completionTime,
+      score: incoming.score,
+      isFinished: incoming.isFinished,
+      isReady: incoming.isReady,
+      isConnected: incoming.isConnected,
+      ping: incoming.ping ?? existing.ping,
+      isHost: incoming.isHost,
+    );
+    _latestPlayers[existingIndex] = merged;
+    return merged;
   }
 }

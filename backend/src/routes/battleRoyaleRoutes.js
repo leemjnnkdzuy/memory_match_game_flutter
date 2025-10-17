@@ -3,6 +3,7 @@ const router = express.Router();
 const {
 	createRoom,
 	getPublicRooms,
+	getRoomByCode,
 	joinRoom,
 	setReady,
 	kickPlayer,
@@ -17,6 +18,7 @@ router.use(authenticate);
 
 router.post("/rooms", createRoom);
 router.get("/rooms", getPublicRooms);
+router.get("/rooms/code/:code", getRoomByCode);
 router.get("/rooms/:roomId", getRoomDetails);
 router.post("/rooms/:roomId/join", joinRoom);
 router.post("/rooms/:roomId/ready", setReady);

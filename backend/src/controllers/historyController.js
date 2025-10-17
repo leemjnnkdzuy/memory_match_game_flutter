@@ -2,6 +2,7 @@ const asyncHandle = require("express-async-handler");
 const AppError = require("../utils/errors");
 const {OfflineHistory} = require("../models/offlineHistoryModel");
 const {SoloDuelHistory} = require("../models/soloDuelHistoryModel");
+const BattleRoyaleMatch = require("../models/battleRoyaleMatchModel");
 
 const saveOfflineHistory = asyncHandle(async (req, res) => {
 	const {score, moves, timeElapsed, difficulty, isWin} = req.body;
@@ -176,8 +177,10 @@ const getHistories = asyncHandle(async (req, res) => {
 
 	let offlineHistories = [];
 	let onlineHistories = [];
+	let battleRoyaleHistories = [];
 	let totalOffline = 0;
 	let totalOnline = 0;
+	let totalBattleRoyale = 0;
 
 	if (!type || type === "offline") {
 		const offlineFilter = {userId: req.user.id};
@@ -260,7 +263,63 @@ const getHistories = asyncHandle(async (req, res) => {
 		}));
 	}
 
-	let allHistories = [...offlineHistories, ...onlineHistories];
+	if (!type || type === "battle_royale") {
+		const battleRoyaleFilter = {
+			"players.userId": req.user.id,
+			status: "finished",
+		};
+
+		totalBattleRoyale = await BattleRoyaleMatch.countDocuments(
+			battleRoyaleFilter
+		);
+
+		const battleRoyaleDocs = await BattleRoyaleMatch.find(
+			battleRoyaleFilter
+		)
+			.sort({finishedAt: sortOrder})
+			.populate("players.userId", "username avatar");
+
+		battleRoyaleHistories = battleRoyaleDocs.map((match) => {
+			const playerResult = match.players.find(
+				(p) => p.userId._id.toString() === req.user.id
+			);
+
+			return {
+				id: match._id,
+				type: "battle_royale",
+				matchId: match._id,
+				userId: req.user.id,
+				rank: playerResult?.rank || 0,
+				score: playerResult?.score || 0,
+				pairsFound: playerResult?.pairsFound || 0,
+				flipCount: playerResult?.flipCount || 0,
+				completionTime: playerResult?.completionTime || 0,
+				isFinished: playerResult?.isFinished || false,
+				datePlayed: match.finishedAt || match.startedAt,
+				totalPlayers: match.players.length,
+				players: match.players.map((p) => ({
+					userId: p.userId._id,
+					username: p.username,
+					avatarUrl: p.avatarUrl,
+					borderColor: p.borderColor,
+					rank: p.rank,
+					score: p.score,
+					pairsFound: p.pairsFound,
+					flipCount: p.flipCount,
+					completionTime: p.completionTime,
+					isFinished: p.isFinished,
+				})),
+				createdAt: match.createdAt,
+				updatedAt: match.finishedAt,
+			};
+		});
+	}
+
+	let allHistories = [
+		...offlineHistories,
+		...onlineHistories,
+		...battleRoyaleHistories,
+	];
 
 	allHistories.sort((a, b) => {
 		const dateA = a.datePlayed || a.createdAt;
@@ -270,7 +329,7 @@ const getHistories = asyncHandle(async (req, res) => {
 			: new Date(dateB) - new Date(dateA);
 	});
 
-	const total = totalOffline + totalOnline;
+	const total = totalOffline + totalOnline + totalBattleRoyale;
 	const paginatedHistories = allHistories.slice(skip, skip + limitNum);
 	const totalPages = Math.ceil(total / limitNum);
 	const hasNextPage = pageNum < totalPages;
@@ -285,6 +344,7 @@ const getHistories = asyncHandle(async (req, res) => {
 				total,
 				totalOffline,
 				totalOnline,
+				totalBattleRoyale,
 				page: pageNum,
 				limit: limitNum,
 				totalPages,

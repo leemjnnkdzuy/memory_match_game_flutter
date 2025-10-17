@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../widgets/custom/custom_button.dart';
+import '../../widgets/custom/custom_password_input.dart';
 
 class GameEndDialogWidget extends StatelessWidget {
   final bool isWin;
@@ -222,9 +223,9 @@ class KickPlayerConfirmDialogWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.orange.withOpacity(0.1),
+              color: Colors.orange.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.orange.withOpacity(0.3)),
+              border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -300,9 +301,9 @@ class LeaveRoomConfirmDialogWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.08),
+                color: Colors.blue.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.blue.withOpacity(0.2)),
+                border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
               ),
               child: Row(
                 children: [
@@ -331,6 +332,91 @@ class LeaveRoomConfirmDialogWidget extends StatelessWidget {
           type: CustomButtonType.error,
           onPressed: onConfirm,
           child: const Text('Rời phòng'),
+        ),
+      ],
+    );
+  }
+}
+
+class EnterPasswordDialogWidget extends StatefulWidget {
+  final String roomName;
+  final Function(String) onConfirm;
+  final VoidCallback onCancel;
+
+  const EnterPasswordDialogWidget({
+    super.key,
+    required this.roomName,
+    required this.onConfirm,
+    required this.onCancel,
+  });
+
+  @override
+  State<EnterPasswordDialogWidget> createState() =>
+      _EnterPasswordDialogWidgetState();
+}
+
+class _EnterPasswordDialogWidgetState extends State<EnterPasswordDialogWidget> {
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: Colors.black, width: 3),
+      ),
+      title: Text(
+        'Nhập Mật Khẩu',
+        style: AppTheme.headlineMedium.copyWith(
+          color: Colors.black87,
+          fontWeight: FontWeight.bold,
+        ),
+        textAlign: TextAlign.center,
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Phòng "${widget.roomName}" yêu cầu mật khẩu',
+            style: AppTheme.bodyMedium.copyWith(color: Colors.black87),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          CustomPasswordInput(
+            controller: _passwordController,
+            hintText: 'Nhập mật khẩu...',
+            fontSize: 14,
+            borderColor: Colors.grey.withValues(alpha: 0.3),
+            borderWidth: 1,
+            onChanged: (value) {
+              // Optional: handle changes if needed
+            },
+          ),
+        ],
+      ),
+      actions: [
+        CustomButton(
+          type: CustomButtonType.normal,
+          onPressed: widget.onCancel,
+          child: const Text('Hủy'),
+        ),
+        const SizedBox(height: 8),
+        CustomButton(
+          type: CustomButtonType.primary,
+          onPressed: () {
+            final password = _passwordController.text.trim();
+            if (password.isNotEmpty) {
+              widget.onConfirm(password);
+            }
+          },
+          child: const Text('Tham Gia'),
         ),
       ],
     );

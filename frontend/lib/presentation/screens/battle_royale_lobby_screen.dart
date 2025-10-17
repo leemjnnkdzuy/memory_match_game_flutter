@@ -10,6 +10,7 @@ import '../../services/battle_royale_service.dart';
 import '../../services/auth_service.dart';
 import '../../data/models/battle_royale_room_model.dart';
 import '../../data/models/battle_royale_player_model.dart';
+import 'battle_royale_gameplay_screen.dart';
 
 class BattleRoyaleLobbyScreen extends StatefulWidget {
   final BattleRoyaleRoom room;
@@ -26,6 +27,7 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
   List<BattleRoyalePlayer> _players = [];
   bool _isReady = false;
   bool _isHost = false;
+  bool _isStartingMatch = false;
   StreamSubscription? _roomUpdateSub;
   StreamSubscription? _playerUpdateSub;
   StreamSubscription? _matchStartSub;
@@ -117,11 +119,34 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
     });
 
     _matchStartSub = BattleRoyaleService.instance.matchStarts.listen((data) {
-      // TODO: Navigate to game screen
-      if (mounted) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _isStartingMatch = false;
+      });
+
+      try {
+        final matchId = data['matchId'] as String;
+        final seed = data['seed'] as String;
+        final cards = (data['cards'] as List).cast<int>();
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BattleRoyaleGameplayScreen(
+              matchId: matchId,
+              roomId: _currentRoom.id,
+              pokemonIds: cards,
+              seed: seed,
+            ),
+          ),
+        );
+      } catch (e) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Trận đấu bắt đầu!')));
+        ).showSnackBar(SnackBar(content: Text('Loi: $e')));
       }
     });
 
@@ -156,6 +181,10 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
   }
 
   Future<void> _startMatch() async {
+    if (_isStartingMatch) {
+      return;
+    }
+
     if (!_currentRoom.canStart) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -165,10 +194,19 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
       return;
     }
 
+    setState(() {
+      _isStartingMatch = true;
+    });
+
     final success = await BattleRoyaleService.instance.startMatch(
       _currentRoom.id,
     );
     if (!success) {
+      if (mounted) {
+        setState(() {
+          _isStartingMatch = false;
+        });
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Không thể bắt đầu trận đấu!')),
       );
@@ -283,6 +321,7 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
                   child: _isHost
                       ? BattleRoyaleHostActions(
                           canStart: _currentRoom.canStart,
+                          isStarting: _isStartingMatch,
                           onStartMatch: _startMatch,
                           onSettings: () {
                             ScaffoldMessenger.of(context).showSnackBar(

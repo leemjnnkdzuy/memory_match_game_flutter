@@ -30,8 +30,21 @@ class BattleRoyalePlayer {
   });
 
   factory BattleRoyalePlayer.fromJson(Map<String, dynamic> json) {
+    final dynamic rawUserId = json['userId'] ?? json['user_id'];
+    final String resolvedId;
+    if (rawUserId != null) {
+      if (rawUserId is Map && rawUserId.containsKey(r'$oid')) {
+        resolvedId = rawUserId[r'$oid']?.toString() ?? '';
+      } else {
+        resolvedId = rawUserId.toString();
+      }
+    } else {
+      final dynamic fallbackId = json['id'] ?? json['_id'];
+      resolvedId = fallbackId?.toString() ?? '';
+    }
+
     return BattleRoyalePlayer(
-      id: json['id'] ?? json['_id'] ?? json['userId'] ?? '',
+      id: resolvedId,
       username: json['username'] ?? 'Player',
       avatarUrl: json['avatarUrl'],
       borderColor: json['borderColor'] ?? '#4CAF50',

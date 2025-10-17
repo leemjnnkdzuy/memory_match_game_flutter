@@ -5,7 +5,9 @@ import '../../domain/entities/history_entity.dart';
 import '../widgets/custom/custom_button.dart';
 import '../widgets/common/history_card_widget.dart';
 import '../widgets/common/online_history_card_widget.dart';
+import '../widgets/common/battle_royale_history_card_widget.dart';
 import '../widgets/common/history_filter_dialog_widget.dart';
+import '../../domain/entities/battle_royale_history_entity.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -237,8 +239,43 @@ class _HistoryScreenState extends State<HistoryScreen> {
         timeElapsed: history.timeElapsed ?? 0,
         datePlayed: history.datePlayed ?? DateTime.now(),
       );
+    } else if (history.type == 'battle_royale') {
+      // Battle Royale history
+      final brHistory = BattleRoyaleHistoryEntity(
+        id: history.id,
+        matchId: history.matchId ?? '',
+        userId: history.userId ?? '',
+        rank: history.rank ?? 0,
+        score: history.score ?? 0,
+        pairsFound: history.pairsFound ?? 0,
+        flipCount: history.flipCount ?? 0,
+        completionTime: history.completionTime ?? 0,
+        isFinished: history.isFinished ?? false,
+        datePlayed: history.datePlayed ?? DateTime.now(),
+        createdAt: history.createdAt,
+        updatedAt: history.updatedAt,
+        user: history.user,
+        players: history.players
+            ?.map(
+              (p) => BattleRoyalePlayerResult(
+                userId: p.playerId,
+                username: p.username ?? p.player?.username ?? 'Player',
+                avatarUrl: p.avatarUrl ?? p.player?.avatar,
+                borderColor: p.borderColor ?? '#4CAF50',
+                rank: p.rank ?? 0,
+                score: p.score,
+                pairsFound: p.pairsFound ?? 0,
+                flipCount: p.flipCount ?? 0,
+                completionTime: p.completionTime ?? p.timeTaken,
+                isFinished: p.isFinished ?? true,
+              ),
+            )
+            .toList(),
+        totalPlayers: history.totalPlayers ?? 0,
+      );
+      return BattleRoyaleHistoryCard(history: brHistory);
     } else {
-      // Online history
+      // Solo Duel history
       return OnlineHistoryCard(
         history: history,
         currentUserId: _authService.currentUser?.id,

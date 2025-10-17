@@ -17,6 +17,15 @@ class HistoryModel {
   final List<PlayerModel>? players;
   final dynamic winner;
 
+  // Battle Royale fields
+  final String? matchId;
+  final int? rank;
+  final int? pairsFound;
+  final int? flipCount;
+  final int? completionTime;
+  final bool? isFinished;
+  final int? totalPlayers;
+
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -33,6 +42,13 @@ class HistoryModel {
     this.user,
     this.players,
     this.winner,
+    this.matchId,
+    this.rank,
+    this.pairsFound,
+    this.flipCount,
+    this.completionTime,
+    this.isFinished,
+    this.totalPlayers,
     this.createdAt,
     this.updatedAt,
   });
@@ -67,7 +83,36 @@ class HistoryModel {
             ? DateTime.parse(json['updatedAt'] as String)
             : null,
       );
+    } else if (type == 'battle_royale') {
+      return HistoryModel(
+        id: json['id'] as String? ?? json['_id'] as String,
+        type: type,
+        userId: json['userId'] as String?,
+        matchId: json['matchId'] as String?,
+        rank: (json['rank'] as num?)?.toInt(),
+        score: (json['score'] as num?)?.toInt(),
+        pairsFound: (json['pairsFound'] as num?)?.toInt(),
+        flipCount: (json['flipCount'] as num?)?.toInt(),
+        completionTime: (json['completionTime'] as num?)?.toInt(),
+        isFinished: json['isFinished'] as bool?,
+        totalPlayers: (json['totalPlayers'] as num?)?.toInt(),
+        datePlayed: json['datePlayed'] != null
+            ? DateTime.parse(json['datePlayed'] as String)
+            : null,
+        players: json['players'] != null
+            ? (json['players'] as List)
+                  .map((p) => PlayerModel.fromJson(p as Map<String, dynamic>))
+                  .toList()
+            : null,
+        createdAt: json['createdAt'] != null
+            ? DateTime.parse(json['createdAt'] as String)
+            : null,
+        updatedAt: json['updatedAt'] != null
+            ? DateTime.parse(json['updatedAt'] as String)
+            : null,
+      );
     } else {
+      // Solo Duel (online)
       return HistoryModel(
         id: json['id'] as String? ?? json['_id'] as String,
         type: type,
@@ -104,6 +149,13 @@ class HistoryModel {
       user: user,
       players: players?.map((p) => p.toEntity()).toList(),
       winner: winner,
+      matchId: matchId,
+      rank: rank,
+      pairsFound: pairsFound,
+      flipCount: flipCount,
+      completionTime: completionTime,
+      isFinished: isFinished,
+      totalPlayers: totalPlayers,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -117,17 +169,59 @@ class PlayerModel {
   final int moves;
   final int timeTaken;
 
+  // Battle Royale specific fields
+  final String? username;
+  final String? avatarUrl;
+  final String? borderColor;
+  final int? rank;
+  final int? pairsFound;
+  final int? flipCount;
+  final int? completionTime;
+  final bool? isFinished;
+
   const PlayerModel({
     required this.playerId,
     this.player,
     required this.score,
     required this.moves,
     required this.timeTaken,
+    this.username,
+    this.avatarUrl,
+    this.borderColor,
+    this.rank,
+    this.pairsFound,
+    this.flipCount,
+    this.completionTime,
+    this.isFinished,
   });
 
   factory PlayerModel.fromJson(Map<String, dynamic> json) {
-    final playerIdData = json['playerId'];
+    // Battle Royale format
+    if (json.containsKey('userId')) {
+      final userIdData = json['userId'];
+      return PlayerModel(
+        playerId: userIdData is String
+            ? userIdData
+            : (userIdData as Map<String, dynamic>)['_id'] as String,
+        player: userIdData is Map<String, dynamic>
+            ? User.fromJson(userIdData)
+            : null,
+        score: (json['score'] as num?)?.toInt() ?? 0,
+        moves: 0,
+        timeTaken: (json['completionTime'] as num?)?.toInt() ?? 0,
+        username: json['username'] as String?,
+        avatarUrl: json['avatarUrl'] as String?,
+        borderColor: json['borderColor'] as String?,
+        rank: (json['rank'] as num?)?.toInt(),
+        pairsFound: (json['pairsFound'] as num?)?.toInt(),
+        flipCount: (json['flipCount'] as num?)?.toInt(),
+        completionTime: (json['completionTime'] as num?)?.toInt(),
+        isFinished: json['isFinished'] as bool?,
+      );
+    }
 
+    // Solo Duel format
+    final playerIdData = json['playerId'];
     return PlayerModel(
       playerId: playerIdData is String
           ? playerIdData
@@ -148,6 +242,14 @@ class PlayerModel {
       score: score,
       moves: moves,
       timeTaken: timeTaken,
+      username: username,
+      avatarUrl: avatarUrl,
+      borderColor: borderColor,
+      rank: rank,
+      pairsFound: pairsFound,
+      flipCount: flipCount,
+      completionTime: completionTime,
+      isFinished: isFinished,
     );
   }
 }
@@ -184,6 +286,7 @@ class PaginationWithTypeModel {
   final int total;
   final int totalOffline;
   final int totalOnline;
+  final int totalBattleRoyale;
   final int page;
   final int limit;
   final int totalPages;
@@ -194,6 +297,7 @@ class PaginationWithTypeModel {
     required this.total,
     required this.totalOffline,
     required this.totalOnline,
+    this.totalBattleRoyale = 0,
     required this.page,
     required this.limit,
     required this.totalPages,
@@ -206,6 +310,7 @@ class PaginationWithTypeModel {
       total: json['total'] as int,
       totalOffline: json['totalOffline'] as int,
       totalOnline: json['totalOnline'] as int,
+      totalBattleRoyale: (json['totalBattleRoyale'] as int?) ?? 0,
       page: json['page'] as int,
       limit: json['limit'] as int,
       totalPages: json['totalPages'] as int,
@@ -219,6 +324,7 @@ class PaginationWithTypeModel {
       total: total,
       totalOffline: totalOffline,
       totalOnline: totalOnline,
+      totalBattleRoyale: totalBattleRoyale,
       page: page,
       limit: limit,
       totalPages: totalPages,

@@ -7,6 +7,7 @@ class BattleRoyaleRoom {
   final String name;
   final String code;
   final String? password;
+  final bool hasPassword;
   final int maxPlayers;
   final int currentPlayers;
   final String hostId;
@@ -26,6 +27,7 @@ class BattleRoyaleRoom {
     required this.name,
     required this.code,
     this.password,
+    this.hasPassword = false,
     this.maxPlayers = 8,
     this.currentPlayers = 0,
     required this.hostId,
@@ -47,6 +49,7 @@ class BattleRoyaleRoom {
       name: json['name'] ?? 'Room',
       code: json['code'] ?? '',
       password: json['password'],
+      hasPassword: json['hasPassword'] ?? false,
       maxPlayers: json['maxPlayers'] ?? 8,
       currentPlayers: json['currentPlayers'] ?? 0,
       hostId: json['hostId'] ?? '',
@@ -97,6 +100,7 @@ class BattleRoyaleRoom {
       'name': name,
       'code': code,
       'password': password,
+      'hasPassword': hasPassword,
       'maxPlayers': maxPlayers,
       'currentPlayers': currentPlayers,
       'hostId': hostId,
@@ -114,7 +118,6 @@ class BattleRoyaleRoom {
   }
 
   bool get isFull => currentPlayers >= maxPlayers;
-  bool get hasPassword => password != null && password!.isNotEmpty;
   bool get canStart {
     final nonHostPlayers = players.where((p) => !p.isHost && p.isConnected);
     final allNonHostReady = nonHostPlayers.every((p) => p.isReady);
@@ -126,6 +129,7 @@ class BattleRoyaleRoom {
     String? name,
     String? code,
     String? password,
+    bool? hasPassword,
     int? maxPlayers,
     int? currentPlayers,
     String? hostId,
@@ -145,6 +149,7 @@ class BattleRoyaleRoom {
       name: name ?? this.name,
       code: code ?? this.code,
       password: password ?? this.password,
+      hasPassword: hasPassword ?? this.hasPassword,
       maxPlayers: maxPlayers ?? this.maxPlayers,
       currentPlayers: currentPlayers ?? this.currentPlayers,
       hostId: hostId ?? this.hostId,

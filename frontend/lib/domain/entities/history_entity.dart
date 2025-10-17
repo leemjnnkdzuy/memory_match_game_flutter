@@ -2,7 +2,7 @@ import '../../data/models/user_model.dart';
 
 class HistoryEntity {
   final String id;
-  final String type; // 'offline' hoặc 'online'
+  final String type; // 'offline', 'online', hoặc 'battle_royale'
 
   // Fields cho offline history
   final String? userId;
@@ -17,6 +17,15 @@ class HistoryEntity {
   // Fields cho online history
   final List<PlayerEntity>? players;
   final dynamic winner; // Có thể là String hoặc User object
+
+  // Fields cho battle royale history
+  final String? matchId;
+  final int? rank;
+  final int? pairsFound;
+  final int? flipCount;
+  final int? completionTime;
+  final bool? isFinished;
+  final int? totalPlayers;
 
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -34,6 +43,13 @@ class HistoryEntity {
     this.user,
     this.players,
     this.winner,
+    this.matchId,
+    this.rank,
+    this.pairsFound,
+    this.flipCount,
+    this.completionTime,
+    this.isFinished,
+    this.totalPlayers,
     this.createdAt,
     this.updatedAt,
   });
@@ -51,6 +67,13 @@ class HistoryEntity {
     User? user,
     List<PlayerEntity>? players,
     dynamic winner,
+    String? matchId,
+    int? rank,
+    int? pairsFound,
+    int? flipCount,
+    int? completionTime,
+    bool? isFinished,
+    int? totalPlayers,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -67,6 +90,13 @@ class HistoryEntity {
       user: user ?? this.user,
       players: players ?? this.players,
       winner: winner ?? this.winner,
+      matchId: matchId ?? this.matchId,
+      rank: rank ?? this.rank,
+      pairsFound: pairsFound ?? this.pairsFound,
+      flipCount: flipCount ?? this.flipCount,
+      completionTime: completionTime ?? this.completionTime,
+      isFinished: isFinished ?? this.isFinished,
+      totalPlayers: totalPlayers ?? this.totalPlayers,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -80,12 +110,30 @@ class PlayerEntity {
   final int moves;
   final int timeTaken;
 
+  // Battle Royale specific fields
+  final String? username;
+  final String? avatarUrl;
+  final String? borderColor;
+  final int? rank;
+  final int? pairsFound;
+  final int? flipCount;
+  final int? completionTime;
+  final bool? isFinished;
+
   const PlayerEntity({
     required this.playerId,
     this.player,
     required this.score,
     required this.moves,
     required this.timeTaken,
+    this.username,
+    this.avatarUrl,
+    this.borderColor,
+    this.rank,
+    this.pairsFound,
+    this.flipCount,
+    this.completionTime,
+    this.isFinished,
   });
 
   PlayerEntity copyWith({
@@ -94,6 +142,14 @@ class PlayerEntity {
     int? score,
     int? moves,
     int? timeTaken,
+    String? username,
+    String? avatarUrl,
+    String? borderColor,
+    int? rank,
+    int? pairsFound,
+    int? flipCount,
+    int? completionTime,
+    bool? isFinished,
   }) {
     return PlayerEntity(
       playerId: playerId ?? this.playerId,
@@ -101,6 +157,14 @@ class PlayerEntity {
       score: score ?? this.score,
       moves: moves ?? this.moves,
       timeTaken: timeTaken ?? this.timeTaken,
+      username: username ?? this.username,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      borderColor: borderColor ?? this.borderColor,
+      rank: rank ?? this.rank,
+      pairsFound: pairsFound ?? this.pairsFound,
+      flipCount: flipCount ?? this.flipCount,
+      completionTime: completionTime ?? this.completionTime,
+      isFinished: isFinished ?? this.isFinished,
     );
   }
 }
@@ -116,6 +180,7 @@ class PaginationWithTypeEntity {
   final int total;
   final int totalOffline;
   final int totalOnline;
+  final int totalBattleRoyale;
   final int page;
   final int limit;
   final int totalPages;
@@ -126,6 +191,7 @@ class PaginationWithTypeEntity {
     required this.total,
     required this.totalOffline,
     required this.totalOnline,
+    this.totalBattleRoyale = 0,
     required this.page,
     required this.limit,
     required this.totalPages,

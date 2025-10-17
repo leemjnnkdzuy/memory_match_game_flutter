@@ -87,7 +87,7 @@ class _PlayerCardWidgetState extends State<PlayerCardWidget> {
         border: Border.all(color: _getBorderColor(), width: 3),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             offset: const Offset(2, 2),
             blurRadius: 0,
           ),
@@ -101,7 +101,7 @@ class _PlayerCardWidgetState extends State<PlayerCardWidget> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: _getBorderColor().withOpacity(0.2),
+                color: _getBorderColor().withValues(alpha: 0.2),
                 border: Border.all(color: _getBorderColor(), width: 2),
               ),
               child: _buildAvatar(),

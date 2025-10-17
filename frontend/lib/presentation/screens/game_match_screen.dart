@@ -178,25 +178,7 @@ class _GameMatchScreenState extends State<GameMatchScreen> {
                           );
                         }
                       : () => _handleLockedCardTap('Sinh Tử Chiến'),
-                ),
-                const SizedBox(height: 20),
-                GameModeCard(
-                  icon: Icons.tune,
-                  title: 'Trò chơi tùy chỉnh',
-                  subtitle: 'Tùy chỉnh trận đấu của bạn!',
-                  color: const Color(0xFF9C27B0),
-                  isEnabled: _isLoggedIn,
-                  onTap: _isLoggedIn
-                      ? () {
-                          // TODO: Navigate to Custom Game screen
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Trò chơi tùy chỉnh sắp ra mắt!'),
-                            ),
-                          );
-                        }
-                      : () => _handleLockedCardTap('Custom Game'),
-                ),
+                ),                
               ],
             ),
           ),
