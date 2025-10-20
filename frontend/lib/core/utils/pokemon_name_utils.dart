@@ -4,16 +4,16 @@ class PokemonNameUtils {
 
     if (lowerName.contains('nidoran')) {
       if (lowerName.contains('female')) {
-        return 'images/Nidoran_female.png';
+        return 'assets/images/Nidoran_female.png';
       } else if (lowerName.contains('male')) {
-        return 'images/Nidoran_male.png';
+        return 'assets/images/Nidoran_male.png';
       }
     }
 
     if (pokemonName == 'Mr. Mime') {
-      return 'images/Mr.Mime.png';
+      return 'assets/images/Mr.Mime.png';
     }
 
-    return 'images/$pokemonName.png';
+    return 'assets/images/$pokemonName.png';
   }
 }

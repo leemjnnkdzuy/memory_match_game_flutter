@@ -267,22 +267,18 @@ class _BattleRoyaleLeaderboardScreenState
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
                   children: [
-                    // Header
                     _buildHeader(finishedCount, totalPlayers),
                     const SizedBox(height: 24),
 
-                    // My rank card
                     if (myRank > 0) ...[
                       _buildMyRankCard(myRank),
                       const SizedBox(height: 24),
                     ],
 
-                    // Leaderboard list
                     Expanded(child: _buildLeaderboardList(currentUserId)),
 
                     const SizedBox(height: 24),
 
-                    // Action buttons
                     _buildActionButtons(),
                   ],
                 ),
@@ -524,7 +520,6 @@ class _BattleRoyaleLeaderboardScreenState
       ),
       child: Row(
         children: [
-          // Rank badge
           Container(
             width: 48,
             height: 48,
@@ -552,7 +547,6 @@ class _BattleRoyaleLeaderboardScreenState
           ),
           const SizedBox(width: 16),
 
-          // Player info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -585,22 +579,6 @@ class _BattleRoyaleLeaderboardScreenState
                           style: AppTheme.labelLarge.copyWith(
                             color: Colors.black,
                           ),
-                        ),
-                      ),
-                    ],
-                    if (player.isFinished) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          border: Border.all(color: Colors.black, width: 2),
-                        ),
-                        child: const Icon(
-                          Icons.check,
-                          color: Colors.white,
-                          size: 12,
                         ),
                       ),
                     ],

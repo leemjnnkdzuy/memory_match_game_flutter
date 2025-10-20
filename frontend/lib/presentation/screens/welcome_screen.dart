@@ -66,7 +66,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           style: AppTheme.headlineLarge.copyWith(
                             fontFamily: 'PressStart2P',
                             color: AppTheme.primaryColor,
-                            fontSize: 42,
+                            fontSize: 38,
                           ),
                           textAlign: TextAlign.center,
                         ),

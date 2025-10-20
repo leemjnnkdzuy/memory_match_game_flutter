@@ -17,7 +17,6 @@ class HistoryModel {
   final List<PlayerModel>? players;
   final dynamic winner;
 
-  // Battle Royale fields
   final String? matchId;
   final int? rank;
   final int? pairsFound;
@@ -112,7 +111,6 @@ class HistoryModel {
             : null,
       );
     } else {
-      // Solo Duel (online)
       return HistoryModel(
         id: json['id'] as String? ?? json['_id'] as String,
         type: type,
@@ -169,7 +167,6 @@ class PlayerModel {
   final int moves;
   final int timeTaken;
 
-  // Battle Royale specific fields
   final String? username;
   final String? avatarUrl;
   final String? borderColor;
@@ -196,7 +193,6 @@ class PlayerModel {
   });
 
   factory PlayerModel.fromJson(Map<String, dynamic> json) {
-    // Battle Royale format
     if (json.containsKey('userId')) {
       final userIdData = json['userId'];
       return PlayerModel(
@@ -220,7 +216,6 @@ class PlayerModel {
       );
     }
 
-    // Solo Duel format
     final playerIdData = json['playerId'];
     return PlayerModel(
       playerId: playerIdData is String

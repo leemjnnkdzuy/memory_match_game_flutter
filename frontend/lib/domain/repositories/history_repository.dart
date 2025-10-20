@@ -3,7 +3,6 @@ import '../entities/offline_history_entity.dart';
 import 'auth_repository.dart' show Result;
 
 abstract class HistoryRepository {
-  // Lưu offline history
   Future<Result<OfflineHistoryEntity>> saveOfflineHistory({
     required int score,
     required int moves,
@@ -12,10 +11,8 @@ abstract class HistoryRepository {
     required bool isWin,
   });
 
-  // Lấy một history theo ID (cả offline và online)
   Future<Result<HistoryEntity>> getHistory(String id);
 
-  // Lấy tất cả histories
   Future<Result<HistoriesResponse>> getHistories({
     int page = 1,
     int limit = 10,

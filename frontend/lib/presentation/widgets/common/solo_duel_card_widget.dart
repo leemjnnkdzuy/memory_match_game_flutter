@@ -152,7 +152,7 @@ class _SoloDuelCardWidgetState extends State<SoloDuelCardWidget>
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       child: Image.asset(
-                        'assets/${widget.pokemon.imagePath}',
+                        widget.pokemon.imagePath,
                         fit: BoxFit.contain,
                       ),
                     ),

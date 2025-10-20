@@ -1,16 +1,30 @@
 {
-  "dependencies": {
-    "bcrypt": "^6.0.0",
-    "cors": "^2.8.5",
-    "crypto": "^1.0.1",
-    "dotenv": "^17.2.2",
-    "express": "^5.1.0",
-    "express-async-handler": "^1.2.0",
-    "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.20.0",
-    "mongoose": "^8.18.2",
-    "nodemailer": "^7.0.6",
-    "socket.io": "^4.8.1",
-    "uuid": "^13.0.0"
-  }
+	"name": "memory-match-game-backend",
+	"description": "Backend for Memory Match Game",
+	"version": "1.0.0",
+	"private": true,
+	"main": "index.js",
+	"scripts": {
+		"dev": "nodemon index.js",
+		"start": "node index.js"
+	},
+	"author": "Google LLC",
+	"license": "Apache-2.0",
+	"dependencies": {
+		"bcrypt": "^6.0.0",
+		"cors": "^2.8.5",
+		"crypto": "^1.0.1",
+		"dotenv": "^17.2.2",
+		"express": "^5.1.0",
+		"express-async-handler": "^1.2.0",
+		"jsonwebtoken": "^9.0.2",
+		"mongodb": "^6.20.0",
+		"mongoose": "^8.18.2",
+		"nodemailer": "^7.0.6",
+		"socket.io": "^4.8.1",
+		"uuid": "^13.0.0"
+	},
+	"devDependencies": {
+		"nodemon": "^3.0.1"
+	}
 }
