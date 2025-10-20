@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const sendMailHelper = require("../Helpers/sendMailHelper");
+const sendMailHelper = require("../helpers/sendMailHelper");
 const crypto = require("crypto");
 const AppError = require("../utils/errors");
 const asyncHandle = require("express-async-handler");
