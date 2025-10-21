@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:pixelarticons/pixel.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/request_service.dart';
 import '../../services/auth_service.dart';
-import '../widgets/custom/custom_app_bar.dart';
+import '../widgets/custom/custom_header.dart';
 import '../widgets/common/change_email_step_indicator_widget.dart';
 import '../widgets/common/change_email_step0_widget.dart';
 import '../widgets/common/change_email_step1_widget.dart';
@@ -333,67 +332,71 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      appBar: CustomAppBar(
-        title: 'Đổi mật khẩu',
-        leading: IconButton(
-          icon: const Icon(Pixel.arrowleft),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ChangeEmailStepIndicator(currentStep: _currentStep),
-                const SizedBox(height: 20),
-                if (_currentStep == 0)
-                  ChangeEmailStep0(
-                    currentEmail: _currentEmail,
-                    isLoading: _isLoading,
-                    errorMessage: _errorMessage,
-                    onRequestChangeEmail: _requestChangeEmail,
+      body: Column(
+        children: [
+          CustomHeader(
+            onBack: () => Navigator.pop(context),
+            textColor: Colors.black,
+            title: 'Đổi Email',
+          ),
+          Expanded(
+            child: SafeArea(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ChangeEmailStepIndicator(currentStep: _currentStep),
+                      const SizedBox(height: 20),
+                      if (_currentStep == 0)
+                        ChangeEmailStep0(
+                          currentEmail: _currentEmail,
+                          isLoading: _isLoading,
+                          errorMessage: _errorMessage,
+                          onRequestChangeEmail: _requestChangeEmail,
+                        ),
+                      if (_currentStep == 1)
+                        ChangeEmailStep1(
+                          formKey: _currentEmailPinFormKey,
+                          pinController: _currentEmailPinController,
+                          currentEmail: _currentEmail,
+                          isLoading: _isLoading,
+                          errorMessage: _errorMessage,
+                          pinValidator: _validatePin,
+                          onConfirmCurrentEmail: _confirmCurrentEmail,
+                          onRequestChangeEmail: _requestChangeEmail,
+                          onResetFlow: _resetFlow,
+                        ),
+                      if (_currentStep == 2)
+                        ChangeEmailStep2(
+                          formKey: _newEmailFormKey,
+                          emailController: _newEmailController,
+                          isLoading: _isLoading,
+                          errorMessage: _errorMessage,
+                          emailValidator: _validateEmail,
+                          onSubmitNewEmail: _submitNewEmail,
+                          onResetFlow: _resetFlow,
+                        ),
+                      if (_currentStep == 3)
+                        ChangeEmailStep3(
+                          formKey: _newEmailPinFormKey,
+                          pinController: _newEmailPinController,
+                          newEmail: _newEmail,
+                          isLoading: _isLoading,
+                          errorMessage: _errorMessage,
+                          pinValidator: _validatePin,
+                          onCompleteEmailChange: _completeEmailChange,
+                          onSubmitNewEmail: _submitNewEmail,
+                          onResetFlow: _resetFlow,
+                        ),
+                    ],
                   ),
-                if (_currentStep == 1)
-                  ChangeEmailStep1(
-                    formKey: _currentEmailPinFormKey,
-                    pinController: _currentEmailPinController,
-                    currentEmail: _currentEmail,
-                    isLoading: _isLoading,
-                    errorMessage: _errorMessage,
-                    pinValidator: _validatePin,
-                    onConfirmCurrentEmail: _confirmCurrentEmail,
-                    onRequestChangeEmail: _requestChangeEmail,
-                    onResetFlow: _resetFlow,
-                  ),
-                if (_currentStep == 2)
-                  ChangeEmailStep2(
-                    formKey: _newEmailFormKey,
-                    emailController: _newEmailController,
-                    isLoading: _isLoading,
-                    errorMessage: _errorMessage,
-                    emailValidator: _validateEmail,
-                    onSubmitNewEmail: _submitNewEmail,
-                    onResetFlow: _resetFlow,
-                  ),
-                if (_currentStep == 3)
-                  ChangeEmailStep3(
-                    formKey: _newEmailPinFormKey,
-                    pinController: _newEmailPinController,
-                    newEmail: _newEmail,
-                    isLoading: _isLoading,
-                    errorMessage: _errorMessage,
-                    pinValidator: _validatePin,
-                    onCompleteEmailChange: _completeEmailChange,
-                    onSubmitNewEmail: _submitNewEmail,
-                    onResetFlow: _resetFlow,
-                  ),
-              ],
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

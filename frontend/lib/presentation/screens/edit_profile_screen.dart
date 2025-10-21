@@ -5,7 +5,7 @@ import '../widgets/common/avatar_widget.dart';
 import '../widgets/custom/custom_button.dart';
 import '../widgets/custom/custom_container.dart';
 import '../widgets/custom/custom_text_input.dart';
-import '../widgets/custom/custom_app_bar.dart';
+import '../widgets/custom/custom_header.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -272,273 +272,278 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CustomAppBar(
-        title: 'Chỉnh sửa hồ sơ',
-        leading: IconButton(
-          icon: Icon(Pixel.arrowleft, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 255, 255, 255),
-                    borderRadius: BorderRadius.circular(0),
-                    border: Border.all(color: Colors.black, width: 3),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black,
-                        offset: const Offset(4, 4),
-                        blurRadius: 0,
-                      ),
-                    ],
-                  ),
+      body: Column(
+        children: [
+          CustomHeader(
+            onBack: () => Navigator.pop(context),
+            textColor: Colors.black,
+            title: 'Chỉnh sửa hồ sơ',
+          ),
+          Expanded(
+            child: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Form(
+                  key: _formKey,
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(
-                        'Ảnh đại diện',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Color.fromARGB(255, 0, 0, 0),
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 255, 255, 255),
+                          borderRadius: BorderRadius.circular(0),
+                          border: Border.all(color: Colors.black, width: 3),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black,
+                              offset: const Offset(4, 4),
+                              blurRadius: 0,
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      AvatarWidget(
-                        size: 120,
-                        showEditButton: true,
-                        userId: AuthService.instance.currentUser?.id,
-                        avatarData:
-                            _previewAvatar ??
-                            AuthService.instance.currentUser?.avatar,
-                        onAvatarPreview: _onAvatarPreview,
-                        isPreviewMode: true,
-                        onRefresh: () {
-                          setState(() {});
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 255, 255, 255),
-                    borderRadius: BorderRadius.circular(0),
-                    border: Border.all(color: Colors.black, width: 3),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black,
-                        offset: const Offset(4, 4),
-                        blurRadius: 0,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Thông tin cơ bản',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Color.fromARGB(255, 0, 0, 0),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      _buildTextField(
-                        controller: _firstNameController,
-                        label: 'Tên',
-                        icon: Pixel.user,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Tên là bắt buộc';
-                          }
-                          if (value.trim().length < 2) {
-                            return 'Tên phải có ít nhất 2 ký tự';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      _buildTextField(
-                        controller: _lastNameController,
-                        label: 'Họ',
-                        icon: Pixel.user,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'Họ là bắt buộc';
-                          }
-                          if (value.trim().length < 2) {
-                            return 'Họ phải có ít nhất 2 ký tự';
-                          }
-                          return null;
-                        },
-                      ),
-
-                      _buildTextField(
-                        controller: _bioController,
-                        label: 'Tiểu sử',
-                        icon: Pixel.edit,
-                        maxLines: 3,
-                        validator: (value) {
-                          if (value != null && value.length > 500) {
-                            return 'Tiểu sử phải ít hơn 500 ký tự';
-                          }
-                          return null;
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 255, 255, 255),
-                    borderRadius: BorderRadius.circular(0),
-                    border: Border.all(color: Colors.black, width: 3),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black,
-                        offset: const Offset(4, 4),
-                        blurRadius: 0,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Liên kết mạng xã hội',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Color.fromARGB(255, 0, 0, 0),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      _buildTextField(
-                        controller: _githubController,
-                        label: 'URL GitHub',
-                        icon: Pixel.link,
-                        keyboardType: TextInputType.url,
-                        validator: _validateUrl,
-                      ),
-
-                      _buildTextField(
-                        controller: _linkedinController,
-                        label: 'URL LinkedIn',
-                        icon: Pixel.link,
-                        keyboardType: TextInputType.url,
-                        validator: _validateUrl,
-                      ),
-
-                      _buildTextField(
-                        controller: _websiteController,
-                        label: 'URL Website',
-                        icon: Pixel.link,
-                        keyboardType: TextInputType.url,
-                        validator: _validateUrl,
-                      ),
-
-                      _buildTextField(
-                        controller: _youtubeController,
-                        label: 'URL YouTube',
-                        icon: Pixel.link,
-                        keyboardType: TextInputType.url,
-                        validator: _validateUrl,
-                      ),
-
-                      _buildTextField(
-                        controller: _facebookController,
-                        label: 'URL Facebook',
-                        icon: Pixel.link,
-                        keyboardType: TextInputType.url,
-                        validator: _validateUrl,
-                      ),
-
-                      _buildTextField(
-                        controller: _instagramController,
-                        label: 'URL Instagram',
-                        icon: Pixel.link,
-                        keyboardType: TextInputType.url,
-                        validator: _validateUrl,
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: CustomButton(
-                        type: CustomButtonType.normal,
-                        onPressed: () => Navigator.pop(context),
-                        child: Text('Hủy', textAlign: TextAlign.center),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _isLoading
-                          ? CustomContainer(
-                              padding: const EdgeInsets.all(16),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Flexible(
-                                    child: Text(
-                                      'Đang xử lý...',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : CustomButton(
-                              type: CustomButtonType.primary,
-                              onPressed: _hasChanges ? _handleSave : null,
-                              child: Text(
-                                'Lưu thay đổi',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: _hasChanges ? null : Colors.grey,
-                                ),
+                        child: Column(
+                          children: [
+                            Text(
+                              'Ảnh đại diện',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color.fromARGB(255, 0, 0, 0),
                               ),
                             ),
-                    ),
-                  ],
+                            const SizedBox(height: 16),
+                            AvatarWidget(
+                              size: 120,
+                              showEditButton: true,
+                              userId: AuthService.instance.currentUser?.id,
+                              avatarData:
+                                  _previewAvatar ??
+                                  AuthService.instance.currentUser?.avatar,
+                              onAvatarPreview: _onAvatarPreview,
+                              isPreviewMode: true,
+                              onRefresh: () {
+                                setState(() {});
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 255, 255, 255),
+                          borderRadius: BorderRadius.circular(0),
+                          border: Border.all(color: Colors.black, width: 3),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black,
+                              offset: const Offset(4, 4),
+                              blurRadius: 0,
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Thông tin cơ bản',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color.fromARGB(255, 0, 0, 0),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            _buildTextField(
+                              controller: _firstNameController,
+                              label: 'Tên',
+                              icon: Pixel.user,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Tên là bắt buộc';
+                                }
+                                if (value.trim().length < 2) {
+                                  return 'Tên phải có ít nhất 2 ký tự';
+                                }
+                                return null;
+                              },
+                            ),
+
+                            _buildTextField(
+                              controller: _lastNameController,
+                              label: 'Họ',
+                              icon: Pixel.user,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Họ là bắt buộc';
+                                }
+                                if (value.trim().length < 2) {
+                                  return 'Họ phải có ít nhất 2 ký tự';
+                                }
+                                return null;
+                              },
+                            ),
+
+                            _buildTextField(
+                              controller: _bioController,
+                              label: 'Tiểu sử',
+                              icon: Pixel.edit,
+                              maxLines: 3,
+                              validator: (value) {
+                                if (value != null && value.length > 500) {
+                                  return 'Tiểu sử phải ít hơn 500 ký tự';
+                                }
+                                return null;
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 255, 255, 255),
+                          borderRadius: BorderRadius.circular(0),
+                          border: Border.all(color: Colors.black, width: 3),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black,
+                              offset: const Offset(4, 4),
+                              blurRadius: 0,
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Liên kết mạng xã hội',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color.fromARGB(255, 0, 0, 0),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            _buildTextField(
+                              controller: _githubController,
+                              label: 'URL GitHub',
+                              icon: Pixel.link,
+                              keyboardType: TextInputType.url,
+                              validator: _validateUrl,
+                            ),
+
+                            _buildTextField(
+                              controller: _linkedinController,
+                              label: 'URL LinkedIn',
+                              icon: Pixel.link,
+                              keyboardType: TextInputType.url,
+                              validator: _validateUrl,
+                            ),
+
+                            _buildTextField(
+                              controller: _websiteController,
+                              label: 'URL Website',
+                              icon: Pixel.link,
+                              keyboardType: TextInputType.url,
+                              validator: _validateUrl,
+                            ),
+
+                            _buildTextField(
+                              controller: _youtubeController,
+                              label: 'URL YouTube',
+                              icon: Pixel.link,
+                              keyboardType: TextInputType.url,
+                              validator: _validateUrl,
+                            ),
+
+                            _buildTextField(
+                              controller: _facebookController,
+                              label: 'URL Facebook',
+                              icon: Pixel.link,
+                              keyboardType: TextInputType.url,
+                              validator: _validateUrl,
+                            ),
+
+                            _buildTextField(
+                              controller: _instagramController,
+                              label: 'URL Instagram',
+                              icon: Pixel.link,
+                              keyboardType: TextInputType.url,
+                              validator: _validateUrl,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomButton(
+                              type: CustomButtonType.normal,
+                              onPressed: () => Navigator.pop(context),
+                              child: Text('Hủy', textAlign: TextAlign.center),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: _isLoading
+                                ? CustomContainer(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Flexible(
+                                          child: Text(
+                                            'Đang xử lý...',
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodyMedium,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : CustomButton(
+                                    type: CustomButtonType.primary,
+                                    onPressed: _hasChanges ? _handleSave : null,
+                                    child: Text(
+                                      'Lưu thay đổi',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: _hasChanges ? null : Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

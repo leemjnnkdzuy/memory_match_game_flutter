@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import '../routes/app_routes.dart';
 import '../widgets/custom/custom_container.dart';
 import '../widgets/custom/custom_icon.dart';
-import '../widgets/custom/custom_app_bar.dart';
-import 'package:pixelarticons/pixel.dart';
+import '../widgets/custom/custom_header.dart';
 
 class SettingScreen extends StatelessWidget {
   const SettingScreen({super.key});
@@ -11,53 +10,57 @@ class SettingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        title: 'Đổi mật khẩu',
-        leading: IconButton(
-          icon: const Icon(Pixel.arrowleft),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildSettingOption(
-                context,
-                icon: CustomIcons.user,
-                title: 'Đổi tên người dùng',
-                subtitle: 'Cập nhật tên người dùng của bạn',
-                onTap: () {
-                  AppRoutes.navigateToChangeUsername(context);
-                },
-              ),
-              const SizedBox(height: 16),
-
-              _buildSettingOption(
-                context,
-                icon: CustomIcons.user,
-                title: 'Đổi mật khẩu',
-                subtitle: 'Cập nhật mật khẩu của bạn',
-                onTap: () {
-                  AppRoutes.navigateToChangePassword(context);
-                },
-              ),
-              const SizedBox(height: 16),
-
-              _buildSettingOption(
-                context,
-                icon: CustomIcons.user,
-                title: 'Đổi email',
-                subtitle: 'Cập nhật địa chỉ email của bạn',
-                onTap: () {
-                  AppRoutes.navigateToChangeEmail(context);
-                },
-              ),
-            ],
+      body: Column(
+        children: [
+          CustomHeader(
+            onBack: () => Navigator.pop(context),
+            textColor: Colors.black,
+            title: 'Đổi mật khẩu',
           ),
-        ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildSettingOption(
+                      context,
+                      icon: CustomIcons.user,
+                      title: 'Đổi tên người dùng',
+                      subtitle: 'Cập nhật tên người dùng của bạn',
+                      onTap: () {
+                        AppRoutes.navigateToChangeUsername(context);
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    _buildSettingOption(
+                      context,
+                      icon: CustomIcons.user,
+                      title: 'Đổi mật khẩu',
+                      subtitle: 'Cập nhật mật khẩu của bạn',
+                      onTap: () {
+                        AppRoutes.navigateToChangePassword(context);
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    _buildSettingOption(
+                      context,
+                      icon: CustomIcons.user,
+                      title: 'Đổi email',
+                      subtitle: 'Cập nhật địa chỉ email của bạn',
+                      onTap: () {
+                        AppRoutes.navigateToChangeEmail(context);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -2,12 +2,14 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import './token_storage_service.dart';
+import '../core/constants/app_constants.dart';
 
 class WebSocketService {
   static WebSocketService? _instance;
   io.Socket? _socket;
 
-  final String _baseUrl = 'http://localhost:3001';
+  final String _baseUrl =
+      AppConstants.apiBaseUrl.replaceFirst(RegExp(r'/$'), '');
   final _connectionStatusController = ValueNotifier<bool>(false);
 
   final Map<String, Function(dynamic)> _pendingListeners = {};

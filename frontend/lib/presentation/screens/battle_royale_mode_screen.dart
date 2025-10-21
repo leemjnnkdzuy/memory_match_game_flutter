@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
-import '../widgets/common/battle_royale_mode_header.dart';
+import 'package:memory_match_game/services/auth_service.dart';
+import '../widgets/custom/custom_header.dart';
 import '../widgets/common/battle_royale_mode_content.dart';
 import 'battle_royale_create_room_screen.dart';
 import 'battle_royale_join_room_screen.dart';
 
-class BattleRoyaleModeScreen extends StatelessWidget {
+class BattleRoyaleModeScreen extends StatefulWidget {
   const BattleRoyaleModeScreen({super.key});
+
+  @override
+  State<BattleRoyaleModeScreen> createState() => _BattleRoyaleModeScreenState();
+}
+
+class _BattleRoyaleModeScreenState extends State<BattleRoyaleModeScreen> {
+  final _authService = AuthService.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +31,13 @@ class BattleRoyaleModeScreen extends StatelessWidget {
         child: SafeArea(
           child: Column(
             children: [
-              BattleRoyaleModeHeader(onBack: () => Navigator.pop(context)),
-
+              CustomHeader(
+                title: 'Sinh Tử Chiến',
+                textColor: Colors.white,
+                onBack: () => Navigator.pop(context),
+              ),
               BattleRoyaleModeContent(
+                user: _authService.currentUser,
                 onCreateRoom: () {
                   Navigator.push(
                     context,

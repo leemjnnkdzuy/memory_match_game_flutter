@@ -3,9 +3,10 @@ import 'package:http/http.dart' as http;
 import '../models/api_response_model.dart';
 import '../../core/utils/http_client_utils.dart';
 import '../../core/error/exceptions.dart';
+import '../../core/constants/app_constants.dart';
 
 class HttpClientImpl implements HttpClient {
-  static const String _baseUrl = 'http://localhost:3001/api';
+  static const String _baseUrl = '${AppConstants.apiBaseUrl}api';
   final http.Client _client;
 
   HttpClientImpl({http.Client? client}) : _client = client ?? http.Client();

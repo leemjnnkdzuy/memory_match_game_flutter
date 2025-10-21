@@ -6,8 +6,14 @@ import '../../../core/theme/app_theme.dart';
 class PlayerInfoCardWidget extends StatelessWidget {
   final String? username;
   final String? avatar;
+  final Color? textColor;
 
-  const PlayerInfoCardWidget({super.key, this.username, this.avatar});
+  const PlayerInfoCardWidget({
+    super.key,
+    this.username,
+    this.avatar,
+    this.textColor = Colors.black,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -33,25 +39,22 @@ class PlayerInfoCardWidget extends StatelessWidget {
                       width: 128,
                       height: 128,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Icon(
-                        Pixel.user,
-                        size: 128,
-                        color: Colors.orange.shade700,
-                      ),
+                      errorBuilder: (context, error, stackTrace) =>
+                          Icon(Pixel.user, size: 128, color: textColor),
                     ),
                   )
                 : ClipOval(
-                    child: Icon(
-                      Pixel.user,
-                      size: 128,
-                      color: Colors.orange.shade700,
-                    ),
+                    child: Icon(Pixel.user, size: 128, color: textColor),
                   ),
           ),
           const SizedBox(height: 16),
           Text(
             username ?? 'Người chơi',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: textColor,
+            ),
           ),
         ],
       ),

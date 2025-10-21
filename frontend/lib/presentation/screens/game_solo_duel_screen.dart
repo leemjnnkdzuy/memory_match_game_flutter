@@ -226,7 +226,6 @@ class _SoloDuelScreenState extends State<SoloDuelScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Player Info Card
                 PlayerInfoCardWidget(
                   username: user?.username,
                   avatar: user?.avatar,

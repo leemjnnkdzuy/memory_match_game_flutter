@@ -10,7 +10,7 @@ import '../../services/request_service.dart';
 import '../../services/sound_service.dart';
 import '../widgets/common/game_stats_widget.dart';
 import '../widgets/common/game_board_widget.dart';
-import '../widgets/common/game_dialog_widgets.dart';
+import '../widgets/custom/custom_game_dialog_widgets.dart';
 
 class OfflineGameplayScreen extends StatefulWidget {
   final GameDifficulty difficulty;

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import '../widgets/custom/custom_button.dart';
 import '../widgets/custom/custom_password_input.dart';
-import 'package:pixelarticons/pixel.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/request_service.dart';
-import '../widgets/custom/custom_app_bar.dart';
+import '../widgets/custom/custom_header.dart';
 import '../widgets/common/password_loading_button_widget.dart';
 import '../widgets/common/password_error_container_widget.dart';
 
@@ -147,88 +146,91 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      appBar: CustomAppBar(
-        title: 'Đổi mật khẩu',
-        leading: IconButton(
-          icon: const Icon(Pixel.arrowleft),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  CustomPasswordInput(
-                    controller: _currentPasswordController,
-                    labelText: 'Mật khẩu hiện tại',
-                    hintText: 'Nhập mật khẩu hiện tại',
-                    enabled: !_isChanging,
-                    validator: _validateCurrentPassword,
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  CustomPasswordInput(
-                    controller: _newPasswordController,
-                    labelText: 'Mật khẩu mới',
-                    hintText: 'Nhập mật khẩu mới',
-                    enabled: !_isChanging,
-                    validator: _validateNewPassword,
-                    onChanged: (value) {
-                      if (_confirmPasswordController.text.isNotEmpty) {
-                        _formKey.currentState?.validate();
-                      }
-                    },
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  CustomPasswordInput(
-                    controller: _confirmPasswordController,
-                    labelText: 'Xác nhận mật khẩu mới',
-                    hintText: 'Xác nhận mật khẩu mới',
-                    enabled: !_isChanging,
-                    validator: _validateConfirmPassword,
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  Text(
-                    '• Ít nhất 6 ký tự\n'
-                    '• Phải khác với mật khẩu hiện tại\n'
-                    '• Sử dụng chữ cái, số và ký hiệu để bảo mật tốt hơn',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.labelLarge?.copyWith(color: Colors.grey[600]),
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  _isChanging
-                      ? const PasswordLoadingButton()
-                      : CustomButton(
-                          type: CustomButtonType.primary,
-                          onPressed: _changePassword,
-                          child: const Text(
-                            'Đổi mật khẩu',
-                            textAlign: TextAlign.center,
-                          ),
+      body: Column(
+        children: [
+          CustomHeader(
+            onBack: () => Navigator.pop(context),
+            textColor: Colors.black,
+            title: 'Đổi mật khẩu',
+          ),
+          Expanded(
+            child: SafeArea(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        CustomPasswordInput(
+                          controller: _currentPasswordController,
+                          labelText: 'Mật khẩu hiện tại',
+                          hintText: 'Nhập mật khẩu hiện tại',
+                          enabled: !_isChanging,
+                          validator: _validateCurrentPassword,
                         ),
 
-                  if (_errorMessage != null) ...[
-                    const SizedBox(height: 20),
-                    PasswordErrorContainer(message: _errorMessage!),
-                  ],
-                ],
+                        const SizedBox(height: 20),
+
+                        CustomPasswordInput(
+                          controller: _newPasswordController,
+                          labelText: 'Mật khẩu mới',
+                          hintText: 'Nhập mật khẩu mới',
+                          enabled: !_isChanging,
+                          validator: _validateNewPassword,
+                          onChanged: (value) {
+                            if (_confirmPasswordController.text.isNotEmpty) {
+                              _formKey.currentState?.validate();
+                            }
+                          },
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        CustomPasswordInput(
+                          controller: _confirmPasswordController,
+                          labelText: 'Xác nhận mật khẩu mới',
+                          hintText: 'Xác nhận mật khẩu mới',
+                          enabled: !_isChanging,
+                          validator: _validateConfirmPassword,
+                        ),
+
+                        const SizedBox(height: 30),
+
+                        Text(
+                          '• Ít nhất 6 ký tự\n'
+                          '• Phải khác với mật khẩu hiện tại\n'
+                          '• Sử dụng chữ cái, số và ký hiệu để bảo mật tốt hơn',
+                          style: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(color: Colors.grey[600]),
+                        ),
+
+                        const SizedBox(height: 30),
+
+                        _isChanging
+                            ? const PasswordLoadingButton()
+                            : CustomButton(
+                                type: CustomButtonType.primary,
+                                onPressed: _changePassword,
+                                child: const Text(
+                                  'Đổi mật khẩu',
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+
+                        if (_errorMessage != null) ...[
+                          const SizedBox(height: 20),
+                          PasswordErrorContainer(message: _errorMessage!),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import '../widgets/common/game_dialog_widgets.dart';
+import '../widgets/custom/custom_game_dialog_widgets.dart';
 import '../widgets/common/battle_royale_lobby_header.dart';
 import '../widgets/common/battle_royale_room_info.dart';
 import '../widgets/common/battle_royale_players_list.dart';

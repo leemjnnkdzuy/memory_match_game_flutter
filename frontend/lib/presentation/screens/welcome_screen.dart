@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/auth_service.dart';
 import '../widgets/custom/custom_button.dart';
+import 'game_match_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -148,7 +149,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         onPressed: () async {
                           await AuthService.instance.loginAsGuest();
                           if (mounted) {
-                            Navigator.pushReplacementNamed(context, '/home');
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const GameMatchScreen(),
+                              ),
+                            );
                           }
                         },
                         child: Text(

@@ -1,5 +1,5 @@
 name: memory_match_game
-description: "A new Flutter project."
+description: "A Flutter project for a memory match game."
 publish_to: "none"
 version: 0.1.0
 
@@ -8,7 +8,6 @@ environment:
 
 dependencies:
     pixelarticons: ^0.4.0
-    flutter_cube: ^0.1.1
     http: ^1.2.0
     shared_preferences: ^2.2.2
     equatable: ^2.0.5
@@ -16,6 +15,7 @@ dependencies:
     image_picker: ^1.0.7
     just_audio: ^0.9.36
     socket_io_client: ^2.0.3+1
+    video_player: ^2.8.2
     flutter:
         sdk: flutter
 
@@ -27,6 +27,7 @@ dev_dependencies:
 flutter:
     uses-material-design: true
     assets:
+        - assets/videos/
         - assets/images/
         - assets/sounds/
         - assets/fonts/

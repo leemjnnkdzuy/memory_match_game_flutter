@@ -3,6 +3,7 @@ import '../../services/auth_service.dart';
 import '../../services/request_service.dart';
 import '../../domain/entities/history_entity.dart';
 import '../widgets/custom/custom_button.dart';
+import '../widgets/custom/custom_header.dart';
 import '../widgets/common/history_card_widget.dart';
 import '../widgets/common/online_history_card_widget.dart';
 import '../widgets/common/battle_royale_history_card_widget.dart';
@@ -130,7 +131,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _buildBody(),
+      body: Column(
+        children: [
+          CustomHeader(
+            onBack: () => Navigator.pop(context),
+            title: 'Lịch sử',
+            textColor: Colors.black,
+          ),
+          Expanded(child: _buildBody()),
+        ],
+      ),
       floatingActionButton: Container(
         decoration: BoxDecoration(
           border: Border.all(color: Colors.black, width: 3),

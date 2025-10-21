@@ -4,6 +4,8 @@ class AppConstants {
   static const String appName = 'Memory Match Game';
   static const String appVersion = '1.0.0';
 
+  static const String apiBaseUrl = 'http://localhost:3001/';
+
   static const int maxFlippedCards = 2;
   static const Duration cardFlipDuration = Duration(milliseconds: 300);
   static const Duration cardMatchDelay = Duration(milliseconds: 800);

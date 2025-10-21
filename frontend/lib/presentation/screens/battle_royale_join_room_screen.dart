@@ -3,7 +3,7 @@ import '../widgets/common/battle_royale_join_room_header.dart';
 import '../widgets/common/battle_royale_join_room_tabs.dart';
 import '../widgets/common/battle_royale_public_rooms_list.dart';
 import '../widgets/common/battle_royale_enter_code_form.dart';
-import '../widgets/common/game_dialog_widgets.dart';
+import '../widgets/custom/custom_game_dialog_widgets.dart';
 import '../../services/battle_royale_service.dart';
 import '../../data/models/battle_royale_room_model.dart';
 import 'battle_royale_lobby_screen.dart';

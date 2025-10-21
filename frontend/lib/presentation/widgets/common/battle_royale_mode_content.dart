@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:pixelarticons/pixel.dart';
+import '../../../data/models/user_model.dart';
 import '../custom/custom_button.dart';
+import 'player_info_card_widget.dart';
 
 class BattleRoyaleModeContent extends StatelessWidget {
   final VoidCallback onCreateRoom;
   final VoidCallback onJoinRoom;
+  final User? user;
 
   const BattleRoyaleModeContent({
     super.key,
     required this.onCreateRoom,
     required this.onJoinRoom,
+    this.user,
   });
 
   @override
@@ -21,25 +25,10 @@ class BattleRoyaleModeContent extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Icon
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: Colors.black, width: 3),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black,
-                      offset: const Offset(6, 6),
-                      blurRadius: 0,
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Pixel.users,
-                  size: 80,
-                  color: Color(0xFFE91E63),
-                ),
+              PlayerInfoCardWidget(
+                username: user?.username,
+                avatar: user?.avatar,
+                textColor: Colors.white,
               ),
               const SizedBox(height: 40),
 

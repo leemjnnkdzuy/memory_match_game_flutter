@@ -4,8 +4,8 @@ import '../widgets/custom/custom_container.dart';
 import '../widgets/custom/custom_text_input.dart';
 import '../../services/request_service.dart';
 import '../../services/auth_service.dart';
-import '../widgets/custom/custom_app_bar.dart';
-import 'package:pixelarticons/pixel.dart';
+import '../widgets/custom/custom_header.dart';
+import '../widgets/custom/custom_game_dialog_widgets.dart';
 
 class ChangeUsernameScreen extends StatefulWidget {
   const ChangeUsernameScreen({super.key});
@@ -117,25 +117,10 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
   Future<void> _changeUsername() async {
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          'Xác nhận đổi tên người dùng',
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        content: Text(
-          'Bạn có chắc chắn muốn đổi tên người dùng thành "${_usernameController.text}"?',
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Hủy'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Xác nhận'),
-          ),
-        ],
+      builder: (context) => ChangeUsernameConfirmDialogWidget(
+        newUsername: _usernameController.text,
+        onConfirm: () => Navigator.pop(context, true),
+        onCancel: () => Navigator.pop(context, false),
       ),
     );
 
@@ -174,22 +159,14 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
               }
             }
           } else {
-            await AuthService.instance.updateUser(result.data!);
-
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Tên người dùng đã được đổi thành công!'),
-                  backgroundColor: Colors.green,
-                  duration: Duration(seconds: 3),
-                ),
-              );
-
-              await Future.delayed(const Duration(seconds: 1));
-              if (mounted) {
-                Navigator.pop(context, true);
-              }
-            }
+            setState(() {
+              _errorMessage =
+                  'Đổi tên người dùng thành công nhưng không thể cập nhật thông tin. Vui lòng đăng nhập lại.';
+              _hasChecked = false;
+              _isAvailable = false;
+              _buttonText = 'Kiểm tra tên người dùng có sẵn';
+              _canChange = false;
+            });
           }
         } else {
           setState(() {
@@ -237,144 +214,163 @@ class _ChangeUsernameScreenState extends State<ChangeUsernameScreen> {
     final currentUser = AuthService.instance.currentUser;
 
     return Scaffold(
-      appBar: CustomAppBar(
-        title: 'Đổi mật khẩu',
-        leading: IconButton(
-          icon: const Icon(Pixel.arrowleft),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (currentUser != null) ...[
-                  CustomContainer(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Tên người dùng hiện tại:',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          currentUser.username,
-                          style: Theme.of(context).textTheme.bodyLarge
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                ],
-                Text(
-                  '• Tên người dùng phải có 3-50 ký tự\n'
-                  '• Chỉ cho phép chữ cái (a-z, A-Z), số (0-9) và dấu gạch dưới (_)',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelLarge?.copyWith(color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 24),
-
-                CustomTextInput(
-                  controller: _usernameController,
-                  enabled: !_isChecking,
-                  labelText: 'Tên người dùng mới',
-                  hintText: 'Nhập tên người dùng mới',
-                  suffixIcon: _hasChecked && _isAvailable
-                      ? const Icon(Icons.check_circle, color: Colors.green)
-                      : null,
-                  validator: _validateUsername,
-                  onChanged: _onUsernameChanged,
-                ),
-
-                if (_hasChecked && _isAvailable) ...[
-                  const SizedBox(height: 8),
-                  Row(
+      body: Column(
+        children: [
+          CustomHeader(
+            onBack: () => Navigator.pop(context),
+            textColor: Colors.black,
+            title: 'Đổi Tên Người Dùng',
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Icon(
-                        Icons.check_circle,
-                        color: Colors.green,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 8),
+                      if (currentUser != null) ...[
+                        CustomContainer(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Tên người dùng hiện tại:',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                currentUser.username,
+                                style: Theme.of(context).textTheme.bodyLarge
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                      ],
                       Text(
-                        'Tên người dùng có sẵn',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
+                        '• Tên người dùng phải có 3-50 ký tự\n'
+                        '• Chỉ cho phép chữ cái (a-z, A-Z), số (0-9) và dấu gạch dưới (_)',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Colors.grey[600],
                         ),
                       ),
-                    ],
-                  ),
-                ],
+                      const SizedBox(height: 24),
 
-                const SizedBox(height: 24),
+                      CustomTextInput(
+                        controller: _usernameController,
+                        enabled: !_isChecking,
+                        labelText: 'Tên người dùng mới',
+                        hintText: 'Nhập tên người dùng mới',
+                        suffixIcon: _hasChecked && _isAvailable
+                            ? const Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                              )
+                            : null,
+                        validator: _validateUsername,
+                        onChanged: _onUsernameChanged,
+                      ),
 
-                _isChecking
-                    ? CustomContainer(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
+                      if (_hasChecked && _isAvailable) ...[
+                        const SizedBox(height: 8),
+                        Row(
                           children: [
-                            const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                            const Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                              size: 16,
                             ),
                             const SizedBox(width: 8),
-                            Flexible(
-                              child: Text(
-                                'Đang xử lý...',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                            Text(
+                              'Tên người dùng có sẵn',
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
                           ],
                         ),
-                      )
-                    : CustomButton(
-                        type: _canChange
-                            ? CustomButtonType.success
-                            : CustomButtonType.primary,
-                        onPressed: _canChange
-                            ? _changeUsername
-                            : _checkUsername,
-                        child: Text(_buttonText, textAlign: TextAlign.center),
-                      ),
+                      ],
 
-                if (_errorMessage != null &&
-                    (!_hasChecked || !_isAvailable)) ...[
-                  const SizedBox(height: 16),
-                  CustomContainer(
-                    padding: const EdgeInsets.all(12),
-                    backgroundColor: Colors.red[50],
-                    child: Row(
-                      children: [
-                        const Icon(Icons.error, color: Colors.red, size: 20),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            _errorMessage!,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(color: Colors.red[700]),
+                      const SizedBox(height: 24),
+
+                      _isChecking
+                          ? CustomContainer(
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Flexible(
+                                    child: Text(
+                                      'Đang xử lý...',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodyMedium,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : CustomButton(
+                              type: _canChange
+                                  ? CustomButtonType.success
+                                  : CustomButtonType.primary,
+                              onPressed: _canChange
+                                  ? _changeUsername
+                                  : _checkUsername,
+                              child: Text(
+                                _buttonText,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+
+                      if (_errorMessage != null &&
+                          (!_hasChecked || !_isAvailable)) ...[
+                        const SizedBox(height: 16),
+                        CustomContainer(
+                          padding: const EdgeInsets.all(12),
+                          backgroundColor: Colors.red[50],
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.error,
+                                color: Colors.red,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  _errorMessage!,
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(color: Colors.red[700]),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
-                    ),
+                    ],
                   ),
-                ],
-              ],
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

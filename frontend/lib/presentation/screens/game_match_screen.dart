@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './difficulty_selection_screen.dart';
+import 'game_offline_difficulty_selection_screen.dart';
 import './login_screen.dart';
 import 'game_solo_duel_screen.dart';
 import 'battle_royale_mode_screen.dart';
@@ -7,6 +7,7 @@ import '../widgets/common/game_mode_card_widget.dart';
 import '../../services/auth_service.dart';
 import 'package:pixelarticons/pixel.dart';
 import '../widgets/custom/custom_button.dart';
+import '../widgets/custom/custom_header.dart';
 
 class GameMatchScreen extends StatefulWidget {
   const GameMatchScreen({super.key});
@@ -123,64 +124,80 @@ class _GameMatchScreenState extends State<GameMatchScreen> {
             colors: [Color(0xFF64B5F6), Color(0xFF1976D2)],
           ),
         ),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                GameModeCard(
-                  icon: Pixel.clock,
-                  title: 'Thách thức thời gian',
-                  subtitle: 'Đua với thời gian!',
-                  color: const Color(0xFF4CAF50),
-                  isEnabled: true,
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const DifficultySelectionScreen(),
-                    ),
-                  ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              if (AuthService.instance.isRealUser)
+                CustomHeader(
+                  title: 'Chọn Chế Độ',
+                  textColor: Colors.white,
+                  onBack: () => Navigator.of(context).pop(),
                 ),
-                const SizedBox(height: 20),
-                GameModeCard(
-                  icon: Pixel.zap,
-                  title: 'Đấu đơn',
-                  subtitle: 'Thách đấu với người chơi khác',
-                  color: const Color(0xFFFF9800),
-                  isEnabled: _isLoggedIn,
-                  onTap: _isLoggedIn
-                      ? () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SoloDuelScreen(),
-                            ),
-                          );
-                        }
-                      : () => _handleLockedCardTap('Solo Duel'),
-                ),
-                const SizedBox(height: 20),
-                GameModeCard(
-                  icon: Pixel.users,
-                  title: 'Sinh Tử Chiến',
-                  subtitle: 'Cạnh tranh với nhiều người chơi',
-                  color: const Color(0xFFE91E63),
-                  isEnabled: _isLoggedIn,
-                  onTap: _isLoggedIn
-                      ? () {
-                          Navigator.push(
+              Expanded(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GameModeCard(
+                          icon: Pixel.clock,
+                          title: 'Thách thức thời gian',
+                          subtitle: 'Đua với thời gian!',
+                          color: const Color(0xFF4CAF50),
+                          isEnabled: true,
+                          onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
-                                  const BattleRoyaleModeScreen(),
+                                  const DifficultySelectionScreen(),
                             ),
-                          );
-                        }
-                      : () => _handleLockedCardTap('Sinh Tử Chiến'),
-                ),                
-              ],
-            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        GameModeCard(
+                          icon: Pixel.zap,
+                          title: 'Đấu đơn',
+                          subtitle: 'Thách đấu với người chơi khác',
+                          color: const Color(0xFFFF9800),
+                          isEnabled: _isLoggedIn,
+                          onTap: _isLoggedIn
+                              ? () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const SoloDuelScreen(),
+                                    ),
+                                  );
+                                }
+                              : () => _handleLockedCardTap('Solo Duel'),
+                        ),
+                        const SizedBox(height: 20),
+                        GameModeCard(
+                          icon: Pixel.users,
+                          title: 'Sinh Tử Chiến',
+                          subtitle: 'Cạnh tranh với nhiều người chơi',
+                          color: const Color(0xFFE91E63),
+                          isEnabled: _isLoggedIn,
+                          onTap: _isLoggedIn
+                              ? () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const BattleRoyaleModeScreen(),
+                                    ),
+                                  );
+                                }
+                              : () => _handleLockedCardTap('Sinh Tử Chiến'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

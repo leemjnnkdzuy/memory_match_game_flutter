@@ -5,6 +5,7 @@ import '../data/models/battle_royale_player_model.dart';
 import '../core/utils/http_client_utils.dart';
 import '../data/implements/http_client_impl.dart';
 import 'token_storage_service.dart';
+import '../core/constants/app_constants.dart';
 
 class BattleRoyaleService {
   static final BattleRoyaleService _instance = BattleRoyaleService._internal();
@@ -204,12 +205,15 @@ class BattleRoyaleService {
       _currentRoomId = roomId;
       final token = await _tokenStorage.getAccessToken();
 
-      _socket = IO.io('http://localhost:3001', <String, dynamic>{
-        'transports': ['websocket'],
-        'autoConnect': false,
-        'auth': {'token': token},
-        'query': {'roomId': roomId},
-      });
+      _socket = IO.io(
+        AppConstants.apiBaseUrl.replaceFirst(RegExp(r'/$'), ''),
+        <String, dynamic>{
+          'transports': ['websocket'],
+          'autoConnect': false,
+          'auth': {'token': token},
+          'query': {'roomId': roomId},
+        },
+      );
 
       _setupSocketListeners();
       _socket!.connect();
