@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   Future<void> _initializeVideo() async {
     _videoController = VideoPlayerController.asset(
-      'assets/videos/background_video.mp4',
+      'videos/background_video.mp4',
     );
     await _videoController.initialize();
     _videoController
@@ -172,7 +172,6 @@ class _HomeScreenState extends State<HomeScreen>
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontFamily: 'AlanSans',
                               color: Colors.white,
                               fontSize: 17,
                               fontWeight: FontWeight.bold,

@@ -32,8 +32,6 @@ flutter:
         - assets/sounds/
         - assets/fonts/
         - assets/icons/
-        - assets/models/
-        - assets/models/Pikachu/
     fonts:
         - family: Roboto
           fonts:

@@ -30,4 +30,5 @@ class AppConstants {
   static const String imagesPath = 'assets/images/';
   static const String soundsPath = 'assets/sounds/';
   static const String fontsPath = 'assets/fonts/';
+  static const String videosPath = 'assets/videos/';
 }
