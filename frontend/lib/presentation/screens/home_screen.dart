@@ -323,7 +323,6 @@ class _HomeScreenState extends State<HomeScreen>
                     child: const Text(
                       'Đấu Ngay',
                       style: TextStyle(
-                        fontFamily: 'AlanSans',
                         color: Colors.white,
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
