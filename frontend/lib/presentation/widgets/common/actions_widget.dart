@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/custom/custom_button.dart';
+import '../../widgets/custom/custom_game_dialog_widgets.dart';
 
 class ActionsWidget extends StatelessWidget {
   final VoidCallback? onRefreshAvatar;
@@ -106,7 +107,6 @@ class ActionsWidget extends StatelessWidget {
       buttons.add(SizedBox(height: 12));
     }
 
-    // Remove last spacing
     if (buttons.isNotEmpty && buttons.last is SizedBox) {
       buttons.removeLast();
     }
@@ -117,19 +117,9 @@ class ActionsWidget extends StatelessWidget {
   Future<void> _showLogoutConfirmation(BuildContext context) async {
     final shouldLogout = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Đăng xuất'),
-        content: Text('Bạn có chắc chắn muốn đăng xuất?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('Hủy'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text('Đăng xuất'),
-          ),
-        ],
+      builder: (context) => LogoutConfirmDialogWidget(
+        onConfirm: () => Navigator.pop(context, true),
+        onCancel: () => Navigator.pop(context, false),
       ),
     );
 

@@ -477,3 +477,56 @@ class ChangeUsernameConfirmDialogWidget extends StatelessWidget {
     );
   }
 }
+
+class LogoutConfirmDialogWidget extends StatelessWidget {
+  final VoidCallback onConfirm;
+  final VoidCallback onCancel;
+
+  const LogoutConfirmDialogWidget({
+    super.key,
+    required this.onConfirm,
+    required this.onCancel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: Colors.black, width: 3),
+      ),
+      title: Text(
+        'Đăng xuất',
+        style: AppTheme.headlineMedium.copyWith(
+          color: Colors.black87,
+          fontWeight: FontWeight.bold,
+        ),
+        textAlign: TextAlign.center,
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Bạn có chắc chắn muốn đăng xuất?',
+            style: AppTheme.bodyMedium.copyWith(color: Colors.black87),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+      actions: [
+        CustomButton(
+          type: CustomButtonType.normal,
+          onPressed: onCancel,
+          child: const Text('Hủy'),
+        ),
+        const SizedBox(height: 8),
+        CustomButton(
+          type: CustomButtonType.error,
+          onPressed: onConfirm,
+          child: const Text('Đăng xuất'),
+        ),
+      ],
+    );
+  }
+}
