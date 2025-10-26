@@ -5,7 +5,7 @@ class BattleRoyaleHostActions extends StatelessWidget {
   final bool canStart;
   final bool isStarting;
   final VoidCallback onStartMatch;
-  final VoidCallback onSettings;
+  final VoidCallback? onSettings;
   final VoidCallback onCloseRoom;
 
   const BattleRoyaleHostActions({
@@ -13,7 +13,7 @@ class BattleRoyaleHostActions extends StatelessWidget {
     required this.canStart,
     this.isStarting = false,
     required this.onStartMatch,
-    required this.onSettings,
+    this.onSettings,
     required this.onCloseRoom,
   });
 

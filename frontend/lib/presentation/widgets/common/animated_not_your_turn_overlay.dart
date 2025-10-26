@@ -80,7 +80,6 @@ class _AnimatedNotYourTurnOverlayState extends State<AnimatedNotYourTurnOverlay>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Icon
                   Container(
                     width: 80,
                     height: 80,
@@ -95,7 +94,6 @@ class _AnimatedNotYourTurnOverlayState extends State<AnimatedNotYourTurnOverlay>
                     ),
                   ),
                   const SizedBox(height: 20),
-                  // Title
                   Text(
                     'Chưa đến lượt của bạn!',
                     style: TextStyle(
@@ -106,14 +104,12 @@ class _AnimatedNotYourTurnOverlayState extends State<AnimatedNotYourTurnOverlay>
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
-                  // Message
                   Text(
                     'Vui lòng đợi đối thủ hoàn thành lượt chơi',
                     style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
-                  // Dismiss hint
                   Text(
                     'Nhấn vào màn hình để đóng',
                     style: TextStyle(

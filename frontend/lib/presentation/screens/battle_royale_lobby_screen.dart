@@ -58,6 +58,8 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
   }
 
   Future<bool> _confirmLeaveRoom() async {
+    if (!mounted) return false;
+
     final shouldLeave = await showDialog<bool>(
       context: context,
       builder: (context) => LeaveRoomConfirmDialogWidget(
@@ -72,6 +74,13 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
     }
 
     return false;
+  }
+
+  Future<void> _handlePopAttempt() async {
+    final shouldPop = await _confirmLeaveRoom();
+    if (shouldPop && mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -276,8 +285,13 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
   Widget build(BuildContext context) {
     final currentUserId = AuthService.instance.currentUser?.id;
 
-    return WillPopScope(
-      onWillPop: () => _confirmLeaveRoom(),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) {
+        if (!didPop) {
+          _handlePopAttempt();
+        }
+      },
       child: Scaffold(
         body: Container(
           width: double.infinity,
@@ -297,7 +311,7 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
                   onBack: () async {
                     final shouldLeave = await _confirmLeaveRoom();
                     if (shouldLeave && mounted) {
-                      Navigator.pop(context);
+                      Navigator.of(context).pop();
                     }
                   },
                 ),
@@ -323,13 +337,6 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
                           canStart: _currentRoom.canStart,
                           isStarting: _isStartingMatch,
                           onStartMatch: _startMatch,
-                          onSettings: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Cài đặt sắp ra mắt!'),
-                              ),
-                            );
-                          },
                           onCloseRoom: _closeRoom,
                         )
                       : BattleRoyalePlayerActions(
@@ -338,7 +345,7 @@ class _BattleRoyaleLobbyScreenState extends State<BattleRoyaleLobbyScreen> {
                           onLeaveRoom: () async {
                             final shouldLeave = await _confirmLeaveRoom();
                             if (shouldLeave && mounted) {
-                              Navigator.pop(context);
+                              Navigator.of(context).pop();
                             }
                           },
                         ),

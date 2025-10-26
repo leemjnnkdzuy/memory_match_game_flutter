@@ -88,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
             ),
-          Container(color: Colors.black.withOpacity(0.4)),
+          Container(color: Colors.black.withValues(alpha: 0.4)),
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(20),
@@ -200,7 +200,9 @@ class _HomeScreenState extends State<HomeScreen>
                           margin: const EdgeInsets.only(left: avatarSize / 2),
                           alignment: Alignment.centerLeft,
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryColor.withOpacity(0.85),
+                            color: AppTheme.primaryColor.withValues(
+                              alpha: 0.85,
+                            ),
                             borderRadius: BorderRadius.horizontal(
                               left: Radius.circular(usernameHeight / 2),
                             ),
@@ -357,7 +359,7 @@ class _HomeScreenState extends State<HomeScreen>
           border: Border.all(color: Colors.black, width: borderWidth),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.35),
+              color: Colors.black.withValues(alpha: 0.35),
               blurRadius: 18,
               offset: const Offset(0, 10),
             ),

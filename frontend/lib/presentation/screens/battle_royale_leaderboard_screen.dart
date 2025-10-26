@@ -6,6 +6,7 @@ import '../../services/auth_service.dart';
 import '../../services/sound_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../widgets/custom/custom_button.dart';
+import '../widgets/custom/custom_game_dialog_widgets.dart';
 
 class BattleRoyaleLeaderboardScreen extends StatefulWidget {
   final String matchId;
@@ -181,6 +182,19 @@ class _BattleRoyaleLeaderboardScreenState
     _confettiTimer = Timer(const Duration(seconds: 3), () {});
   }
 
+  Future<void> _showExitDialog() async {
+    final shouldQuit = await showDialog<bool>(
+      context: context,
+      builder: (context) => ExitMatchConfirmDialogWidget(
+        onConfirm: () => Navigator.pop(context, true),
+        onCancel: () => Navigator.pop(context, false),
+      ),
+    );
+    if (shouldQuit == true && mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+
   int _getMyRank() {
     final currentUserId = AuthService.instance.currentUser?.id;
     if (currentUserId == null) return -1;
@@ -221,33 +235,12 @@ class _BattleRoyaleLeaderboardScreenState
     final finishedCount = _leaderboard.where((p) => p.isFinished).length;
     final totalPlayers = _leaderboard.length;
 
-    return WillPopScope(
-      onWillPop: () async {
-        if (_isMatchFinished) {
-          return true;
+    return PopScope(
+      canPop: _isMatchFinished,
+      onPopInvokedWithResult: (bool didPop, Object? result) {
+        if (!didPop) {
+          _showExitDialog();
         }
-
-        final shouldQuit = await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Xác nhận thoát', style: AppTheme.headlineMedium),
-            content: Text(
-              'Match vẫn đang diễn ra. Bạn có chắc muốn thoát?',
-              style: AppTheme.bodyLarge,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Ở lại'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Thoát'),
-              ),
-            ],
-          ),
-        );
-        return shouldQuit ?? false;
       },
       child: Scaffold(
         body: Container(

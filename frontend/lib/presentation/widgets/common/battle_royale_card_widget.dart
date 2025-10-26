@@ -220,11 +220,9 @@ class _CardBack extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Pattern background
           Positioned.fill(
             child: CustomPaint(painter: _PokeballPatternPainter()),
           ),
-          // Center icon
           const Center(
             child: Icon(Icons.catching_pokemon, color: Colors.white, size: 40),
           ),
@@ -242,7 +240,6 @@ class _PokeballPatternPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
 
-    // Draw decorative circles
     canvas.drawCircle(Offset(size.width * 0.2, size.height * 0.2), 20, paint);
     canvas.drawCircle(Offset(size.width * 0.8, size.height * 0.8), 20, paint);
   }

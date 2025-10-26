@@ -170,7 +170,6 @@ class _PlayerCardWidgetState extends State<PlayerCardWidget> {
               ),
             ),
 
-            // Ready Status
             if (widget.player.isReady)
               Container(
                 padding: const EdgeInsets.all(6),
@@ -190,7 +189,6 @@ class _PlayerCardWidgetState extends State<PlayerCardWidget> {
                 child: Icon(Pixel.clock, color: Colors.grey[600], size: 16),
               ),
 
-            // Kick Button (for host)
             if (widget.onKick != null && !widget.player.isHost) ...[
               const SizedBox(width: 8),
               GestureDetector(

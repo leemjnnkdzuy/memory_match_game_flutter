@@ -148,7 +148,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         type: CustomButtonType.success,
                         onPressed: () async {
                           await AuthService.instance.loginAsGuest();
-                          if (mounted) {
+                          if (context.mounted) {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(

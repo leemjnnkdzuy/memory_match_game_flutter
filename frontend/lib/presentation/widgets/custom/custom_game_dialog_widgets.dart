@@ -530,3 +530,109 @@ class LogoutConfirmDialogWidget extends StatelessWidget {
     );
   }
 }
+
+class ExitGameConfirmDialogWidget extends StatelessWidget {
+  final VoidCallback onConfirm;
+  final VoidCallback onCancel;
+
+  const ExitGameConfirmDialogWidget({
+    super.key,
+    required this.onConfirm,
+    required this.onCancel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: Colors.black, width: 3),
+      ),
+      title: Text(
+        'Xác nhận thoát',
+        style: AppTheme.headlineMedium.copyWith(
+          color: Colors.black87,
+          fontWeight: FontWeight.bold,
+        ),
+        textAlign: TextAlign.center,
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Bạn có chắc muốn thoát? Tiến trình sẽ được lưu.',
+            style: AppTheme.bodyMedium.copyWith(color: Colors.black87),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+      actions: [
+        CustomButton(
+          type: CustomButtonType.normal,
+          onPressed: onCancel,
+          child: const Text('Ở lại'),
+        ),
+        const SizedBox(height: 8),
+        CustomButton(
+          type: CustomButtonType.error,
+          onPressed: onConfirm,
+          child: const Text('Thoát'),
+        ),
+      ],
+    );
+  }
+}
+
+class ExitMatchConfirmDialogWidget extends StatelessWidget {
+  final VoidCallback onConfirm;
+  final VoidCallback onCancel;
+
+  const ExitMatchConfirmDialogWidget({
+    super.key,
+    required this.onConfirm,
+    required this.onCancel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: Colors.black, width: 3),
+      ),
+      title: Text(
+        'Xác nhận thoát',
+        style: AppTheme.headlineMedium.copyWith(
+          color: Colors.black87,
+          fontWeight: FontWeight.bold,
+        ),
+        textAlign: TextAlign.center,
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Match vẫn đang diễn ra. Bạn có chắc muốn thoát?',
+            style: AppTheme.bodyMedium.copyWith(color: Colors.black87),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+      actions: [
+        CustomButton(
+          type: CustomButtonType.normal,
+          onPressed: onCancel,
+          child: const Text('Ở lại'),
+        ),
+        const SizedBox(height: 8),
+        CustomButton(
+          type: CustomButtonType.error,
+          onPressed: onConfirm,
+          child: const Text('Thoát'),
+        ),
+      ],
+    );
+  }
+}

@@ -8,6 +8,7 @@ import '../../services/battle_royale_service.dart';
 import '../../services/sound_service.dart';
 import '../../data/datasources/local_pokemon_data_source.dart';
 import '../widgets/common/battle_royale_card_widget.dart';
+import '../widgets/custom/custom_game_dialog_widgets.dart';
 import 'battle_royale_leaderboard_screen.dart';
 
 class BattleRoyaleGameplayScreen extends StatefulWidget {
@@ -449,36 +450,35 @@ class _BattleRoyaleGameplayScreenState
     }
   }
 
+  Future<void> _handlePopAttempt() async {
+    bool shouldPop = true;
+    if (_gameStatus == GameStatus.playing && !_hasFinished) {
+      shouldPop =
+          await showDialog<bool>(
+            context: context,
+            builder: (context) => ExitGameConfirmDialogWidget(
+              onConfirm: () => Navigator.pop(context, true),
+              onCancel: () => Navigator.pop(context, false),
+            ),
+          ) ??
+          false;
+    }
+    if (shouldPop && mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final totalPairs = widget.pokemonIds.length;
     final progress = totalPairs > 0 ? _pairsFound / totalPairs : 0.0;
 
-    return WillPopScope(
-      onWillPop: () async {
-        if (_gameStatus == GameStatus.playing && !_hasFinished) {
-          final shouldQuit = await showDialog<bool>(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Xác nhận thoát'),
-              content: const Text(
-                'Bạn có chắc muốn thoát? Tiến trình sẽ được lưu.',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context, false),
-                  child: const Text('Ở lại'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  child: const Text('Thoát'),
-                ),
-              ],
-            ),
-          );
-          return shouldQuit ?? false;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) {
+        if (!didPop) {
+          _handlePopAttempt();
         }
-        return true;
       },
       child: Scaffold(
         body: Container(

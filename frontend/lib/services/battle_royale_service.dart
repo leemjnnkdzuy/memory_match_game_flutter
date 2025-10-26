@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../data/models/battle_royale_room_model.dart';
 import '../data/models/battle_royale_player_model.dart';
 import '../core/utils/http_client_utils.dart';
@@ -17,7 +17,7 @@ class BattleRoyaleService {
   final HttpClient _httpClient = HttpClientImpl();
   final TokenStorage _tokenStorage = TokenStorageImpl();
 
-  IO.Socket? _socket;
+  io.Socket? _socket;
   String? _currentRoomId;
   List<BattleRoyalePlayer> _latestPlayers = [];
 
@@ -205,7 +205,7 @@ class BattleRoyaleService {
       _currentRoomId = roomId;
       final token = await _tokenStorage.getAccessToken();
 
-      _socket = IO.io(
+      _socket = io.io(
         AppConstants.apiBaseUrl.replaceFirst(RegExp(r'/$'), ''),
         <String, dynamic>{
           'transports': ['websocket'],
@@ -306,8 +306,7 @@ class BattleRoyaleService {
       }
     });
 
-    _socket?.on('br:match_countdown', (data) {
-    });
+    _socket?.on('br:match_countdown', (data) {});
 
     _socket?.on('br:match_start', (data) {
       _matchStartController.add(data);
