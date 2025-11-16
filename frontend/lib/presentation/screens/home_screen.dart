@@ -33,19 +33,23 @@ class _HomeScreenState extends State<HomeScreen>
 
   Future<void> _initializeVideo() async {
     _videoController = VideoPlayerController.asset(
-      'videos/background_video.mp4',
+      'assets/videos/background_video.mp4',
     );
-    await _videoController.initialize();
-    _videoController
-      ..setLooping(true)
-      ..setVolume(0)
-      ..play();
-    if (!mounted) {
-      return;
+    try {
+      await _videoController.initialize();
+      _videoController
+        ..setLooping(true)
+        ..setVolume(0)
+        ..play();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isVideoInitialized = true;
+      });
+    } catch (e) {
+      debugPrint('Failed to load background video: $e');
     }
-    setState(() {
-      _isVideoInitialized = true;
-    });
   }
 
   @override
