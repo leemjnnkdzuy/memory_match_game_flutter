@@ -2,9 +2,8 @@ import '../../data/models/user_model.dart';
 
 class HistoryEntity {
   final String id;
-  final String type; // 'offline', 'online', hoặc 'battle_royale'
+  final String type;
 
-  // Fields cho offline history
   final String? userId;
   final int? score;
   final int? moves;
@@ -14,11 +13,9 @@ class HistoryEntity {
   final DateTime? datePlayed;
   final User? user;
 
-  // Fields cho online history
   final List<PlayerEntity>? players;
-  final dynamic winner; // Có thể là String hoặc User object
+  final dynamic winner;
 
-  // Fields cho battle royale history
   final String? matchId;
   final int? rank;
   final int? pairsFound;
@@ -110,7 +107,6 @@ class PlayerEntity {
   final int moves;
   final int timeTaken;
 
-  // Battle Royale specific fields
   final String? username;
   final String? avatarUrl;
   final String? borderColor;
