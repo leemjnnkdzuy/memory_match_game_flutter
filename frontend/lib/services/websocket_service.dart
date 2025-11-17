@@ -8,8 +8,10 @@ class WebSocketService {
   static WebSocketService? _instance;
   io.Socket? _socket;
 
-  final String _baseUrl =
-      AppConstants.apiBaseUrl.replaceFirst(RegExp(r'/$'), '');
+  final String _baseUrl = AppConstants.apiBaseUrl.replaceFirst(
+    RegExp(r'/$'),
+    '',
+  );
   final _connectionStatusController = ValueNotifier<bool>(false);
 
   final Map<String, Function(dynamic)> _pendingListeners = {};
@@ -37,12 +39,22 @@ class WebSocketService {
       final completer = Completer<void>();
 
       _socket = io.io(_baseUrl, <String, dynamic>{
-        'transports': ['websocket', 'polling'],
+        'transports': ['polling', 'websocket'],
         'autoConnect': false,
         'auth': {'token': accessToken},
+        'upgrade': true,
+        'rememberUpgrade': true,
+        'reconnection': true,
+        'reconnectionAttempts': 5,
+        'reconnectionDelay': 1000,
+        'timeout': 20000,
+        'forceNew': false,
       });
 
       _socket!.onConnect((_) {
+        if (kDebugMode) {
+          print('WebSocket connected successfully');
+        }
         _connectionStatusController.value = true;
         _applyPendingListeners();
         if (!completer.isCompleted) {
@@ -51,10 +63,16 @@ class WebSocketService {
       });
 
       _socket!.onDisconnect((_) {
+        if (kDebugMode) {
+          print('WebSocket disconnected');
+        }
         _connectionStatusController.value = false;
       });
 
       _socket!.onConnectError((error) {
+        if (kDebugMode) {
+          print('WebSocket connection error: $error');
+        }
         _connectionStatusController.value = false;
         if (!completer.isCompleted) {
           completer.completeError(error);
@@ -62,6 +80,9 @@ class WebSocketService {
       });
 
       _socket!.onError((error) {
+        if (kDebugMode) {
+          print('WebSocket error: $error');
+        }
         if (!completer.isCompleted) {
           completer.completeError(error);
         }

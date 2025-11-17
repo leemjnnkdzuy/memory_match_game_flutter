@@ -8,11 +8,18 @@ let io;
 const initializeWebSocket = (server) => {
 	io = socketIo(server, {
 		cors: {
-			origin: process.env.CLIENT_URL,
-			methods: ["GET", "POST"],
+			origin: true,
+			methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 			credentials: true,
+			allowedHeaders: ["Content-Type", "Authorization"],
 		},
-		transports: ["websocket", "polling"],
+		transports: ["polling", "websocket"],
+		allowUpgrades: true,
+		pingTimeout: 60000,
+		pingInterval: 25000,
+		upgradeTimeout: 30000,
+		maxHttpBufferSize: 1e6,
+		allowEIO3: true,
 	});
 
 	io.use(async (socket, next) => {
