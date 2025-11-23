@@ -16,7 +16,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late VideoPlayerController _videoController;
   late AnimationController _rotationController;
   bool _isVideoInitialized = false;
@@ -24,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initializeVideo();
     _rotationController = AnimationController(
       duration: const Duration(seconds: 4),
@@ -31,15 +32,33 @@ class _HomeScreenState extends State<HomeScreen>
     )..repeat();
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (!_isVideoInitialized) return;
+
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      _videoController.pause();
+    } else if (state == AppLifecycleState.resumed) {
+      _videoController.play();
+    }
+  }
+
   Future<void> _initializeVideo() async {
     _videoController = VideoPlayerController.asset(
       'assets/videos/background_video.mp4',
+      videoPlayerOptions: VideoPlayerOptions(
+        mixWithOthers: true,
+        allowBackgroundPlayback: false,
+      ),
     );
     try {
       await _videoController.initialize();
       _videoController
         ..setLooping(true)
         ..setVolume(0)
+        ..setPlaybackSpeed(1.0)
         ..play();
       if (!mounted) {
         return;
@@ -54,6 +73,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _videoController.dispose();
     _rotationController.dispose();
     super.dispose();
@@ -67,10 +87,18 @@ class _HomeScreenState extends State<HomeScreen>
       );
       return;
     }
+
+    _videoController.pause();
+    _rotationController.stop();
+
     final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => screen),
     );
+
+    _videoController.play();
+    _rotationController.repeat();
+
     if (result == true) {
       setState(() {});
     }
@@ -88,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen>
                 child: SizedBox(
                   width: _videoController.value.size.width,
                   height: _videoController.value.size.height,
-                  child: VideoPlayer(_videoController),
+                  child: RepaintBoundary(child: VideoPlayer(_videoController)),
                 ),
               ),
             ),

@@ -38,18 +38,21 @@ class WebSocketService {
 
       final completer = Completer<void>();
 
-      _socket = io.io(_baseUrl, <String, dynamic>{
-        'transports': ['polling', 'websocket'],
+      final socketOptions = <String, dynamic>{
+        'transports': ['websocket'],
         'autoConnect': false,
         'auth': {'token': accessToken},
         'upgrade': true,
-        'rememberUpgrade': true,
         'reconnection': true,
         'reconnectionAttempts': 5,
         'reconnectionDelay': 1000,
+        'reconnectionDelayMax': 5000,
         'timeout': 20000,
-        'forceNew': false,
-      });
+        'forceNew': true,
+        'path': '/socket.io/',
+      };
+
+      _socket = io.io(_baseUrl, socketOptions);
 
       _socket!.onConnect((_) {
         if (kDebugMode) {

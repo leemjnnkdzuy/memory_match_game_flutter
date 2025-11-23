@@ -35,6 +35,8 @@ class _LoadingScreenState extends State<LoadingScreen>
   void initState() {
     super.initState();
 
+    _totalImages = widget.pokemonList.length;
+
     _spinController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
@@ -72,32 +74,26 @@ class _LoadingScreenState extends State<LoadingScreen>
   }
 
   Future<void> _startPreloading() async {
-    _totalImages = widget.difficulty.cardPairs;
-
-    final selectedPokemon = widget.pokemonList;
     final imageCacheService = ImageCacheService();
-
-    for (int i = 0; i < selectedPokemon.length; i++) {
-      final pokemon = selectedPokemon[i];
-
+    
+    for (final pokemon in widget.pokemonList) {
       try {
-        await imageCacheService.preloadImage(pokemon.imagePath, context);
-
-        setState(() {
-          _loadedImages = i + 1;
-        });
-
-        _progressController.animateTo(_loadedImages / _totalImages);
-
-        await Future.delayed(const Duration(milliseconds: 100));
+        await imageCacheService.preloadImage('assets/images/${pokemon.name}.png', context);
+        if (mounted) {
+          setState(() {
+            _loadedImages++;
+            final progress = _loadedImages / _totalImages;
+            _progressController.animateTo(progress);
+          });
+        }
       } catch (e) {
-        debugPrint('Lỗi không tải được hình ảnh cho ${pokemon.name}: $e');
+        // Handle image loading error if necessary
+        print('Failed to preload image for ${pokemon.name}: $e');
       }
     }
-    imageCacheService.markAllImagesLoaded();
-    await Future.delayed(const Duration(milliseconds: 500));
 
     if (mounted) {
+      imageCacheService.markAllImagesLoaded();
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => OfflineGameplayScreen(
